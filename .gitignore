@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+logs/
+data/
+outputs/
+*.wav
+*.Rproj.user

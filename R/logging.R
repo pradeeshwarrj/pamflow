@@ -1,0 +1,59 @@
+#' Write a timestamped log line to a per-stage log file
+#'
+#' @param level One of "INFO", "WARN", "ERROR".
+#' @param msg Character message.
+#' @param stage Stage name, used as the log file name (`<stage>.log`).
+#' @param log_dir Directory for log files (created if missing).
+#' @param echo Also print to the console.
+#' @return The log line, invisibly.
+#' @export
+pam_log <- function(level = c("INFO", "WARN", "ERROR"), msg, stage, log_dir, echo = TRUE) {
+  level <- match.arg(level)
+  line <- sprintf("%s [%s] [%s] %s", format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+                  level, stage, msg)
+  dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
+  cat(paste0(line, "\n"), file = file.path(log_dir, paste0(stage, ".log")), append = TRUE)
+  if (echo) message(line)
+  invisible(line)
+}
+
+#' Run a workflow stage with logging and error isolation
+#'
+#' Logs start time, end time, duration and every warning, and converts errors
+#' into a logged failure instead of terminating the whole workflow.
+#'
+#' @param stage Stage name (e.g. "03_detect").
+#' @param fn Function taking `cfg` as its first argument.
+#' @param cfg A `pam_config` object.
+#' @param ... Passed on to `fn`.
+#' @return A list: `status` ("ok" or "failed"), `result`, `duration` (difftime),
+#'   `warnings` (character).
+#' @export
+pam_run_stage <- function(stage, fn, cfg, ...) {
+  log_dir <- cfg$paths$logs
+  t0 <- Sys.time()
+  pam_log("INFO", "stage started", stage, log_dir)
+  warns <- character()
+
+  out <- withCallingHandlers(
+    tryCatch(
+      list(status = "ok", value = fn(cfg, ...)),
+      error = function(e) {
+        pam_log("ERROR", conditionMessage(e), stage, log_dir)
+        list(status = "failed", value = NULL)
+      }
+    ),
+    warning = function(w) {
+      warns <<- c(warns, conditionMessage(w))
+      pam_log("WARN", conditionMessage(w), stage, log_dir)
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  dur <- difftime(Sys.time(), t0, units = "mins")
+  pam_log("INFO", sprintf("stage %s in %.2f min (%d warnings)",
+                          if (out$status == "ok") "finished" else "FAILED",
+                          as.numeric(dur), length(warns)), stage, log_dir)
+
+  list(status = out$status, result = out$value, duration = dur, warnings = warns)
+}

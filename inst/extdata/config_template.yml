@@ -1,0 +1,36 @@
+paths:
+  project_root: "."
+  audio_standardized: "data/standardized"
+  detections: "data/detections"
+  validation: "data/validation"
+  occupancy: "data/occupancy"
+  outputs: "outputs"
+  logs: "logs"
+  reports: "reports"
+  deployment_sheet: "metadata/deployments.csv"
+
+filenames:
+  pattern: "^(?<site>[A-Za-z0-9]+)_(?<date>\\d{8})_(?<time>\\d{6})\\.wav$"
+  timezone: "Etc/GMT-7"
+
+audio:
+  sample_rate: 48000
+  bit_depth: 16
+  min_duration_s: 1800
+
+birdnet:
+  model_dir: "models/custom_classifier"
+  classifier_name: "CustomClassifier"
+  min_confidence: 0.25
+  overlap_s: 0
+  batch_size: 32
+  use_gpu: true
+  workers: 4
+
+processing:
+  min_confidence: 0.5
+  species_whitelist: []
+  species_blacklist: []
+
+occupancy:
+  occasion_length_days: 7
