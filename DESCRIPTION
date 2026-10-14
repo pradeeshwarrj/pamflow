@@ -17,7 +17,6 @@ Suggests:
     shiny,
     spOccupancy,
     testthat (>= 3.0.0),
-    tuneR,
     ubms,
     unmarked
 Config/testthat/edition: 3
@@ -28,5 +27,6 @@ Imports:
     fs,
     reticulate,
     rlang,
+    tuneR,
     yaml
 Config/roxygen2/version: 8.1.1

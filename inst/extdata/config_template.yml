@@ -1,22 +1,38 @@
 paths:
   project_root: "."
   audio_standardized: "data/standardized"
+  metadata: "metadata"
+  deployment_sheet: "metadata/deployments.csv"
   detections: "data/detections"
   validation: "data/validation"
   occupancy: "data/occupancy"
   outputs: "outputs"
   logs: "logs"
   reports: "reports"
-  deployment_sheet: "metadata/deployments.csv"
 
 filenames:
-  pattern: "^(?<site>[A-Za-z0-9]+)_(?<date>\\d{8})_(?<time>\\d{6})\\.wav$"
-  timezone: "Etc/GMT-7"
+  # G0059_YYYYMMDD_HHMMSS.wav ; timestamps are local time
+  pattern: "^(?<grid>G\\d{4})_(?<date>\\d{8})_(?<time>\\d{6})\\.wav$"
+  timezone: "Asia/Kolkata"
+
+deployments:
+  has_header: true
+  grid_prefix: "G"
+  date_format: "%d-%m-%Y"          # applied after "/" and "." are converted to "-"
+  time_format: "%H:%M"
+  default_recovery_time: "23:59"   # used when the recovery time is blank
+  # positional names for the sheet columns, in order
+  columns: [deployment_id, recorder, grid, habitat, deployer, latitude, longitude,
+            deploy_date, deploy_time, retrieve_date, retrieve_time]
 
 audio:
   sample_rate: 48000
   bit_depth: 16
   min_duration_s: 1800
+
+qc:
+  gap_tolerance_s: 120
+  header_chunk_size: 5000
 
 birdnet:
   model_dir: "models/custom_classifier"
