@@ -12,5 +12,7 @@ utils::globalVariables(c(
   "in_deployment", "sample_rate", "channels", "bits", "deploy_date",
   "deploy_time", "retrieve_date", "retrieve_time", "deploy_day", "retrieve_day",
   "recovery_time_missing", "overlaps_prev", "n_files", "hours", "modal_duration_s",
-  "i.file_path", "x.recorder", "x.latitude", "x.longitude", "x.deployment_id", "."
+  "i.file_path", "x.recorder", "x.latitude", "x.longitude", "x.deployment_id", "." ,
+  "ok", "verified", "message", "rel", "input", "output", "exp_dur", "exp_sr", "exp_ch",
+  "size"
 ))

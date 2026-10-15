@@ -1,6 +1,7 @@
 paths:
   project_root: "."
   audio_standardized: "data/standardized"
+  filtered: "data/filtered"
   metadata: "metadata"
   deployment_sheet: "metadata/deployments.csv"
   detections: "data/detections"
@@ -18,10 +19,9 @@ filenames:
 deployments:
   has_header: true
   grid_prefix: "G"
-  date_format: "%d-%m-%Y"          # applied after "/" and "." are converted to "-"
+  date_format: "%d-%m-%Y"
   time_format: "%H:%M"
-  default_recovery_time: "23:59"   # used when the recovery time is blank
-  # positional names for the sheet columns, in order
+  default_recovery_time: "23:59"
   columns: [deployment_id, recorder, grid, habitat, deployer, latitude, longitude,
             deploy_date, deploy_time, retrieve_date, retrieve_time]
 
@@ -33,6 +33,15 @@ audio:
 qc:
   gap_tolerance_s: 120
   header_chunk_size: 5000
+
+filter:
+  enabled: true
+  highpass_hz: 250
+  order: 8                  # 8 poles = 48 dB per octave (Butterworth)
+  ffmpeg_path: "ffmpeg"
+  workers: 4
+  chunk_size: 200           # files per batch; progress is saved after each batch
+  duration_tolerance_s: 0.5 # max allowed length difference input vs output
 
 birdnet:
   model_dir: "models/custom_classifier"

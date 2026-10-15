@@ -245,7 +245,7 @@ pam_audio_summary <- function(master, dep = NULL) {
   )]
   per_grid <- master[, .(
     n_files = .N, hours = sum(duration_s, na.rm = TRUE) / 3600,
-    median_file_min = median(duration_s, na.rm = TRUE) / 60,
+    median_file_min = stats::median(duration_s, na.rm = TRUE) / 60,
     first = suppressWarnings(min(start_time, na.rm = TRUE)),
     last = suppressWarnings(max(start_time, na.rm = TRUE)),
     n_gaps = sum(gap_before, na.rm = TRUE), n_duplicate = sum(duplicate),
