@@ -7,3 +7,6 @@ data/
 outputs/
 *.wav
 *.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata

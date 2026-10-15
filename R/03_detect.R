@@ -1,0 +1,252 @@
+#' Resolve and validate BirdNET settings from the config (internal)
+#'
+#' @param cfg A `pam_config` object.
+#' @return A plain list passed to the workers.
+#' @keywords internal
+#' @noRd
+pam_detect_settings <- function(cfg) {
+  bc <- cfg$birdnet
+  root <- cfg$paths$project_root
+  resolve <- function(p) {
+    if (is.null(p) || is.na(p)) return(NULL)
+    if (fs::is_absolute_path(p)) as.character(p) else as.character(fs::path(root, p))
+  }
+  model_dir <- resolve(bc$model_dir)
+  if (is.null(model_dir) || !dir.exists(model_dir)) {
+    rlang::abort(sprintf("Custom classifier folder not found: %s",
+                         paste(model_dir, collapse = "")))
+  }
+  # accept "Name" or "Name.tflite"
+  name <- sub("\\.tflite$", "", bc$classifier_name, ignore.case = TRUE)
+  model_file <- file.path(model_dir, paste0(name, ".tflite"))
+  labels_file <- if (is.null(bc$labels_file)) {
+    file.path(model_dir, paste0(name, "_Labels.txt"))
+  } else resolve(bc$labels_file)
+  need <- c(model_file, labels_file)
+  if (any(!file.exists(need))) {
+    rlang::abort(c("Custom classifier files not found:",
+                   stats::setNames(need[!file.exists(need)], rep("x", sum(!file.exists(need))))))
+  }
+  list(model_dir = model_dir, classifier_name = name,
+       model_file = model_file, labels_file = labels_file,
+       min_confidence = bc$min_confidence, overlap_s = bc$overlap_s,
+       batch_size = bc$batch_size, use_bandpass = bc$use_bandpass,
+       bandpass_fmin = bc$bandpass_fmin, bandpass_fmax = bc$bandpass_fmax,
+       tflite_threads = bc$tflite_threads)
+}
+
+#' Stage 3: run the custom BirdNET classifier on all QC-passed recordings
+#'
+#' Reads from the filtered folder (default) or the standardized folder
+#' (`birdnet$input`), runs BirdNET in parallel worker processes, and writes
+#' raw detections in batches to `<detections>/<run_id>/batches/`.
+#'
+#' @param cfg A `pam_config` object (uses the `birdnet` section).
+#' @param master Optional Stage 1 master table; if NULL it is read from
+#'   `metadata/audio_master.csv`.
+#' @param sample_n If set, process a random sample of this many files (for
+#'   pilots). The same `seed` gives the same sample.
+#' @param seed Seed for the pilot sample.
+#' @param force If TRUE, delete this run's earlier results and start over.
+#' @return Invisibly, a list: `n_pending`, `n_done`, `n_failed`,
+#'   `n_detections`, `run_dir`.
+#' @details Resumable. A file is marked done (`<run_dir>/done.txt`) only after
+#'   its batch file is on disk, and files with no detections count as done.
+#'   If a crash happens between writing a batch and updating the checkpoint,
+#'   those files are re-run, and `pam_assemble_detections()` removes the
+#'   duplicates. Per-file outcomes (seconds, errors) go to `file_results.csv`;
+#'   settings and the `birdnetR` version go to `run_settings_*.yml`.
+#'   Run with `pam_run_stage("03_detect", pam_detect, cfg)`.
+#' @export
+pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = FALSE) {
+  stage <- "03_detect"; log_dir <- cfg$paths$logs
+  bc <- cfg$birdnet
+  s <- pam_detect_settings(cfg)
+  workers <- max(1L, as.integer(bc$workers))
+  run_dir <- file.path(cfg$paths$detections, bc$run_id)
+  batch_dir <- file.path(run_dir, "batches")
+  dir.create(batch_dir, recursive = TRUE, showWarnings = FALSE)
+  ckpt <- file.path(run_dir, "done.txt")
+  results_path <- file.path(run_dir, "file_results.csv")
+  if (force) unlink(c(ckpt, results_path, list.files(batch_dir, full.names = TRUE)))
+
+  if (is.null(master)) {
+    mp <- file.path(cfg$paths$metadata, "audio_master.csv")
+    if (!file.exists(mp)) rlang::abort("audio_master.csv not found. Run Stage 1 first.")
+    master <- data.table::fread(mp, select = c("file_path", "qc_pass"))
+  }
+  root <- cfg$paths$audio_standardized
+  src <- master[qc_pass == TRUE]
+  rel <- as.character(fs::path_rel(src$file_path, start = root))
+  input_dir <- if (identical(bc$input, "filtered")) cfg$paths$filtered else root
+  todo <- data.table::data.table(rel = rel, path = file.path(input_dir, rel))
+
+  absent <- !file.exists(todo$path)
+  if (any(absent)) {
+    pam_log("WARN", sprintf("%d files not found in %s input folder (run Stage 2?); skipped",
+                            sum(absent), bc$input), stage, log_dir)
+    todo <- todo[!absent]
+  }
+  if (!is.null(sample_n)) {
+    set.seed(seed)
+    todo <- todo[sample.int(.N, min(as.integer(sample_n), .N))]
+  }
+  pending <- todo[!rel %in% pam_checkpoint_read(ckpt)]
+  if (!nrow(pending)) {
+    pam_log("INFO", "nothing pending for this run", stage, log_dir)
+    return(invisible(list(n_pending = 0L, n_done = 0L, n_failed = 0L,
+                          n_detections = 0L, run_dir = run_dir)))
+  }
+
+  fn <- pam_portable(pam_birdnet_run_batch, pam_birdnet_normalise = pam_birdnet_normalise)
+  info <- fn(list(), s)       # warm-up in the main process: installs Python deps, loads model
+  ver <- as.character(utils::packageVersion("birdnetR"))
+  pam_log("INFO", sprintf("birdnetR %s (API: %s); %d files pending; input=%s; %d workers",
+                          ver, attr(info, "api"), nrow(pending), bc$input, workers), stage, log_dir)
+  if (length(attr(info, "dropped"))) {
+    pam_log("WARN", paste("this birdnetR version does not accept these settings; they are IGNORED:",
+                          paste(attr(info, "dropped"), collapse = ", ")), stage, log_dir)
+  }
+  yaml::write_yaml(
+    list(started = format(Sys.time(), "%Y-%m-%d %H:%M:%S"), birdnetR_version = ver,
+         api = attr(info, "api"), input_dir = input_dir, n_files = nrow(todo),
+         settings = s),
+    file.path(run_dir, sprintf("run_settings_%s.yml", format(Sys.time(), "%Y%m%d_%H%M%S"))))
+
+  make_cluster <- function() {
+    cl <- parallel::makeCluster(workers)
+    parallel::clusterCall(cl, fn, list(), s)        # each worker loads the model once
+    cl
+  }
+  cl <- NULL
+  if (workers > 1L) {
+    cl <- make_cluster()
+    on.exit(try(parallel::stopCluster(cl), silent = TRUE), add = TRUE)
+  }
+
+  batches <- split(seq_len(nrow(pending)), ceiling(seq_len(nrow(pending)) / bc$chunk_size))
+  t_start <- Sys.time()
+  n_done <- 0L; n_fail <- 0L; n_det <- 0L
+  cli::cli_progress_bar("Detecting", total = nrow(pending))
+
+  for (b in seq_along(batches)) {
+    idx <- batches[[b]]
+    items <- lapply(idx, function(i) list(rel = pending$rel[i], path = pending$path[i]))
+    task_size <- max(1L, ceiling(length(items) / (workers * 4L)))
+    tasks <- split(items, ceiling(seq_along(items) / task_size))
+
+    res <- tryCatch({
+      out <- if (is.null(cl)) lapply(tasks, fn, s) else parallel::parLapplyLB(cl, tasks, fn, s)
+      unlist(out, recursive = FALSE)
+    }, error = function(e) {
+      pam_log("ERROR", paste("batch", b, "failed:", conditionMessage(e)), stage, log_dir)
+      NULL
+    })
+    if (is.null(res)) {                    # files stay pending; try a fresh cluster
+      cli::cli_progress_update(inc = length(idx))
+      if (!is.null(cl)) {
+        try(parallel::stopCluster(cl), silent = TRUE)
+        cl <- tryCatch(make_cluster(), error = function(e) {
+          rlang::abort(paste("Could not restart workers:", conditionMessage(e)))
+        })
+      }
+      next
+    }
+
+    file_log <- data.table::rbindlist(lapply(res, function(r) {
+      data.table::data.table(rel = r$rel, ok = r$ok, n_detections = nrow(r$det),
+                             seconds = round(r$seconds, 1), message = r$message)
+    }))
+    det <- data.table::rbindlist(lapply(res, function(r) {
+      if (!isTRUE(r$ok) || !nrow(r$det)) return(NULL)
+      d <- data.table::as.data.table(r$det)
+      d[, rel := r$rel]
+      d
+    }), use.names = TRUE, fill = TRUE)
+
+    if (nrow(det)) {
+      out_path <- file.path(batch_dir, sprintf("batch_%s_%03d.csv",
+                                               format(Sys.time(), "%Y%m%d%H%M%S"), b))
+      data.table::fwrite(det, paste0(out_path, ".part"))
+      file.rename(paste0(out_path, ".part"), out_path)
+    }
+    data.table::fwrite(file_log, results_path, append = file.exists(results_path))
+    pam_checkpoint_add(file_log[ok == TRUE, rel], ckpt)
+
+    n_done <- n_done + sum(file_log$ok); n_fail <- n_fail + sum(!file_log$ok)
+    n_det <- n_det + nrow(det)
+    mins <- as.numeric(difftime(Sys.time(), t_start, units = "mins"))
+    done_total <- n_done + n_fail
+    eta <- if (done_total > 0) mins / done_total * (nrow(pending) - done_total) else NA_real_
+    pam_log("INFO", sprintf("batch %d/%d: %d ok, %d failed, %d detections | %.1f files/h | ETA %.0f min",
+                            b, length(batches), sum(file_log$ok), sum(!file_log$ok), nrow(det),
+                            done_total / mins * 60, eta), stage, log_dir)
+    cli::cli_progress_update(inc = length(idx))
+  }
+  cli::cli_progress_done()
+  pam_log("INFO", sprintf("finished: %d ok, %d failed, %d detections", n_done, n_fail, n_det),
+          stage, log_dir)
+  invisible(list(n_pending = nrow(pending), n_done = n_done, n_failed = n_fail,
+                 n_detections = n_det, run_dir = run_dir))
+}
+
+#' Assemble raw detection batches into one detections table
+#'
+#' Reads all batch files of a run, removes duplicates (from interrupted runs),
+#' joins recording metadata from the Stage 1 master table, and writes
+#' `<detections>/<run_id>/detections.csv`.
+#'
+#' @param cfg A `pam_config` object (uses `birdnet$run_id`).
+#' @return A data.table with `filename`, `species`, `scientific_name`,
+#'   `common_name`, `confidence`, `start_time` and `end_time` (seconds into the
+#'   recording), `site` (= grid), `grid`, `recorder`, `deployment_id`,
+#'   `in_deployment`, `recording_date`, `recording_start` and
+#'   `detection_datetime` (local time), `rel`.
+#' @export
+pam_assemble_detections <- function(cfg) {
+  tz <- cfg$filenames$timezone
+  run_dir <- file.path(cfg$paths$detections, cfg$birdnet$run_id)
+  files <- list.files(file.path(run_dir, "batches"), pattern = "^batch_.*\\.csv$",
+                      full.names = TRUE)
+  if (!length(files)) rlang::abort(sprintf("No detection batch files in %s", run_dir))
+
+  det <- data.table::rbindlist(lapply(files, data.table::fread), use.names = TRUE, fill = TRUE)
+  n_raw <- nrow(det)
+  det <- unique(det, by = c("rel", "start_s", "end_s", "scientific_name"))
+
+  m <- data.table::fread(file.path(cfg$paths$metadata, "audio_master.csv"),
+                         select = c("file_path", "grid", "recorder", "deployment_id",
+                                    "start_time", "in_deployment"))
+  m[, rel := as.character(fs::path_rel(file_path, start = cfg$paths$audio_standardized))]
+  st <- m$start_time
+  if (is.character(st)) st <- as.POSIXct(st, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  attr(st, "tzone") <- tz
+  m[, recording_start := st]
+  m[, c("file_path", "start_time") := NULL]
+
+  det <- merge(det, m, by = "rel", all.x = TRUE, sort = FALSE)
+  det[, `:=`(
+    filename = basename(rel),
+    species = ifelse(is.na(common_name), scientific_name,
+                     paste(scientific_name, common_name, sep = "_")),
+    site = grid,
+    recording_date = as.Date(format(recording_start, "%Y-%m-%d")),
+    detection_datetime = recording_start + start_s)]
+  data.table::setnames(det, c("start_s", "end_s"), c("start_time", "end_time"))
+  data.table::setorder(det, grid, recording_start, start_time)
+  data.table::setcolorder(det, c("filename", "species", "scientific_name", "common_name",
+                                 "confidence", "start_time", "end_time", "site", "grid",
+                                 "recorder", "deployment_id", "in_deployment",
+                                 "recording_date", "recording_start", "detection_datetime",
+                                 "rel"))
+
+  out <- data.table::copy(det)
+  out[, c("recording_start", "detection_datetime") :=
+        .(format(recording_start, "%Y-%m-%d %H:%M:%S"),
+          format(detection_datetime, "%Y-%m-%d %H:%M:%OS1"))]
+  data.table::fwrite(out, file.path(run_dir, "detections.csv"))
+  pam_log("INFO", sprintf("assembled %d detections (%d duplicates removed) from %d batch files",
+                          nrow(det), n_raw - nrow(det), length(files)),
+          "03_assemble", cfg$paths$logs)
+  det[]
+}

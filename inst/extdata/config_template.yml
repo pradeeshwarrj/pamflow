@@ -37,20 +37,27 @@ qc:
 filter:
   enabled: true
   highpass_hz: 250
-  order: 8                  # 8 poles = 48 dB per octave (Butterworth)
+  order: 8
   ffmpeg_path: "ffmpeg"
   workers: 4
-  chunk_size: 200           # files per batch; progress is saved after each batch
-  duration_tolerance_s: 0.5 # max allowed length difference input vs output
+  chunk_size: 200
+  duration_tolerance_s: 0.5
 
 birdnet:
-  model_dir: "models/custom_classifier"
-  classifier_name: "CustomClassifier"
-  min_confidence: 0.25
-  overlap_s: 0
-  batch_size: 32
-  use_gpu: true
-  workers: 4
+  run_id: "run01"           # results go to <detections>/<run_id>/
+  input: "filtered"         # "filtered" or "standardized"
+  model_dir: "models/custom_classifier"   # relative paths are resolved against project_root
+  classifier_name: "CustomClassifier"     # files: <name>.tflite and <name>_Labels.txt
+  labels_file: null         # set only if your labels file has a different name
+  min_confidence: 0.3
+  overlap_s: 0              # 0 to 3 seconds
+  batch_size: 8
+  use_bandpass: true        # BirdNET's own band limits; the 250 Hz high-pass is done by FFmpeg
+  bandpass_fmin: 0
+  bandpass_fmax: 15000
+  tflite_threads: 1         # threads per worker (used by the CRAN birdnetR API)
+  workers: 4                # separate R processes, each with its own model copy
+  chunk_size: 100           # files per batch; progress is saved after each batch
 
 processing:
   min_confidence: 0.5
