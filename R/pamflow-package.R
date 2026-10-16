@@ -15,6 +15,8 @@ utils::globalVariables(c(
   "ok", "verified", "message", "rel", "input", "output", "exp_dur", "exp_sr",
   "exp_ch", "size", "path", "start_s", "end_s", "scientific_name", "common_name",
   "confidence", "species", "recording_start", "detection_datetime",
-  "recording_date", "n_detections", "seconds",
-  "i.file_path", "x.recorder", "x.latitude", "x.longitude", "x.deployment_id", "."
+  "recording_date", "n_detections", "seconds", "i.file_path", "x.recorder",
+  "x.latitude", "x.longitude", "x.deployment_id", ".", "reason", "threshold",
+  "thr_species", "file_duration_s", "event", "mean_confidence", "n_windows",
+  "detection_date", "month_start", "month_end", "n_before", "n_removed"
 ))

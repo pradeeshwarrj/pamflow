@@ -4,10 +4,12 @@
 \alias{pam_assemble_detections}
 \title{Assemble raw detection batches into one detections table}
 \usage{
-pam_assemble_detections(cfg)
+pam_assemble_detections(cfg, run_id = cfg$birdnet$run_id)
 }
 \arguments{
-\item{cfg}{A \code{pam_config} object (uses \code{birdnet$run_id}).}
+\item{cfg}{A \code{pam_config} object.
+#' @param run_id Name of the detection run (a sub-folder of paths$detections).
+Defaults to birdnet$run_id.}
 }
 \value{
 A data.table with \code{filename}, \code{species}, \code{scientific_name},

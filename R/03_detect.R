@@ -196,16 +196,18 @@ pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = F
 #' joins recording metadata from the Stage 1 master table, and writes
 #' `<detections>/<run_id>/detections.csv`.
 #'
-#' @param cfg A `pam_config` object (uses `birdnet$run_id`).
+#' @param cfg A `pam_config` object.
+#' #' @param run_id Name of the detection run (a sub-folder of paths$detections).
+#'   Defaults to birdnet$run_id.
 #' @return A data.table with `filename`, `species`, `scientific_name`,
 #'   `common_name`, `confidence`, `start_time` and `end_time` (seconds into the
 #'   recording), `site` (= grid), `grid`, `recorder`, `deployment_id`,
 #'   `in_deployment`, `recording_date`, `recording_start` and
 #'   `detection_datetime` (local time), `rel`.
 #' @export
-pam_assemble_detections <- function(cfg) {
+pam_assemble_detections <- function(cfg, run_id = cfg$birdnet$run_id) {
   tz <- cfg$filenames$timezone
-  run_dir <- file.path(cfg$paths$detections, cfg$birdnet$run_id)
+  run_dir <- file.path(cfg$paths$detections, run_id)
   files <- list.files(file.path(run_dir, "batches"), pattern = "^batch_.*\\.csv$",
                       full.names = TRUE)
   if (!length(files)) rlang::abort(sprintf("No detection batch files in %s", run_dir))

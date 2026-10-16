@@ -8,6 +8,14 @@
 \description{
 Tools for standardising passive acoustic recordings, running custom BirdNET classifiers, validating detections, and preparing occupancy-ready detection histories.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/pradeeshwarrj/pamflow}
+  \item Report bugs at \url{https://github.com/pradeeshwarrj/pamflow/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Pradeeshwar Rajagopal James \email{you@example.com}
 

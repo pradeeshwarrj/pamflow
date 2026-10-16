@@ -61,8 +61,14 @@ birdnet:
 
 processing:
   min_confidence: 0.5
-  species_whitelist: []
+  species_thresholds_file: null   # CSV with columns: scientific_name, threshold
+  species_whitelist: []           # names matched against scientific name, common name or species
   species_blacklist: []
+  date_range: []                  # e.g. ["2026-03-26", "2026-04-20"] ; empty = no limit
+  species_season_file: null       # CSV with columns: scientific_name, month_start, month_end (1-12)
+  drop_outside_deployment: true
+  max_overrun_s: 3
+  merge_gap_s: 3                  # windows closer together than this many seconds merge into one event (3 = consecutive windows)
 
 occupancy:
   occasion_length_days: 7
