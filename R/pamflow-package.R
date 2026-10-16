@@ -18,5 +18,10 @@ utils::globalVariables(c(
   "recording_date", "n_detections", "seconds", "i.file_path", "x.recorder",
   "x.latitude", "x.longitude", "x.deployment_id", ".", "reason", "threshold",
   "thr_species", "file_duration_s", "event", "mean_confidence", "n_windows",
-  "detection_date", "month_start", "month_end", "n_before", "n_removed"
+  "detection_date", "month_start", "month_end", "n_before", "n_removed", "event_id",
+  "band", "band_idx", "sample_id", "round", "clip_file", "spec_file", "clip_start_s",
+  "clip_dur_s", "event_offset_s", "event_end_offset_s", "verdict", "true_species",
+  "n_pool", "n_reviewed", "n_correct", "n_incorrect", "n_unsure", "n_judged", "precision",
+  "ci_low", "ci_high", "N", "predicted", "n_events", "coverage", "precision_est",
+  "min_confidence", "reviewed_at", "strategy", "reason"
 ))

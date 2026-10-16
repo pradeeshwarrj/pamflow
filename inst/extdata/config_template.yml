@@ -70,5 +70,17 @@ processing:
   max_overrun_s: 3
   merge_gap_s: 3                  # windows closer together than this many seconds merge into one event (3 = consecutive windows)
 
+validation:
+  bands: [0.3, 0.4, 0.5, 0.7, 1.0]   # confidence band edges (an event's confidence = its best window)
+  n_per_cell: 25                     # events per species x band in each stratified round
+  rare_max_events: 30                # species with at most this many events count as rare
+  rare_n: 50                         # events taken per rare species
+  clip_pad_s: 3                      # seconds of context before and after each event
+  spec_max_hz: 12000                 # top of the spectrogram frequency axis
+  spec_px: [900, 360]                # spectrogram picture size (width, height)
+  show_confidence: false             # hide the model's score while reviewing
+  reviewer: ""
+  seed: 1
+
 occupancy:
   occasion_length_days: 7

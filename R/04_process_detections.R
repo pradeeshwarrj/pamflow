@@ -184,12 +184,7 @@ pam_process_detections <- function(cfg, run_id = cfg$birdnet$run_id) {
   out_dir <- file.path(cfg$paths$detections, run_id, "processed")
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-  det <- pam_assemble_detections(cfg, run_id = run_id)
-  m <- data.table::fread(file.path(cfg$paths$metadata, "audio_master.csv"),
-                         select = c("file_path", "duration_s"))
-  m[, rel := as.character(fs::path_rel(file_path, start = cfg$paths$audio_standardized))]
-  det <- merge(det, m[, .(rel, file_duration_s = duration_s)], by = "rel",
-               all.x = TRUE, sort = FALSE)
+  det <- pam_load_detections(cfg, run_id)
 
   read_table <- function(path, needed) {
     p <- pam_resolve_path(path, root)
