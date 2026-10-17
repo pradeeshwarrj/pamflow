@@ -29,5 +29,5 @@ utils::globalVariables(c(
   "site_id", "start_local", "end_local", "date1", "date2", "midnight", "h1", "h2", "effort_hours", "occasion_date",
   "sufficient", "detected", "julian_date", "total_effort_hours", "n_occasions_surveyed", "threshold_used", "n_sites",
   "n_occasions", "n_sites_detected", "naive_occupancy", "scientific_name", "threshold", "deployment_id", "hour",
-  "events", "sites"
+  "events", "sites", "segment_id", "..det_cols", "..have"
 ))

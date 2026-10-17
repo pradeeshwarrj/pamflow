@@ -197,7 +197,7 @@ pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = F
 #' `<detections>/<run_id>/detections.csv`.
 #'
 #' @param cfg A `pam_config` object.
-#' #' @param run_id Name of the detection run (a sub-folder of paths$detections).
+#' @param run_id Name of the detection run (a sub-folder of paths$detections).
 #'   Defaults to birdnet$run_id.
 #' @return A data.table with `filename`, `species`, `scientific_name`,
 #'   `common_name`, `confidence`, `start_time` and `end_time` (seconds into the

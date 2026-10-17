@@ -7,8 +7,9 @@
 pam_assemble_detections(cfg, run_id = cfg$birdnet$run_id)
 }
 \arguments{
-\item{cfg}{A \code{pam_config} object.
-#' @param run_id Name of the detection run (a sub-folder of paths$detections).
+\item{cfg}{A \code{pam_config} object.}
+
+\item{run_id}{Name of the detection run (a sub-folder of paths$detections).
 Defaults to birdnet$run_id.}
 }
 \value{

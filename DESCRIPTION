@@ -20,7 +20,6 @@ Suggests:
     testthat (>= 3.0.0),
     ubms,
     unmarked,
-    tuneR,
     knitr,
     openxlsx
 Config/testthat/edition: 3

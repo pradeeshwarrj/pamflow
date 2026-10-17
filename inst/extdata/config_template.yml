@@ -44,8 +44,8 @@ filter:
   duration_tolerance_s: 0.5
 
 birdnet:
-  run_id: "run01"           # results go to <detections>/<run_id>/
-  input: "filtered"         # "filtered" or "standardized"
+  run_id: "run01"
+  input: "standardized"                     # "filtered" or "standardized"
   model_dir: "models/custom_classifier"   # relative paths are resolved against project_root
   classifier_name: "CustomClassifier"     # files: <name>.tflite and <name>_Labels.txt
   labels_file: null         # set only if your labels file has a different name
