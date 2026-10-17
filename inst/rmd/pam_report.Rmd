@@ -1,0 +1,165 @@
+---
+title: "`r params$title`"
+author: "`r params$author`"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    number_sections: true
+  pdf_document:
+    toc: true
+    number_sections: true
+params:
+  run_id: "run01"
+  title: "PAM Workflow Report"
+  author: ""
+  effort: NULL
+  detections: NULL
+  species_counts: NULL
+  hourly_pattern: NULL
+  precision: NULL
+  recall: NULL
+  occupancy: NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+# Overview
+
+**Run ID:** `r params$run_id`
+
+**Report generated:** `r Sys.time()`
+
+---
+
+# Recording Effort
+
+```{r effort-check}
+has_effort <- !is.null(params$effort) && nrow(params$effort) > 0
+if (!has_effort) cat("*No effort data available. Run Stage 1 first.*\n")
+```
+
+```{r effort-table, eval=has_effort}
+eff_summary <- params$effort[, .(
+  total_hours = round(sum(effort_hours), 1),
+  n_days = .N,
+  mean_daily_hours = round(mean(effort_hours), 1)
+), by = site_id]
+knitr::kable(eff_summary,
+             col.names = c("Site", "Total Hours", "Days", "Mean Daily Hours"),
+             caption = "Recording effort per site")
+```
+
+```{r effort-daily, eval=has_effort}
+cat("\n**Daily effort (hours):**\n\n")
+daily_wide <- data.table::dcast(
+  params$effort,
+  site_id ~ occasion_date,
+  value.var = "effort_hours"
+)
+daily_wide[, (2:ncol(daily_wide)) := lapply(.SD, round, 1),
+           .SDcols = 2:ncol(daily_wide)]
+knitr::kable(daily_wide, caption = "Daily recording hours per site")
+```
+
+---
+
+# Detection Summary
+
+```{r det-check}
+has_det <- !is.null(params$species_counts) &&
+  nrow(params$species_counts) > 0
+if (!has_det) cat("*No detection data available. Run Stage 4 first.*\n")
+```
+
+```{r det-table, eval=has_det}
+knitr::kable(params$species_counts,
+             col.names = c("Species", "Events", "Sites"),
+             caption = "Detection summary by species (after cleaning)")
+```
+
+```{r det-barplot, eval=has_det, fig.width=8, fig.height=5}
+sc <- params$species_counts
+sc <- sc[order(-events)]
+short_names <- sub("_.*", "", sc$species)
+barplot(sc$events,
+        names.arg = short_names,
+        las = 2, cex.names = 0.7,
+        col = "steelblue",
+        main = "Events per species",
+        ylab = "Number of events")
+```
+
+```{r hourly-check}
+has_hourly <- !is.null(params$hourly_pattern) &&
+  nrow(params$hourly_pattern) > 0
+```
+
+```{r hourly-plot, eval=has_hourly, fig.width=8, fig.height=4}
+hp <- params$hourly_pattern
+plot(hp$hour, hp$n,
+     type = "h", lwd = 3, col = "darkorange",
+     xlab = "Hour of day", ylab = "Detections",
+     main = "Detection activity by hour",
+     xaxt = "n")
+axis(1, at = seq(0, 23, by = 2))
+```
+
+---
+
+# Validation Results
+
+```{r val-check}
+has_prec <- !is.null(params$precision) && nrow(params$precision) > 0
+has_recall <- !is.null(params$recall) && nrow(params$recall) > 0
+if (!has_prec && !has_recall) {
+  cat("*No validation data available. Run Stages 5 and 5b first.*\n")
+}
+```
+
+## Precision
+
+```{r prec-table, eval=has_prec}
+prec_display <- data.table::copy(params$precision)
+num_cols <- names(prec_display)[sapply(prec_display, is.numeric)]
+prec_display[, (num_cols) := lapply(.SD, round, 3), .SDcols = num_cols]
+knitr::kable(prec_display,
+             caption = "Precision by species and confidence band")
+```
+
+## Recall
+
+```{r recall-table, eval=has_recall}
+rec_display <- data.table::copy(params$recall)
+num_cols_r <- names(rec_display)[sapply(rec_display, is.numeric)]
+rec_display[, (num_cols_r) := lapply(.SD, round, 3),
+            .SDcols = num_cols_r]
+knitr::kable(rec_display,
+             caption = "Recall by species and threshold")
+```
+
+---
+
+# Occupancy Summary
+
+```{r occ-check}
+has_occ <- !is.null(params$occupancy) && nrow(params$occupancy) > 0
+if (!has_occ) {
+  cat("*No occupancy data available. Run Stage 6 first.*\n")
+}
+```
+
+```{r occ-table, eval=has_occ}
+occ_display <- data.table::copy(params$occupancy)
+occ_display$naive_occupancy <- round(occ_display$naive_occupancy, 3)
+occ_display$threshold_used <- round(occ_display$threshold_used, 2)
+knitr::kable(occ_display,
+             col.names = c("Species", "Threshold", "Sites",
+                           "Occasions", "Sites Detected",
+                           "Naive Occupancy"),
+             caption = "Naive occupancy estimates per species")
+```

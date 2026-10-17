@@ -97,3 +97,8 @@ occupancy:
   min_effort_hours: 2
   min_detections: 10
   run_id: "pilot_unfiltered"
+
+report:
+  title: "PAM Workflow Report"
+  author: ""
+  formats: ["html", "excel", "pdf"]

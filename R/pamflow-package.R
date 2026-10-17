@@ -28,5 +28,6 @@ utils::globalVariables(c(
   "n_present", "threshold", "present", "possible", "i.segment_id", "x.scientific_name", "x.confidence",
   "site_id", "start_local", "end_local", "date1", "date2", "midnight", "h1", "h2", "effort_hours", "occasion_date",
   "sufficient", "detected", "julian_date", "total_effort_hours", "n_occasions_surveyed", "threshold_used", "n_sites",
-  "n_occasions", "n_sites_detected", "naive_occupancy", "scientific_name", "threshold", "deployment_id"
+  "n_occasions", "n_sites_detected", "naive_occupancy", "scientific_name", "threshold", "deployment_id", "hour",
+  "events", "sites"
 ))
