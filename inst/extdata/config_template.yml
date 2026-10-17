@@ -93,4 +93,7 @@ recall:
   reviewer: ""
 
 occupancy:
-  occasion_length_days: 7
+  occasion_length_days: 1
+  min_effort_hours: 2
+  min_detections: 10
+  run_id: "pilot_unfiltered"
