@@ -35,3 +35,4 @@ Imports:
 Config/roxygen2/version: 8.1.1
 URL: https://github.com/pradeeshwarrj/pamflow
 BugReports: https://github.com/pradeeshwarrj/pamflow/issues
+VignetteBuilder: knitr
