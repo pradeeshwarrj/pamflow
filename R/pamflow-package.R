@@ -23,5 +23,7 @@ utils::globalVariables(c(
   "clip_dur_s", "event_offset_s", "event_end_offset_s", "verdict", "true_species",
   "n_pool", "n_reviewed", "n_correct", "n_incorrect", "n_unsure", "n_judged", "precision",
   "ci_low", "ci_high", "N", "predicted", "n_events", "coverage", "precision_est",
-  "min_confidence", "reviewed_at", "strategy", "reason"
+  "min_confidence", "reviewed_at", "strategy", "reason", "n_slots", "seg_start", "seg_end",
+  "slot_time", "hour", "seg_key", "label", "status", "detected", "tp", "fn", "fp", "tn",
+  "n_present", "threshold", "present", "possible", "i.segment_id", "x.scientific_name", "x.confidence"
 ))

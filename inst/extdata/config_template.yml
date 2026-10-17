@@ -82,5 +82,15 @@ validation:
   reviewer: ""
   seed: 1
 
+recall:
+  segment_s: 60
+  n_segments: 40            # segments per round
+  hours: []                 # e.g. [4, 18] = only segments starting 04:00-17:59 local time
+  audio: "standardized"     # audio the annotator hears: "standardized" or "filtered"
+  spec_px: [1600, 400]
+  spec_max_hz: 12000
+  seed: 1
+  reviewer: ""
+
 occupancy:
   occasion_length_days: 7
