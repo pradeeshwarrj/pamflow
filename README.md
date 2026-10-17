@@ -1,62 +1,44 @@
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # pamflow
 
-<!-- badges: start -->
+A reproducible, config-driven R package for end-to-end **passive acoustic
+monitoring (PAM)** of birds. Takes standardized field recordings through
+quality control, custom BirdNET detection, cleaning, validation, and
+occupancy-ready outputs with automated reports.
 
-<!-- badges: end -->
+## Features
 
-A reproducible workflow for passive acoustic monitoring (PAM) of birds.
-Wraps [birdnetR](https://github.com/birdnet-team/birdnetR) and
-[birdnetTools](https://github.com/birdnet-team/birdnetTools) behind a
-config-driven, resumable pipeline that takes you from raw audio to
-occupancy models.
+- **Resumable**: checkpoint-based processing — crashes don't lose progress
+- **Robust**: per-file error isolation — one bad recording never kills the run
+- **Parallel**: multi-core BirdNET inference via PSOCK worker clusters
+- **Config-driven**: one YAML file controls all settings, no hard-coded paths
+- **Validated**: interactive Shiny apps for precision and recall assessment
+- **Scalable**: tested on 1,000+ recordings; designed for 100,000+
 
-## Pipeline stages
+## Pipeline Stages
 
 | Stage | Function | Description |
-|----|----|----|
-| 1 | `pam_standardise()` | Filename parsing, format conversion, deployment join |
-| 2 | `pam_clean_filter()` | High/low-pass filtering, noise reduction |
-| 3 | `pam_detect()` | BirdNET inference (custom classifiers, GPU/CPU) |
-| 4 | `pam_process_detections()` | Deduplication, confidence filtering, species lists |
-| 5 | `pam_validate()` | Stratified sampling, manual review, accuracy metrics |
-| 6 | `pam_occupancy_prep()` | Detection histories and covariates |
-| 7 | `pam_occupancy_fit()` | Single-season and multi-season occupancy models |
-| 8 | `pam_report()` | Automated R Markdown report |
+|---|---|---|
+| 1 | `pam_scan_audio()` | Scan WAV files, QC flags, deployment matching |
+| 2 | `pam_filter_audio()` | High-pass filtering via FFmpeg (optional) |
+| 3 | `pam_detect()` | BirdNET detection with custom classifier (parallel) |
+| 4 | `pam_process_detections()` | Clean, filter, and merge detections into events |
+| 5 | `pam_validate()` | Precision validation via interactive Shiny review |
+| 5b | `pam_annotate()` | Recall estimation via blind ground-truth annotation |
+| 6 | `pam_build_occupancy()` | Detection histories and covariates for occupancy models |
+| 8 | `pam_report()` | HTML, PDF, and Excel summary reports |
 
 ## Installation
 
-``` r
-# install.packages("remotes")
-remotes::install_github("pradeeshwarrj/pamflow")
-```
+```r
+# Install devtools if needed
+install.packages("devtools")
 
-## Quick start
+# Install pamflow from GitHub
+devtools::install_github("pradeeshwarrj/pamflow")
 
-``` r
-library(pamflow)
+# Install suggested packages as needed
+install.packages(c("birdnetR", "rmarkdown", "openxlsx"))
 
-# 1. Create a project skeleton
-pam_init_project("my_pam_project")
-
-# 2. Edit the config
-#    Open my_pam_project/config/config.yml and set your paths
-
-# 3. Run the full pipeline
-cfg <- pam_config_read("my_pam_project/config/config.yml")
-pam_run_all(cfg)
-```
-
-## Dependencies
-
-- **R ≥ 4.2**
-- **Python ≥ 3.9** (managed automatically by `reticulate`)
-- System: `sox` (for audio conversion)
-
-## License
-
-MIT © Pradeeshwar RJ
+# For PDF reports (one-time setup)
+install.packages("tinytex")
+tinytex::install_tinytex()

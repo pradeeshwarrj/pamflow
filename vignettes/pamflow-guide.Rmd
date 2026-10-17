@@ -3,8 +3,11 @@ title: "PAM Workflow Guide"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{PAM Workflow Guide}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -17,29 +20,30 @@ knitr::opts_chunk$set(
 
 ## 1. What Is `pamflow`?
 
-`pamflow` is an R package that automates the entire pipeline for **passive
-acoustic monitoring (PAM)** of birds (or any vocalizing animal). You point it
-at a folder of field recordings and a spreadsheet of deployment dates, and it:
+`pamflow` is an R package that automates the entire pipeline for
+**passive acoustic monitoring (PAM)** of birds (or any vocalizing
+animal). You point it at a folder of field recordings and a spreadsheet
+of deployment dates, and it:
 
-1. Reads and quality-checks every audio file
-2. Optionally filters out low-frequency noise
-3. Runs a custom BirdNET deep-learning classifier to detect species
-4. Cleans the raw detections (removes false positives, merges overlapping
-   calls)
-5. Lets you validate detector accuracy through an interactive web app
-6. Builds occupancy detection histories ready for statistical modelling
-7. Generates HTML, PDF, and Excel reports
+1.  Reads and quality-checks every audio file
+2.  Optionally filters out low-frequency noise
+3.  Runs a custom BirdNET deep-learning classifier to detect species
+4.  Cleans the raw detections (removes false positives, merges
+    overlapping calls)
+5.  Lets you validate detector accuracy through an interactive web app
+6.  Builds occupancy detection histories ready for statistical modelling
+7.  Generates HTML, PDF, and Excel reports
 
-Everything is **resumable** (if it crashes, it picks up where it left off),
-**reproducible** (one config file controls all settings), and **robust** (one
-bad file never kills the whole run).
+Everything is **resumable** (if it crashes, it picks up where it left
+off), **reproducible** (one config file controls all settings), and
+**robust** (one bad file never kills the whole run).
 
----
+------------------------------------------------------------------------
 
 ## 2. Who Is It For?
 
-- **Ecologists** running acoustic surveys with autonomous recording units
-  (ARUs)
+- **Ecologists** running acoustic surveys with autonomous recording
+  units (ARUs)
 - **Conservation biologists** monitoring bird communities across sites
 - **Graduate students** who need a repeatable pipeline from raw WAVs to
   occupancy models
@@ -49,7 +53,7 @@ You need basic familiarity with R and RStudio. No Python or command-line
 experience is required (the package handles the BirdNET/Python interface
 internally).
 
----
+------------------------------------------------------------------------
 
 ## 3. What You Need Before Starting
 
@@ -57,16 +61,17 @@ internally).
 
 - A Windows, Mac, or Linux computer (tested on Windows 11)
 - At least 16 GB RAM (32 GB recommended for large datasets)
-- Enough disk space for your recordings plus filtered copies (if filtering)
+- Enough disk space for your recordings plus filtered copies (if
+  filtering)
 
 ### Software
 
-- **R** (>= 4.3) and **RStudio**
+- **R** (\>= 4.3) and **RStudio**
 - **FFmpeg** (free audio tool): install via `winget install ffmpeg` on
   Windows, or `brew install ffmpeg` on Mac
-- **birdnetR** (>= 0.3.2): `install.packages("birdnetR")`
-- A **custom BirdNET classifier** (a `.tflite` model file, a `_Labels.txt`
-  file, and optionally `_Params.csv`)
+- **birdnetR** (\>= 0.3.2): `install.packages("birdnetR")`
+- A **custom BirdNET classifier** (a `.tflite` model file, a
+  `_Labels.txt` file, and optionally `_Params.csv`)
 
 ### Data
 
@@ -74,14 +79,14 @@ internally).
   site/grid). Files should be named with a consistent pattern like
   `G0059_20260410_081553.wav` (grid, date, time).
 - **Deployment spreadsheet**: a CSV with columns for grid name, deploy
-  date/time, retrieve date/time, recorder ID, and optionally coordinates and
-  habitat.
+  date/time, retrieve date/time, recorder ID, and optionally coordinates
+  and habitat.
 
----
+------------------------------------------------------------------------
 
 ## 4. Installation
 
-```r
+``` r
 # Install devtools if you don't have it
 install.packages("devtools")
 
@@ -93,7 +98,7 @@ install.packages(c("birdnetR", "rmarkdown", "openxlsx", "tinytex"))
 tinytex::install_tinytex()  # only if you want PDF reports
 ```
 
----
+------------------------------------------------------------------------
 
 ## 5. Project Setup
 
@@ -101,7 +106,7 @@ tinytex::install_tinytex()  # only if you want PDF reports
 
 Create a folder on your computer to hold all inputs and outputs:
 
-```
+```         
 E:/my_pam_project/
 ├── standardized/          <- your WAV files go here
 │   ├── G_0059/
@@ -121,9 +126,10 @@ E:/my_pam_project/
 
 ### 5.2 Create the config file
 
-Create `config/config.yml` with your paths and settings. Minimal example:
+Create `config/config.yml` with your paths and settings. Minimal
+example:
 
-```yaml
+``` yaml
 paths:
   project_root: "E:/my_pam_project"
   audio_standardized: "E:/my_pam_project/standardized"
@@ -147,73 +153,73 @@ occupancy:
 
 **Key settings:**
 
-| Setting | Meaning |
-|---|---|
-| `project_root` | Top-level project folder |
-| `audio_standardized` | Where your WAV files are |
-| `model_dir` | Folder with your custom BirdNET model |
-| `classifier_name` | Model filename without `.tflite` |
-| `input` | `"standardized"` (raw) or `"filtered"` |
-| `run_id` | Name for this detection run |
-| `workers` | Parallel CPU cores for BirdNET (4--8) |
-| `min_confidence` | Minimum confidence to keep a detection |
-| `min_effort_hours` | Min recording hours per day for occupancy |
-| `min_detections` | Min detections for a species to get a history |
+| Setting              | Meaning                                       |
+|----------------------|-----------------------------------------------|
+| `project_root`       | Top-level project folder                      |
+| `audio_standardized` | Where your WAV files are                      |
+| `model_dir`          | Folder with your custom BirdNET model         |
+| `classifier_name`    | Model filename without `.tflite`              |
+| `input`              | `"standardized"` (raw) or `"filtered"`        |
+| `run_id`             | Name for this detection run                   |
+| `workers`            | Parallel CPU cores for BirdNET (4--8)         |
+| `min_confidence`     | Minimum confidence to keep a detection        |
+| `min_effort_hours`   | Min recording hours per day for occupancy     |
+| `min_detections`     | Min detections for a species to get a history |
 
----
+------------------------------------------------------------------------
 
 ## 6. The Workflow: Stage by Stage
 
 ### Stage 1: Scan Audio and Quality Control
 
-Reads every `.wav` header, parses filenames, matches deployments, and flags
-quality issues (truncated files, gaps, duplicates, out-of-deployment
-recordings).
+Reads every `.wav` header, parses filenames, matches deployments, and
+flags quality issues (truncated files, gaps, duplicates,
+out-of-deployment recordings).
 
-```r
+``` r
 library(pamflow)
 cfg <- pam_config_read("E:/my_pam_project/config/config.yml")
 pam_scan_audio(cfg)
 ```
 
-**Outputs:** `metadata/audio_master.csv`, `outputs/audio_summary_per_grid.csv`,
-`outputs/deployment_issues.csv`.
+**Outputs:** `metadata/audio_master.csv`,
+`outputs/audio_summary_per_grid.csv`, `outputs/deployment_issues.csv`.
 
----
+------------------------------------------------------------------------
 
 ### Stage 2: High-Pass Filter (Optional)
 
-Applies a Butterworth high-pass filter via FFmpeg. Writes filtered copies to a
-separate folder; originals are never modified. Skip if your classifier was
-trained on unfiltered audio.
+Applies a Butterworth high-pass filter via FFmpeg. Writes filtered
+copies to a separate folder; originals are never modified. Skip if your
+classifier was trained on unfiltered audio.
 
-```r
+``` r
 pam_filter_audio(cfg)
 ```
 
 **Outputs:** `filtered/` (mirrored folder tree).
 
----
+------------------------------------------------------------------------
 
 ### Stage 3: BirdNET Detection
 
 Runs your custom classifier on every QC-passed recording using parallel
 workers. Resumable: if it crashes, rerunning picks up where it stopped.
 
-```r
+``` r
 pam_detect(cfg, run_id = "run01")
 
 # Quick test on a subset:
 pam_detect(cfg, run_id = "test", sample_n = 20, seed = 42)
 ```
 
-**Speed:** ~50--60 s per 60-min file per worker. With 4 workers, ~4 h per
-1,000 files.
+**Speed:** \~50--60 s per 60-min file per worker. With 4 workers, \~4 h
+per 1,000 files.
 
 **Outputs:** `data/detections/run01/detections.csv`, `file_results.csv`,
 `done.txt`.
 
----
+------------------------------------------------------------------------
 
 ### Stage 4: Clean Detections
 
@@ -221,7 +227,7 @@ Applies filters in order: invalid values, missing files, beyond-end,
 outside-deployment, whitelist/blacklist, date range, species season,
 confidence threshold, and window merging.
 
-```r
+``` r
 result <- pam_process_detections(cfg, run_id = "run01")
 print(result$steps)
 ```
@@ -229,47 +235,50 @@ print(result$steps)
 **Outputs:** `data/detections/run01/processed/detections_clean.csv`,
 `removed_detections.csv`, `processing_steps.csv`.
 
----
+------------------------------------------------------------------------
 
 ### Stage 5: Validation (Precision)
 
-Draws a stratified sample, exports clips and spectrograms, opens a Shiny app
-for review, and calculates precision per species and confidence band.
+Draws a stratified sample, exports clips and spectrograms, opens a Shiny
+app for review, and calculates precision per species and confidence
+band.
 
-```r
+``` r
 pam_validation_draw(cfg, n_per_cell = 10, run_id = "run01")
 pam_validation_export(cfg, run_id = "run01")
 pam_validate(cfg, run_id = "run01")        # opens browser
 pam_validation_report(cfg, run_id = "run01")
 ```
 
-**Outputs:** `validation/clips/`, `spectrograms/`, `precision_by_cell.csv`,
-`precision_by_threshold.csv`.
+**Outputs:** `validation/clips/`, `spectrograms/`,
+`precision_by_cell.csv`, `precision_by_threshold.csv`.
 
----
+------------------------------------------------------------------------
 
 ### Stage 5b: Ground Truth and Recall
 
-Draws random 60-second segments, you annotate them blind to the detector, and
-the package calculates recall, precision, and F1.
+Draws random 60-second segments, you annotate them blind to the
+detector, and the package calculates recall, precision, and F1.
 
-```r
+``` r
 pam_recall_draw(cfg, n_segments = 20, run_id = "run01")
 pam_recall_export(cfg, run_id = "run01")
 pam_annotate(cfg, run_id = "run01")        # opens browser
 pam_recall_report(cfg, run_id = "run01")
 ```
 
-**Outputs:** `recall_by_species_threshold.csv`, `recall_annotations.csv`.
+**Outputs:** `recall_by_species_threshold.csv`,
+`recall_annotations.csv`.
 
----
+------------------------------------------------------------------------
 
 ### Stage 6: Occupancy Detection Histories
 
-Converts cleaned detections into wide-format matrices (sites x occasions)
-with 1/0/NA values. Calculates effort and Julian date per occasion.
+Converts cleaned detections into wide-format matrices (sites x
+occasions) with 1/0/NA values. Calculates effort and Julian date per
+occasion.
 
-```r
+``` r
 result <- pam_build_occupancy(cfg, run_id = "run01")
 print(result$summary)
 ```
@@ -279,7 +288,7 @@ print(result$summary)
 
 **Using with `unmarked`:**
 
-```r
+``` r
 library(unmarked)
 library(data.table)
 
@@ -290,45 +299,45 @@ fm <- occu(~ 1 ~ 1, data = umf)
 summary(fm)
 ```
 
----
+------------------------------------------------------------------------
 
 ### Stage 8: Reports
 
-Generates HTML, PDF, and Excel reports with effort, detections, validation,
-and occupancy summaries.
+Generates HTML, PDF, and Excel reports with effort, detections,
+validation, and occupancy summaries.
 
-```r
+``` r
 files <- pam_report(cfg, run_id = "run01")
 print(files)
 ```
 
----
+------------------------------------------------------------------------
 
 ## 7. Complete Function Reference
 
-| Function | Stage | Purpose |
-|---|---|---|
-| `pam_config_read(path)` | Setup | Read and validate config |
-| `pam_scan_audio(cfg)` | 1 | Scan, QC, deployment matching |
-| `pam_filter_audio(cfg)` | 2 | High-pass filter via FFmpeg |
-| `pam_detect(cfg, run_id)` | 3 | BirdNET detection (parallel) |
-| `pam_process_detections(cfg, run_id)` | 4 | Clean and merge detections |
-| `pam_validation_draw(cfg, n, run_id)` | 5 | Draw validation sample |
-| `pam_validation_export(cfg, run_id)` | 5 | Export clips/spectrograms |
-| `pam_validate(cfg, run_id)` | 5 | Open review Shiny app |
-| `pam_validation_report(cfg, run_id)` | 5 | Precision metrics |
-| `pam_recall_draw(cfg, n, run_id)` | 5b | Draw ground-truth segments |
-| `pam_recall_export(cfg, run_id)` | 5b | Export segment clips |
-| `pam_annotate(cfg, run_id)` | 5b | Open annotation Shiny app |
-| `pam_recall_report(cfg, run_id)` | 5b | Recall metrics |
-| `pam_build_occupancy(cfg, run_id)` | 6 | Detection histories |
-| `pam_report(cfg, run_id)` | 8 | HTML/PDF/Excel reports |
+| Function                              | Stage | Purpose                       |
+|------------------------|------------------------|------------------------|
+| `pam_config_read(path)`               | Setup | Read and validate config      |
+| `pam_scan_audio(cfg)`                 | 1     | Scan, QC, deployment matching |
+| `pam_filter_audio(cfg)`               | 2     | High-pass filter via FFmpeg   |
+| `pam_detect(cfg, run_id)`             | 3     | BirdNET detection (parallel)  |
+| `pam_process_detections(cfg, run_id)` | 4     | Clean and merge detections    |
+| `pam_validation_draw(cfg, n, run_id)` | 5     | Draw validation sample        |
+| `pam_validation_export(cfg, run_id)`  | 5     | Export clips/spectrograms     |
+| `pam_validate(cfg, run_id)`           | 5     | Open review Shiny app         |
+| `pam_validation_report(cfg, run_id)`  | 5     | Precision metrics             |
+| `pam_recall_draw(cfg, n, run_id)`     | 5b    | Draw ground-truth segments    |
+| `pam_recall_export(cfg, run_id)`      | 5b    | Export segment clips          |
+| `pam_annotate(cfg, run_id)`           | 5b    | Open annotation Shiny app     |
+| `pam_recall_report(cfg, run_id)`      | 5b    | Recall metrics                |
+| `pam_build_occupancy(cfg, run_id)`    | 6     | Detection histories           |
+| `pam_report(cfg, run_id)`             | 8     | HTML/PDF/Excel reports        |
 
----
+------------------------------------------------------------------------
 
 ## 8. Typical Workflow
 
-```r
+``` r
 library(pamflow)
 cfg <- pam_config_read("E:/my_project/config/config.yml")
 
@@ -347,29 +356,28 @@ print(result$summary)
 pam_report(cfg, "run01")
 ```
 
----
+------------------------------------------------------------------------
 
 ## 9. Frequently Asked Questions
 
-**Q: Can I resume a crashed detection run?**
-Yes. Rerun `pam_detect(cfg, run_id = "run01")`. It reads the checkpoint and
-skips completed files.
+**Q: Can I resume a crashed detection run?** Yes. Rerun
+`pam_detect(cfg, run_id = "run01")`. It reads the checkpoint and skips
+completed files.
 
-**Q: How do I change the confidence threshold?**
-Edit `processing.min_confidence` in your config and rerun Stage 4. No need to
+**Q: How do I change the confidence threshold?** Edit
+`processing.min_confidence` in your config and rerun Stage 4. No need to
 rerun Stage 3.
 
-**Q: Can I add more species to the model later?**
-Yes. Replace the model files and rerun Stage 3 with a new `run_id`.
+**Q: Can I add more species to the model later?** Yes. Replace the model
+files and rerun Stage 3 with a new `run_id`.
 
-**Q: What if my filenames don't match the default pattern?**
-Change `filenames.pattern` in the config using named capture groups:
+**Q: What if my filenames don't match the default pattern?** Change
+`filenames.pattern` in the config using named capture groups:
 `(?<grid>...)`, `(?<date>...)`, `(?<time>...)`.
 
-**Q: How much disk space do I need?**
-Original audio + filtered copies (if filtering) + detection CSVs. For 1 TB of
-audio, budget ~2.1 TB total.
+**Q: How much disk space do I need?** Original audio + filtered copies
+(if filtering) + detection CSVs. For 1 TB of audio, budget \~2.1 TB
+total.
 
-**Q: Can I run this on a Mac or Linux?**
-Yes. Install FFmpeg via your package manager (`brew install ffmpeg` or
-`apt install ffmpeg`).
+**Q: Can I run this on a Mac or Linux?** Yes. Install FFmpeg via your
+package manager (`brew install ffmpeg` or `apt install ffmpeg`).
