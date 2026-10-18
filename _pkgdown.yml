@@ -1,0 +1,90 @@
+url: https://pradeeshwarrj.github.io/pamflow/
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+  components:
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/pradeeshwarrj/pamflow
+
+reference:
+  - title: "Configuration"
+    contents:
+      - pam_config_read
+      - pam_config_validate
+  - title: "Stage 1 — Scan & QC"
+    contents:
+      - pam_scan_audio
+      - pam_audio_info
+      - pam_audio_summary
+      - pam_list_audio
+      - pam_parse_filenames
+      - pam_read_deployments
+      - pam_match_deployments
+      - pam_check_deployments
+      - pam_add_qc
+  - title: "Stage 2 — Filter"
+    contents:
+      - pam_filter_audio
+      - pam_filter_one
+      - pam_highpass_filter_string
+  - title: "Stage 3 — Detect"
+    contents:
+      - pam_detect
+      - pam_assemble_detections
+      - pam_pending_batches
+  - title: "Stage 4 — Process"
+    contents:
+      - pam_process_detections
+      - pam_clean_detections
+  - title: "Stage 5 — Validate"
+    contents:
+      - pam_validate
+      - pam_validation_draw
+      - pam_validation_export
+      - pam_validation_sample
+      - pam_validation_import
+      - pam_validation_pool
+      - pam_validation_metrics
+      - pam_validation_report
+      - pam_annotate
+  - title: "Stage 5b — Recall"
+    contents:
+      - pam_recall_draw
+      - pam_recall_export
+      - pam_recall_frame
+      - pam_recall_sample
+      - pam_recall_metrics
+      - pam_recall_report
+  - title: "Stage 6 — Occupancy"
+    contents:
+      - pam_build_occupancy
+      - pam_site_id
+      - pam_daily_effort
+      - pam_detection_matrix
+      - pam_occasion_covariates
+      - pam_site_covariates
+  - title: "Stage 8 — Reports"
+    contents:
+      - pam_report
+      - pam_report_data
+      - pam_report_excel
+  - title: "Utilities"
+    contents:
+      - pam_log
+      - pam_run_stage
+      - pam_checkpoint_read
+      - pam_checkpoint_add
+      - pam_check_ffmpeg
+      - pam_wilson_ci
+
+articles:
+  - title: "Getting Started"
+    contents:
+      - pamflow-guide

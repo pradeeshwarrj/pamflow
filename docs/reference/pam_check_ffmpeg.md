@@ -1,0 +1,24 @@
+# Check that FFmpeg is installed and supports the filter chain
+
+Check that FFmpeg is installed and supports the filter chain
+
+## Usage
+
+``` r
+pam_check_ffmpeg(ffmpeg = "ffmpeg", filter = NULL)
+```
+
+## Arguments
+
+- ffmpeg:
+
+  Executable name or full path.
+
+- filter:
+
+  Filter string to test on 0.1 s of silence.
+
+## Value
+
+The first line of FFmpeg's version output. Aborts with install advice if
+FFmpeg is missing or too old for the filter.
