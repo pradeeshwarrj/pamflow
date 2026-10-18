@@ -1,6 +1,6 @@
 Package: pamflow
 Title: End-to-End Passive Acoustic Monitoring Workflow
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: person("Pradeeshwar", "Rajagopal James", email = "you@example.com",
     role = c("aut", "cre"))
 Description: Tools for standardising passive acoustic recordings, running
