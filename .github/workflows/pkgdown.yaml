@@ -1,79 +1,38 @@
-<<<<<<< HEAD
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-=======
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
+name: pkgdown
+
 on:
   push:
-    branches: [main, master]
-  pull_request:
-<<<<<<< HEAD
-=======
-    branches: [main, master]
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
-  release:
-    types: [published]
+    branches: [master]
   workflow_dispatch:
 
-<<<<<<< HEAD
-name: pkgdown.yaml
-
-permissions: read-all
-=======
-name: pkgdown
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
+permissions:
+  contents: write
+  pages: write
 
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-<<<<<<< HEAD
-    # Only restrict concurrency for non-PR jobs
-=======
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
-    concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: write
     steps:
-<<<<<<< HEAD
-      - uses: actions/checkout@v6
-=======
       - uses: actions/checkout@v4
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
-
-      - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
-<<<<<<< HEAD
-=======
         with:
           use-public-rspm: true
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
-<<<<<<< HEAD
-=======
           dependencies: '"hard"'
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
+          extra-packages: any::pkgdown
+          needs: website
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-<<<<<<< HEAD
-      - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f # v4.8.0
-=======
-      - name: Deploy to GitHub pages
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
->>>>>>> c398f1feaa9a2efb0e1c0734933fe2dc9fe71c7a
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           clean: false
           branch: gh-pages
