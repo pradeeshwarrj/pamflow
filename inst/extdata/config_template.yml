@@ -70,6 +70,13 @@ processing:
   max_overrun_s: 3
   merge_gap_s: 3                  # windows closer together than this many seconds merge into one event (3 = consecutive windows)
 
+soundscape:
+  enabled: true
+  low_stop_hz: 500
+  anthrophony_range: [1000, 2000]
+  biophony_range: [2000, 11000]
+  day_hours: [6, 17]
+
 validation:
   bands: [0.3, 0.4, 0.5, 0.7, 1.0]   # confidence band edges (an event's confidence = its best window)
   n_per_cell: 25                     # events per species x band in each stratified round

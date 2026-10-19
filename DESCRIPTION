@@ -21,7 +21,9 @@ Suggests:
     ubms,
     unmarked,
     knitr,
-    openxlsx
+    openxlsx,
+    seewave,
+    soundecology
 Config/testthat/edition: 3
 Imports: 
     cli,

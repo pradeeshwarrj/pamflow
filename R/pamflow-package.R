@@ -29,5 +29,20 @@ utils::globalVariables(c(
   "site_id", "start_local", "end_local", "date1", "date2", "midnight", "h1", "h2", "effort_hours", "occasion_date",
   "sufficient", "detected", "julian_date", "total_effort_hours", "n_occasions_surveyed", "threshold_used", "n_sites",
   "n_occasions", "n_sites_detected", "naive_occupancy", "scientific_name", "threshold", "deployment_id", "hour",
-  "events", "sites", "segment_id", "..det_cols", "..have"
+  "events", "sites", "segment_id", "..det_cols", "..have",
+    ".", ".N", "..det_cols", "..have", "ACI", "ADI", "AEve", "Bio", "H", "M", "NDSI",
+    "annotated", "annotation", "audio_format", "audio_path", "band", "band_idx",
+    "bidx", "bit_depth", "channels", "confidence", "confidence_bin", "correct",
+    "detection_date", "recording_start", "detection_datetime", "deployment_id",
+    "diel_phase", "diel_summary", "end_datetime", "end_time", "event", "failure_reason",
+    "feature", "file_duration_s", "file_name", "file_path", "filename", "grid",
+    "hour", "hours_effort", "in_deployment", "judge", "keep", "match_status",
+    "mean_confidence", "metric", "min_confidence", "n_correct", "n_events",
+    "n_incorrect", "n_judged", "n_pool", "n_reviewed", "n_windows", "n_windows_in",
+    "occasion", "occasion_date", "pred_species", "precision_est", "qc_pass",
+    "reason", "recorder", "recording_date", "recording_datetime", "rel", "sampled",
+    "scientific_name", "segment_id", "seq_num", "site", "site_id", "species",
+    "species_code", "start_datetime", "start_time", "status", "suff_effort",
+    "stratum", "stratum_size", "thr_species", "threshold", "true_species",
+    "value", "value.var", "weight"
 ))

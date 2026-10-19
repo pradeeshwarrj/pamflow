@@ -17,11 +17,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Pradeeshwar Rajagopal James \email{you@example.com}
+\strong{Maintainer}: Pradeeshwar Rajagopal James \email{pradeeshwarrj@gmail.com}
 
 Authors:
 \itemize{
-  \item Pradeeshwar Rajagopal James \email{you@example.com}
+  \item Pradeeshwar Rajagopal James \email{pradeeshwarrj@gmail.com}
 }
 
 }
