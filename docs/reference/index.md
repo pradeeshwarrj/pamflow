@@ -37,6 +37,19 @@
 - [`pam_highpass_filter_string()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_highpass_filter_string.md)
   : Build the FFmpeg filter string for a Butterworth high-pass
 
+## Stage 2b — Soundscapes
+
+- [`pam_soundscape`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape.md)
+  : Soundscape Analysis Functions (Stage 2b)
+- [`pam_soundscape_one()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_one.md)
+  : Calculate Soundscape Indices for One Audio File
+- [`pam_soundscape_batch()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_batch.md)
+  : Calculate Soundscape Indices Across Audio Files
+- [`pam_soundscape_summarise()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.md)
+  : Summarise Soundscape Indices by Hour and Diel Phase
+- [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)
+  : Master Soundscape Pipeline Stage (Stage 2b)
+
 ## Stage 3 — Detect
 
 - [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)

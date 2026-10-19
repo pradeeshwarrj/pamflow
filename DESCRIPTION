@@ -35,6 +35,6 @@ Imports:
     utils,
     yaml
 Config/roxygen2/version: 8.1.1
-URL: https://github.com/pradeeshwarrj/pamflow
+URL: https://pradeeshwarrj.github.io/pamflow, https://github.com/pradeeshwarrj/pamflow
 BugReports: https://github.com/pradeeshwarrj/pamflow/issues
 VignetteBuilder: knitr
