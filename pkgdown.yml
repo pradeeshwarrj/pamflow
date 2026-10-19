@@ -1,9 +1,9 @@
-pandoc: 3.8.3
+pandoc: 3.1.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   pamflow-guide: pamflow-guide.html
-last_built: 2026-10-18T11:57Z
+last_built: 2026-10-19T06:46Z
 urls:
   reference: https://pradeeshwarrj.github.io/pamflow/reference
   article: https://pradeeshwarrj.github.io/pamflow/articles

@@ -8,14 +8,16 @@ occupancy-ready detection histories.
 
 Useful links:
 
+- <https://pradeeshwarrj.github.io/pamflow>
+
 - <https://github.com/pradeeshwarrj/pamflow>
 
 - Report bugs at <https://github.com/pradeeshwarrj/pamflow/issues>
 
 ## Author
 
-**Maintainer**: Pradeeshwar Rajagopal James <you@example.com>
+**Maintainer**: Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com>
 
 Authors:
 
-- Pradeeshwar Rajagopal James <you@example.com>
+- Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com>

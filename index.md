@@ -28,7 +28,6 @@ function calls.
 Verify in R:
 
 ``` r
-
 R.version.string           # ≥ 4.3
 reticulate::py_available() # TRUE
 system("ffmpeg -version")  # prints version
@@ -37,7 +36,6 @@ system("ffmpeg -version")  # prints version
 ## Installation
 
 ``` r
-
 # Install devtools if needed
 install.packages("devtools")
 
@@ -116,7 +114,6 @@ report:
 ### 4. Run the pipeline
 
 ``` r
-
 library(pamflow)
 cfg <- pam_config_read("E:/MyProject/config/config.yml")
 
@@ -148,17 +145,17 @@ pam_report(cfg)
 
 ## Pipeline Stages
 
-| Stage | Function | What it does |
-|----|----|----|
-| 1 | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md) | Inventories audio files, matches to deployments, flags QC issues |
-| 3 | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md) | Runs BirdNET on all files in parallel batches; resumable |
-| 4 | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md) | Filters by confidence, deployment window, species; merges overlapping windows |
-| 5 | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md) | Draws a stratified random sample for manual review |
-| 5 | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md) | Cuts short WAV clips around each sampled detection |
-| 5 | `pam_validation_app()` | Shiny app to listen and confirm/reject species |
-| 5 | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md) | Computes precision by species and confidence band |
-| 6 | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md) | Builds daily detection matrices, effort, and site covariates |
-| 8 | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md) | Generates HTML report and Excel workbook |
+| Stage | Function                                                                                                  | What it does                                                                  |
+|-------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| 1     | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)                 | Inventories audio files, matches to deployments, flags QC issues              |
+| 3     | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)                         | Runs BirdNET on all files in parallel batches; resumable                      |
+| 4     | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md) | Filters by confidence, deployment window, species; merges overlapping windows |
+| 5     | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)       | Draws a stratified random sample for manual review                            |
+| 5     | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)   | Cuts short WAV clips around each sampled detection                            |
+| 5     | `pam_validation_app()`                                                                                    | Shiny app to listen and confirm/reject species                                |
+| 5     | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md) | Computes precision by species and confidence band                             |
+| 6     | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)       | Builds daily detection matrices, effort, and site covariates                  |
+| 8     | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)                         | Generates HTML report and Excel workbook                                      |
 
 > **Note:** All functions take `cfg` as their only required argument.
 > The `run_id` is read from the config file.
@@ -190,18 +187,18 @@ MyProject/
 
 ## Configuration Reference
 
-| Section | Key | Default | Description |
-|----|----|----|----|
-| `birdnet` | `workers` | 4 | Number of parallel CPU cores |
-| `birdnet` | `min_confidence` | 0.5 | Minimum BirdNET score to keep |
-| `birdnet` | `chunk_length_s` | 3 | Audio chunk length in seconds |
-| `processing` | `input` | `"standardized"` | Use raw (`"standardized"`) or filtered audio |
-| `processing` | `merge_gap_s` | 3 | Gap (seconds) for merging overlapping detections |
-| `processing` | `drop_outside_deployment` | `true` | Remove detections outside deployment windows |
-| `occupancy` | `occasion_length_days` | 1 | Days per sampling occasion |
-| `occupancy` | `min_effort_hours` | 2 | Minimum recording hours per occasion |
-| `occupancy` | `min_detections` | 5 | Minimum total detections to include a species |
-| `occupancy` | `timezone` | `"Asia/Kolkata"` | Timezone for day boundaries |
+| Section      | Key                       | Default          | Description                                      |
+|--------------|---------------------------|------------------|--------------------------------------------------|
+| `birdnet`    | `workers`                 | 4                | Number of parallel CPU cores                     |
+| `birdnet`    | `min_confidence`          | 0.5              | Minimum BirdNET score to keep                    |
+| `birdnet`    | `chunk_length_s`          | 3                | Audio chunk length in seconds                    |
+| `processing` | `input`                   | `"standardized"` | Use raw (`"standardized"`) or filtered audio     |
+| `processing` | `merge_gap_s`             | 3                | Gap (seconds) for merging overlapping detections |
+| `processing` | `drop_outside_deployment` | `true`           | Remove detections outside deployment windows     |
+| `occupancy`  | `occasion_length_days`    | 1                | Days per sampling occasion                       |
+| `occupancy`  | `min_effort_hours`        | 2                | Minimum recording hours per occasion             |
+| `occupancy`  | `min_detections`          | 5                | Minimum total detections to include a species    |
+| `occupancy`  | `timezone`                | `"Asia/Kolkata"` | Timezone for day boundaries                      |
 
 ## Resumability
 

@@ -39,7 +39,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/pradeeshwarrj/pamflow"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/pradeeshwarrj/pamflow" aria-label="GitHub repository"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -74,28 +74,28 @@
 <h2 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
 </h2>
 <table class="table">
-<thead><tr>
+<thead><tr class="header">
 <th>Software</th>
 <th>Version</th>
 <th>Notes</th>
 </tr></thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>R</td>
 <td>≥ 4.3</td>
 <td>64-bit</td>
 </tr>
-<tr>
+<tr class="even">
 <td>Python</td>
 <td>≥ 3.9</td>
 <td>Required by BirdNET</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>FFmpeg</td>
 <td>any</td>
 <td>Required for audio clipping</td>
 </tr>
-<tr>
+<tr class="even">
 <td>birdnetR</td>
 <td>latest</td>
 <td>BirdNET model wrapper</td>
@@ -228,53 +228,53 @@ G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr>
+<thead><tr class="header">
 <th>Stage</th>
 <th>Function</th>
 <th>What it does</th>
 </tr></thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>1</td>
 <td><code><a href="reference/pam_scan_audio.html">pam_scan_audio()</a></code></td>
 <td>Inventories audio files, matches to deployments, flags QC issues</td>
 </tr>
-<tr>
+<tr class="even">
 <td>3</td>
 <td><code><a href="reference/pam_detect.html">pam_detect()</a></code></td>
 <td>Runs BirdNET on all files in parallel batches; resumable</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>4</td>
 <td><code><a href="reference/pam_process_detections.html">pam_process_detections()</a></code></td>
 <td>Filters by confidence, deployment window, species; merges overlapping windows</td>
 </tr>
-<tr>
+<tr class="even">
 <td>5</td>
 <td><code><a href="reference/pam_validation_draw.html">pam_validation_draw()</a></code></td>
 <td>Draws a stratified random sample for manual review</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>5</td>
 <td><code><a href="reference/pam_validation_export.html">pam_validation_export()</a></code></td>
 <td>Cuts short WAV clips around each sampled detection</td>
 </tr>
-<tr>
+<tr class="even">
 <td>5</td>
 <td><code>pam_validation_app()</code></td>
 <td>Shiny app to listen and confirm/reject species</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>5</td>
 <td><code><a href="reference/pam_validation_metrics.html">pam_validation_metrics()</a></code></td>
 <td>Computes precision by species and confidence band</td>
 </tr>
-<tr>
+<tr class="even">
 <td>6</td>
 <td><code><a href="reference/pam_build_occupancy.html">pam_build_occupancy()</a></code></td>
 <td>Builds daily detection matrices, effort, and site covariates</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>8</td>
 <td><code><a href="reference/pam_report.html">pam_report()</a></code></td>
 <td>Generates HTML report and Excel workbook</td>
@@ -319,68 +319,68 @@ G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
 <col width="25%">
 <col width="25%">
 </colgroup>
-<thead><tr>
+<thead><tr class="header">
 <th>Section</th>
 <th>Key</th>
 <th>Default</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><code>birdnet</code></td>
 <td><code>workers</code></td>
 <td>4</td>
 <td>Number of parallel CPU cores</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>birdnet</code></td>
 <td><code>min_confidence</code></td>
 <td>0.5</td>
 <td>Minimum BirdNET score to keep</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>birdnet</code></td>
 <td><code>chunk_length_s</code></td>
 <td>3</td>
 <td>Audio chunk length in seconds</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>processing</code></td>
 <td><code>input</code></td>
 <td><code>"standardized"</code></td>
 <td>Use raw (<code>"standardized"</code>) or filtered audio</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>processing</code></td>
 <td><code>merge_gap_s</code></td>
 <td>3</td>
 <td>Gap (seconds) for merging overlapping detections</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>processing</code></td>
 <td><code>drop_outside_deployment</code></td>
 <td><code>true</code></td>
 <td>Remove detections outside deployment windows</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>occupancy</code></td>
 <td><code>occasion_length_days</code></td>
 <td>1</td>
 <td>Days per sampling occasion</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>occupancy</code></td>
 <td><code>min_effort_hours</code></td>
 <td>2</td>
 <td>Minimum recording hours per occasion</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>occupancy</code></td>
 <td><code>min_detections</code></td>
 <td>5</td>
 <td>Minimum total detections to include a species</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>occupancy</code></td>
 <td><code>timezone</code></td>
 <td><code>"Asia/Kolkata"</code></td>

@@ -69,7 +69,6 @@ internally).
 ## 4. Installation
 
 ``` r
-
 # Install devtools if you don't have it
 install.packages("devtools")
 
@@ -158,7 +157,6 @@ flags quality issues (truncated files, gaps, duplicates,
 out-of-deployment recordings).
 
 ``` r
-
 library(pamflow)
 cfg <- pam_config_read("E:/my_pam_project/config/config.yml")
 pam_scan_audio(cfg)
@@ -176,7 +174,6 @@ copies to a separate folder; originals are never modified. Skip if your
 classifier was trained on unfiltered audio.
 
 ``` r
-
 pam_filter_audio(cfg)
 ```
 
@@ -190,7 +187,6 @@ Runs your custom classifier on every QC-passed recording using parallel
 workers. Resumable: if it crashes, rerunning picks up where it stopped.
 
 ``` r
-
 pam_detect(cfg, run_id = "run01")
 
 # Quick test on a subset:
@@ -212,7 +208,6 @@ outside-deployment, whitelist/blacklist, date range, species season,
 confidence threshold, and window merging.
 
 ``` r
-
 result <- pam_process_detections(cfg, run_id = "run01")
 print(result$steps)
 ```
@@ -229,7 +224,6 @@ app for review, and calculates precision per species and confidence
 band.
 
 ``` r
-
 pam_validation_draw(cfg, n_per_cell = 10, run_id = "run01")
 pam_validation_export(cfg, run_id = "run01")
 pam_validate(cfg, run_id = "run01")        # opens browser
@@ -247,7 +241,6 @@ Draws random 60-second segments, you annotate them blind to the
 detector, and the package calculates recall, precision, and F1.
 
 ``` r
-
 pam_recall_draw(cfg, n_segments = 20, run_id = "run01")
 pam_recall_export(cfg, run_id = "run01")
 pam_annotate(cfg, run_id = "run01")        # opens browser
@@ -266,7 +259,6 @@ occasions) with 1/0/NA values. Calculates effort and Julian date per
 occasion.
 
 ``` r
-
 result <- pam_build_occupancy(cfg, run_id = "run01")
 print(result$summary)
 ```
@@ -277,7 +269,6 @@ print(result$summary)
 **Using with `unmarked`:**
 
 ``` r
-
 library(unmarked)
 library(data.table)
 
@@ -296,7 +287,6 @@ Generates HTML, PDF, and Excel reports with effort, detections,
 validation, and occupancy summaries.
 
 ``` r
-
 files <- pam_report(cfg, run_id = "run01")
 print(files)
 ```
@@ -328,7 +318,6 @@ print(files)
 ## 8. Typical Workflow
 
 ``` r
-
 library(pamflow)
 cfg <- pam_config_read("E:/my_project/config/config.yml")
 
