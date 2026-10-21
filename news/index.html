@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,9 +34,29 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="pamflow-020">pamflow 0.2.0<a class="anchor" aria-label="anchor" href="#pamflow-020"></a></h2>
+<div class="section level3">
+<h3 id="major-features-0-2-0">Major Features<a class="anchor" aria-label="anchor" href="#major-features-0-2-0"></a></h3>
+<ul><li>
+<strong>Workflow B: Soundscape Analysis</strong> introduced.</li>
+<li>
+<strong>Stage 2b (Soundscape Indices)</strong>: Added <code><a href="../reference/pam_soundscape_run.html">pam_soundscape_run()</a></code> to compute ACI, ADI, AEve, Bio, H, M, and NDSI following Bradfer-Lawrence et al. (2019).</li>
+<li>
+<strong>Stage 2c (Soundscape Visualizations)</strong>: Added <code><a href="../reference/pam_soundscape_run_vis.html">pam_soundscape_run_vis()</a></code> and <code><a href="../reference/pam_soundscape_report.html">pam_soundscape_report()</a></code> to generate automated 24-hour diel profiles, Day/Night comparisons, and HTML diagnostic reports.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance--optimizations-0-2-0">Performance &amp; Optimizations<a class="anchor" aria-label="anchor" href="#performance--optimizations-0-2-0"></a></h3>
+<ul><li>Implemented 1-minute sub-windowing for high-performance memory safety.</li>
+<li>Optimized audio high-pass filtering (500 Hz) at the sub-window level.</li>
+<li>Added dynamic downsampling (to 24 kHz) for ecoacoustic frequency bounds, increasing processing speed by 10x-15x.</li>
+<li>Checkpointing mechanism (<code>done.txt</code>) implemented for crash-resilient resuming.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="pamflow-010">pamflow 0.1.0<a class="anchor" aria-label="anchor" href="#pamflow-010"></a></h2>
 <ul><li>First release.</li>
 <li>Stage 1: Audio scanning and QC (<code><a href="../reference/pam_scan_audio.html">pam_scan_audio()</a></code>).</li>
+<li>Stage 2: High-pass filtering (Optional) (<code><a href="../reference/pam_filter_audio.html">pam_filter_audio()</a></code>).</li>
 <li>Stage 3: BirdNET batch detection with parallel workers and resume support (<code><a href="../reference/pam_detect.html">pam_detect()</a></code>).</li>
 <li>Stage 4: Detection cleaning, filtering, and merging (<code><a href="../reference/pam_process_detections.html">pam_process_detections()</a></code>).</li>
 <li>Stage 5: Interactive validation app with precision metrics (<code><a href="../reference/pam_validation_draw.html">pam_validation_draw()</a></code>, <code><a href="../reference/pam_validation_export.html">pam_validation_export()</a></code>, <code>pam_validation_app()</code>, <code><a href="../reference/pam_validation_metrics.html">pam_validation_metrics()</a></code>).</li>
@@ -45,7 +65,8 @@
 <li>Config-driven pipeline — all settings in a single YAML file.</li>
 <li>134 unit tests, R CMD check clean (0 errors, 0 warnings, 0 notes).</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

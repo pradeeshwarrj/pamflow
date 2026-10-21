@@ -1,39 +1,39 @@
-# Calculate Soundscape Indices for One Audio File
+# Compute Ecoacoustic Soundscape Indices for a Single Audio File
 
-Calculate Soundscape Indices for One Audio File
+Reads a WAV file, applies an optional low-stop (highpass) filter,
+resamples high-sample-rate audio to 24 kHz for ecoacoustic frequency
+bounds (max 11-12 kHz), splits the recording into internal analysis
+windows, and computes ecoacoustic indices dynamically configured in
+`cfg$soundscape$acoustic_indices`.
 
 ## Usage
 
 ``` r
-pam_soundscape_one(
-  file_path,
-  low_stop_hz = 500,
-  anthrophony_range = c(1000, 2000),
-  biophony_range = c(2000, 11000)
-)
+pam_soundscape_one(wav_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL)
 ```
 
 ## Arguments
 
-- file_path:
+- wav_path:
 
-  Character path to a WAV audio file.
+  Character. Path to input WAV file.
 
 - low_stop_hz:
 
-  Numeric frequency (Hz) for highpass low-stop filter. Default 500.
+  Numeric. Highpass low-stop frequency in Hz (default 500). Pass NULL or
+  0 to skip filtering.
 
-- anthrophony_range:
+- cfg:
 
-  Numeric length-2 vector for anthrophony band (Hz). Default c(1000,
-  2000).
+  List. Parsed configuration structure from
+  [`pam_config_read`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.md).
 
-- biophony_range:
+- window_sec:
 
-  Numeric length-2 vector for biophony band (Hz). Default c(2000,
-  11000).
+  Numeric. Optional window duration in seconds (e.g. 600 for 10
+  minutes).
 
 ## Value
 
-A data.table with 1 row and columns for all 7 indices (ACI, ADI, AEve,
-Bio, H, M, NDSI).
+A `data.table` with columns for `file_id`, `window_index`,
+`window_start_sec`, `window_end_sec`, and computed index values.

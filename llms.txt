@@ -1,10 +1,18 @@
 # pamflow
 
-**End-to-end Passive Acoustic Monitoring workflow for BirdNET**
+**End-to-end Passive Acoustic Monitoring workflow**
 
-`pamflow` takes you from raw field recordings to validated detection
-histories and reports — with a single config file and a handful of
-function calls.
+`pamflow` takes you from raw field recordings to ecological useful data
+— with a single config file and a handful of function calls.
+
+`Workflow A (Species Detection & Occupancy)`: Run BirdNET, clean & merge
+detections, perform stratified validation with Shiny, build daily site
+occupancy matrices, and compile executive reports.
+
+`Workflow B (Soundscape Analysis)`: Compute core acoustic indices (ACI,
+ADI, AEve, Bio, H, M, NDSI) following Bradfer-Lawrence et al. (2019)
+with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking,
+24-hour diel profiles, and automated HTML diagnostic reports.
 
 ## Features
 
@@ -14,7 +22,11 @@ function calls.
 - **Interactive validation** via Shiny app with precision metrics
 - **Occupancy detection histories** (daily 1/0 matrices per site per
   species)
-- **HTML & Excel reports** summarising the full pipeline
+- **Ecoacoustic Soundscape Indices** Dynamic computation of ACI, ADI,
+  AEve, Bio, H, M, and NDSI.
+- **Soundscape Visualizations & HTML Reports** 24-hour diel profiles,
+  Day vs. Night comparisons, sitecovariate tables, and standalone HTML
+  reports.
 
 ## Prerequisites
 
@@ -92,13 +104,33 @@ birdnet:
   overlap_s: 0
   min_confidence: 0.5
   workers: 4
-  run_id: "run01"
 
 processing:
   input: "standardized"
   merge_gap_s: 3
   drop_outside_deployment: true
   min_confidence: 0.4
+
+soundscape:
+  enabled: true
+  window_mins: 10
+  low_stop_hz: 500
+  acoustic_indices:
+    ACI:
+    ADI:
+      fmin: 0
+      fmax: 24000
+      bin_step: 1000
+    AEve:
+    Bio:
+      flim: [2000, 11000]
+    H:
+    M:
+    NDSI:
+      anthro_range: [1000, 2000]
+      bio_range: [2000, 11000]
+  day_hours: [6, 17]
+  night_hours: [18, 5]
 
 occupancy:
   occasion_length_days: 1
@@ -113,9 +145,11 @@ report:
 
 ### 4. Run the pipeline
 
+## Workflow A: Detection & Occupancy Pipeline
+
 ``` r
 library(pamflow)
-cfg <- pam_config_read("E:/MyProject/config/config.yml")
+cfg <- pam_config_read("E:/MyProject/config/config.yaml")
 
 # Stage 1: Scan audio and check deployments
 pam_scan_audio(cfg)
@@ -139,23 +173,42 @@ pam_validation_metrics(val, pool, bands = c(0.5, 0.6, 0.7, 0.8, 0.9))
 # Stage 6: Build occupancy detection histories
 pam_build_occupancy(cfg)
 
-# Stage 8: Generate reports
+# Stage 8: Generate species detection reports
 pam_report(cfg)
+```
+
+## Workflow B: Soundscape Analysis Pipeline
+
+``` r
+library(pamflow)
+cfg <- pam_config_read("E:/MyProject/config/config.yaml")
+
+# Stage 1: Scan audio and check deployments
+pam_scan_audio(cfg)
+
+# Stage 2b: Calculate soundscape indices (ACI, Bio, NDSI, etc.)
+sc_results <- pam_soundscape_run(cfg)
+
+# Stage 2c: Generate 24-hour diel plots, Day/Night comparisons & HTML Report
+vis_results <- pam_soundscape_run_vis(cfg)
 ```
 
 ## Pipeline Stages
 
-| Stage | Function                                                                                                  | What it does                                                                  |
-|-------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| 1     | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)                 | Inventories audio files, matches to deployments, flags QC issues              |
-| 3     | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)                         | Runs BirdNET on all files in parallel batches; resumable                      |
-| 4     | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md) | Filters by confidence, deployment window, species; merges overlapping windows |
-| 5     | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)       | Draws a stratified random sample for manual review                            |
-| 5     | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)   | Cuts short WAV clips around each sampled detection                            |
-| 5     | `pam_validation_app()`                                                                                    | Shiny app to listen and confirm/reject species                                |
-| 5     | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md) | Computes precision by species and confidence band                             |
-| 6     | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)       | Builds daily detection matrices, effort, and site covariates                  |
-| 8     | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)                         | Generates HTML report and Excel workbook                                      |
+| Workflow | Stage | Function                                                                                                  | What it does                                                                  |
+|----------|-------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| Both     | 1     | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)                 | Inventories audio files, matches to deployments, flags QC issues              |
+| Both     | 2     | [`pam_filter_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.md)             | High-pass filter on the QC checked files; can be customized                   |
+| B        | 2b    | [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)         | Computes soundscape indices per 10-min window with 500Hz high-pass filter     |
+| B        | 2c    | [`pam_soundscape_run_vis()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.md) | Plots 24-hour diel profiles, Day/Night comparisons, and generates HTML report |
+| A        | 3     | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)                         | Runs BirdNET on all files in parallel batches; resumable                      |
+| A        | 4     | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md) | Filters by confidence, deployment window, species; merges overlapping windows |
+| A        | 5     | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)       | Draws a stratified random sample for manual review                            |
+| A        | 5     | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)   | Cuts short WAV clips around each sampled detection                            |
+| A        | 5     | `pam_validation_app()`                                                                                    | Shiny app to listen and confirm/reject species                                |
+| A        | 5     | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md) | Computes precision by species and confidence band                             |
+| A        | 6     | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)       | Builds daily detection matrices, effort, and site covariates                  |
+| A        | 8     | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)                         | Generates HTML report and Excel workbook                                      |
 
 > **Note:** All functions take `cfg` as their only required argument.
 > The `run_id` is read from the config file.
@@ -166,22 +219,25 @@ pam_report(cfg)
 MyProject/
 ├── data/
 │   ├── master_table.csv
+│   ├── soundscape/run01/
+│   │   ├── soundscape_raw.csv
+│   │   ├── soundscape_hourly.csv
+│   │   ├── soundscape_diel_summary.csv
+│   │   ├── soundscape_site_covariates.csv
+│   │   ├── plots/
+│   │   │   ├── diel_hourly_aci.png
+│   │   │   └── diel_phase_aci.png
+│   │   └── reports/
+│   │       └── Soundscape_Report_run01.html
 │   ├── detections/run01/
-│   │   ├── batches/              # raw BirdNET output
+│   │   ├── batches/
 │   │   └── processed/
-│   │       ├── detections_clean.csv
-│   │       ├── removed_detections.csv
-│   │       └── processing_steps.csv
 │   └── occupancy/run01/
 │       ├── detection_matrices/
 │       ├── effort.csv
 │       └── site_covariates.csv
 ├── validation/run01/
-│   ├── clips/
-│   └── annotations.csv
 ├── reports/
-│   ├── report_run01.html
-│   └── report_run01.xlsx
 └── logs/
 ```
 
@@ -250,18 +306,35 @@ MIT
 - [`pam_highpass_filter_string()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_highpass_filter_string.md)
   : Build the FFmpeg filter string for a Butterworth high-pass
 
-## Stage 2b — Soundscapes
+## Stage 2b — Soundscape Indices
 
-- [`pam_soundscape`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape.md)
-  : Soundscape Analysis Functions (Stage 2b)
-- [`pam_soundscape_one()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_one.md)
-  : Calculate Soundscape Indices for One Audio File
-- [`pam_soundscape_batch()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_batch.md)
-  : Calculate Soundscape Indices Across Audio Files
-- [`pam_soundscape_summarise()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.md)
-  : Summarise Soundscape Indices by Hour and Diel Phase
+- [`soundscape`](https://pradeeshwarrj.github.io/pamflow/reference/soundscape.md)
+  : Stage 2b: Soundscape Analysis (Indices & Summaries)
 - [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)
-  : Master Soundscape Pipeline Stage (Stage 2b)
+  : Run Stage 2b Soundscape Analysis Pipeline
+- [`pam_soundscape_one()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_one.md)
+  : Compute Ecoacoustic Soundscape Indices for a Single Audio File
+- [`pam_soundscape_batch()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_batch.md)
+  : Batch Process Audio Files for Soundscape Indices
+- [`pam_soundscape_summarise()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.md)
+  : Summarize Soundscape Indices into Hourly, Diel, and Site Covariate
+  Metrics
+- [`to_scalar_num()`](https://pradeeshwarrj.github.io/pamflow/reference/to_scalar_num.md)
+  : Safely Extract a Single Numeric Value from Soundecology/Seewave
+  Returns
+
+## Stage 2c — Soundscape Visualizations & Reports
+
+- [`soundscape_vis`](https://pradeeshwarrj.github.io/pamflow/reference/soundscape_vis.md)
+  : Stage 2c: Soundscape Visualization & Diagnostics
+- [`pam_soundscape_run_vis()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.md)
+  : Run Stage 2c Soundscape Visualization Pipeline
+- [`pam_soundscape_plot_diel()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_plot_diel.md)
+  : Plot 24-Hour Diel Curves for Acoustic Indices
+- [`pam_soundscape_plot_phase()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_plot_phase.md)
+  : Plot Day vs. Night Comparisons for Acoustic Indices
+- [`pam_soundscape_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_report.md)
+  : Generate HTML Soundscape Diagnostic Report
 
 ## Stage 3 — Detect
 

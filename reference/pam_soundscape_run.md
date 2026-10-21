@@ -1,19 +1,24 @@
-# Master Soundscape Pipeline Stage (Stage 2b)
+# Run Stage 2b Soundscape Analysis Pipeline
 
-Master Soundscape Pipeline Stage (Stage 2b)
+Run Stage 2b Soundscape Analysis Pipeline
 
 ## Usage
 
 ``` r
-pam_soundscape_run(cfg)
+pam_soundscape_run(cfg, test_n = NULL)
 ```
 
 ## Arguments
 
 - cfg:
 
-  Config list or path to YAML config file.
+  List. Parsed configuration structure from
+  [`pam_config_read`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.md).
+
+- test_n:
+
+  Integer. Optional. Process only this many files (for tests).
 
 ## Value
 
-List with raw, hourly, and site summary data.tables.
+A named list containing `raw`, `hourly`, `diel`, and `site_covariates`.

@@ -7,6 +7,7 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/authors.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/index.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/news/index.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/get_soundeco_val.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/index.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_add_qc.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_annotate.html</loc></url>
@@ -48,10 +49,13 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_site_covariates.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_site_id.html</loc></url>
-<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_batch.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_one.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_plot_diel.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_plot_phase.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_report.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validate.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.html</loc></url>
@@ -63,5 +67,8 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_sample.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_wilson_ci.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pamflow-package.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/soundscape.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/soundscape_vis.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/to_scalar_num.html</loc></url>
 </urlset>
 

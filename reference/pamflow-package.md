@@ -1,8 +1,10 @@
 # pamflow: End-to-End Passive Acoustic Monitoring Workflow
 
-Tools for standardising passive acoustic recordings, running custom
-BirdNET classifiers, validating detections, and preparing
-occupancy-ready detection histories.
+Standardising passive acoustic recordings, running custom BirdNET
+classifiers, validating detections, and preparing occupancy-ready
+detection histories (Workflow A). Standardising passive acoustic
+recordins, calculating custom list of soundscape indices, patterns in
+soundscape indices, and reporting (Workflow B).
 
 ## See also
 
@@ -17,7 +19,9 @@ Useful links:
 ## Author
 
 **Maintainer**: Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com>
+\[copyright holder\]
 
 Authors:
 
-- Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com>
+- Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com> \[copyright
+  holder\]
