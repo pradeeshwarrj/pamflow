@@ -13,7 +13,8 @@ paths:
 
 filenames:
   # G0059_YYYYMMDD_HHMMSS.wav ; timestamps are local time
-  pattern: "^(?<grid>G\\d{4})_(?<date>\\d{8})_(?<time>\\d{6})\\.wav$"
+  # Supports both original and chunked files: G0059_YYYYMMDD_HHMMSS_chunk1.wav
+  pattern: "^(?<grid>G\\d{4})_(?<date>\\d{8})_(?<time>\\d{6})(_chunk\\d+)?\\.wav$"
   timezone: "Asia/Kolkata"
 
 deployments:
@@ -45,7 +46,7 @@ filter:
 
 birdnet:
   run_id: "run01"
-  input: "standardized"                     # "filtered" or "standardized"
+  input: "standardized"                     # "standardized" or "filtered"
   model_dir: "models/custom_classifier"   # relative paths are resolved against project_root
   classifier_name: "CustomClassifier"     # files: <name>.tflite and <name>_Labels.txt
   labels_file: null         # set only if your labels file has a different name
@@ -72,9 +73,22 @@ processing:
 
 soundscape:
   enabled: true
-  low_stop_hz: 500
-  anthrophony_range: [1000, 2000]
-  biophony_range: [2000, 11000]
+  window_mins: 10                # Compute indices per 10-min window (null = whole file)
+  low_stop_hz: 500               # high-pass filter frequency
+  acoustic_indices:
+    ACI:                         # Acoustic Complexity Index
+    ADI:                         # Acoustic Diversity Index
+      fmin: 0
+      fmax: 24000
+      bin_step: 1000
+    AEve:                        # Acoustic Evenness Index
+    Bio:                         # Bioacoustic Index
+      flim: [2000, 11000]
+    H:                           # Acoustic Entropy
+    M:                           # Median Amplitude Envelope
+    NDSI:                        # Normalized Difference Soundscape Index
+      anthro_range: [1000, 2000]
+      bio_range: [2000, 11000]
   day_hours: [6, 17]
 
 validation:

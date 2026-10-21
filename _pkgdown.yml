@@ -35,13 +35,21 @@ reference:
       - pam_filter_audio
       - pam_filter_one
       - pam_highpass_filter_string
-  - title: "Stage 2b — Soundscapes"
+  - title: "Stage 2b — Soundscape Indices"
     contents:
-      - pam_soundscape
+      - soundscape
+      - pam_soundscape_run
       - pam_soundscape_one
       - pam_soundscape_batch
       - pam_soundscape_summarise
-      - pam_soundscape_run
+      - to_scalar_num
+  - title: "Stage 2c — Soundscape Visualizations & Reports"
+    contents:
+      - soundscape_vis
+      - pam_soundscape_run_vis
+      - pam_soundscape_plot_diel
+      - pam_soundscape_plot_phase
+      - pam_soundscape_report
   - title: "Stage 3 — Detect"
     contents:
       - pam_detect

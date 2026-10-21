@@ -1,19 +1,29 @@
-# Calculate Soundscape Indices Across Audio Files
+# Batch Process Audio Files for Soundscape Indices
 
-Calculate Soundscape Indices Across Audio Files
+Processes a list of audio files in batches of 50, appending results to
+`soundscape_raw.csv` and writing checkpoints to `done.txt`.
 
 ## Usage
 
 ``` r
-pam_soundscape_batch(cfg)
+pam_soundscape_batch(file_list, cfg, test_n = NULL)
 ```
 
 ## Arguments
 
+- file_list:
+
+  Character vector. File paths to audio files.
+
 - cfg:
 
-  Config list or path to YAML config file.
+  List. Parsed configuration structure from
+  [`pam_config_read`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.md).
+
+- test_n:
+
+  Integer. Optional. Process only this many files (for tests).
 
 ## Value
 
-data.table of raw soundscape results for all files.
+A `data.table` containing raw soundscape index values.

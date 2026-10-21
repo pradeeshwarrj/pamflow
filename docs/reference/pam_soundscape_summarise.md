@@ -1,24 +1,28 @@
-# Summarise Soundscape Indices by Hour and Diel Phase
+# Summarize Soundscape Indices into Hourly, Diel, and Site Covariate Metrics
 
-Summarise Soundscape Indices by Hour and Diel Phase
+Summarize Soundscape Indices into Hourly, Diel, and Site Covariate
+Metrics
 
 ## Usage
 
 ``` r
-pam_soundscape_summarise(cfg, raw_dt = NULL)
+pam_soundscape_summarise(raw_dt, master_dt, cfg = NULL)
 ```
 
 ## Arguments
 
-- cfg:
-
-  Config list or path to YAML config file.
-
 - raw_dt:
 
-  Optional data.table of raw soundscape results. If NULL, loaded from
-  disk.
+  `data.table`. Raw window soundscape indices.
+
+- master_dt:
+
+  `data.table`. Master metadata from Stage 1.
+
+- cfg:
+
+  List. Parsed configuration structure.
 
 ## Value
 
-List of data.tables containing hourly and diel site-level summaries.
+A named list containing `hourly`, `diel`, and `site_covariates`.

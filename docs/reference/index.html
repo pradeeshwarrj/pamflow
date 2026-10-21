@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -158,7 +158,7 @@
         </dt>
         <dd>Build the FFmpeg filter string for a Butterworth high-pass</dd>
       </dl></div><div class="section level2">
-      <h2 id="stage-b-soundscapes">Stage 2b — Soundscapes<a class="anchor" aria-label="anchor" href="#stage-b-soundscapes"></a></h2>
+      <h2 id="stage-b-soundscape-indices">Stage 2b — Soundscape Indices<a class="anchor" aria-label="anchor" href="#stage-b-soundscape-indices"></a></h2>
 
 
 
@@ -169,38 +169,89 @@
 
       <dl><dt>
 
-          <code><a href="pam_soundscape.html">pam_soundscape</a></code>
+          <code><a href="soundscape.html">soundscape</a></code>
 
         </dt>
-        <dd>Soundscape Analysis Functions (Stage 2b)</dd>
-
-        <dt>
-
-          <code><a href="pam_soundscape_one.html">pam_soundscape_one()</a></code>
-
-        </dt>
-        <dd>Calculate Soundscape Indices for One Audio File</dd>
-
-        <dt>
-
-          <code><a href="pam_soundscape_batch.html">pam_soundscape_batch()</a></code>
-
-        </dt>
-        <dd>Calculate Soundscape Indices Across Audio Files</dd>
-
-        <dt>
-
-          <code><a href="pam_soundscape_summarise.html">pam_soundscape_summarise()</a></code>
-
-        </dt>
-        <dd>Summarise Soundscape Indices by Hour and Diel Phase</dd>
+        <dd>Stage 2b: Soundscape Analysis (Indices &amp; Summaries)</dd>
 
         <dt>
 
           <code><a href="pam_soundscape_run.html">pam_soundscape_run()</a></code>
 
         </dt>
-        <dd>Master Soundscape Pipeline Stage (Stage 2b)</dd>
+        <dd>Run Stage 2b Soundscape Analysis Pipeline</dd>
+
+        <dt>
+
+          <code><a href="pam_soundscape_one.html">pam_soundscape_one()</a></code>
+
+        </dt>
+        <dd>Compute Ecoacoustic Soundscape Indices for a Single Audio File</dd>
+
+        <dt>
+
+          <code><a href="pam_soundscape_batch.html">pam_soundscape_batch()</a></code>
+
+        </dt>
+        <dd>Batch Process Audio Files for Soundscape Indices</dd>
+
+        <dt>
+
+          <code><a href="pam_soundscape_summarise.html">pam_soundscape_summarise()</a></code>
+
+        </dt>
+        <dd>Summarize Soundscape Indices into Hourly, Diel, and Site Covariate Metrics</dd>
+
+        <dt>
+
+          <code><a href="to_scalar_num.html">to_scalar_num()</a></code>
+
+        </dt>
+        <dd>Safely Extract a Single Numeric Value from Soundecology/Seewave Returns</dd>
+      </dl></div><div class="section level2">
+      <h2 id="stage-c-soundscape-visualizations-reports">Stage 2c — Soundscape Visualizations &amp; Reports<a class="anchor" aria-label="anchor" href="#stage-c-soundscape-visualizations-reports"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="soundscape_vis.html">soundscape_vis</a></code>
+
+        </dt>
+        <dd>Stage 2c: Soundscape Visualization &amp; Diagnostics</dd>
+
+        <dt>
+
+          <code><a href="pam_soundscape_run_vis.html">pam_soundscape_run_vis()</a></code>
+
+        </dt>
+        <dd>Run Stage 2c Soundscape Visualization Pipeline</dd>
+
+        <dt>
+
+          <code><a href="pam_soundscape_plot_diel.html">pam_soundscape_plot_diel()</a></code>
+
+        </dt>
+        <dd>Plot 24-Hour Diel Curves for Acoustic Indices</dd>
+
+        <dt>
+
+          <code><a href="pam_soundscape_plot_phase.html">pam_soundscape_plot_phase()</a></code>
+
+        </dt>
+        <dd>Plot Day vs. Night Comparisons for Acoustic Indices</dd>
+
+        <dt>
+
+          <code><a href="pam_soundscape_report.html">pam_soundscape_report()</a></code>
+
+        </dt>
+        <dd>Generate HTML Soundscape Diagnostic Report</dd>
       </dl></div><div class="section level2">
       <h2 id="stage-detect">Stage 3 — Detect<a class="anchor" aria-label="anchor" href="#stage-detect"></a></h2>
 

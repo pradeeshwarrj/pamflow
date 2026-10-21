@@ -37,18 +37,35 @@
 - [`pam_highpass_filter_string()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_highpass_filter_string.md)
   : Build the FFmpeg filter string for a Butterworth high-pass
 
-## Stage 2b — Soundscapes
+## Stage 2b — Soundscape Indices
 
-- [`pam_soundscape`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape.md)
-  : Soundscape Analysis Functions (Stage 2b)
-- [`pam_soundscape_one()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_one.md)
-  : Calculate Soundscape Indices for One Audio File
-- [`pam_soundscape_batch()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_batch.md)
-  : Calculate Soundscape Indices Across Audio Files
-- [`pam_soundscape_summarise()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.md)
-  : Summarise Soundscape Indices by Hour and Diel Phase
+- [`soundscape`](https://pradeeshwarrj.github.io/pamflow/reference/soundscape.md)
+  : Stage 2b: Soundscape Analysis (Indices & Summaries)
 - [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)
-  : Master Soundscape Pipeline Stage (Stage 2b)
+  : Run Stage 2b Soundscape Analysis Pipeline
+- [`pam_soundscape_one()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_one.md)
+  : Compute Ecoacoustic Soundscape Indices for a Single Audio File
+- [`pam_soundscape_batch()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_batch.md)
+  : Batch Process Audio Files for Soundscape Indices
+- [`pam_soundscape_summarise()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.md)
+  : Summarize Soundscape Indices into Hourly, Diel, and Site Covariate
+  Metrics
+- [`to_scalar_num()`](https://pradeeshwarrj.github.io/pamflow/reference/to_scalar_num.md)
+  : Safely Extract a Single Numeric Value from Soundecology/Seewave
+  Returns
+
+## Stage 2c — Soundscape Visualizations & Reports
+
+- [`soundscape_vis`](https://pradeeshwarrj.github.io/pamflow/reference/soundscape_vis.md)
+  : Stage 2c: Soundscape Visualization & Diagnostics
+- [`pam_soundscape_run_vis()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.md)
+  : Run Stage 2c Soundscape Visualization Pipeline
+- [`pam_soundscape_plot_diel()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_plot_diel.md)
+  : Plot 24-Hour Diel Curves for Acoustic Indices
+- [`pam_soundscape_plot_phase()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_plot_phase.md)
+  : Plot Day vs. Night Comparisons for Acoustic Indices
+- [`pam_soundscape_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_report.md)
+  : Generate HTML Soundscape Diagnostic Report
 
 ## Stage 3 — Detect
 

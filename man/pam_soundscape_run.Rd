@@ -2,16 +2,18 @@
 % Please edit documentation in R/02b_soundscape.R
 \name{pam_soundscape_run}
 \alias{pam_soundscape_run}
-\title{Master Soundscape Pipeline Stage (Stage 2b)}
+\title{Run Stage 2b Soundscape Analysis Pipeline}
 \usage{
-pam_soundscape_run(cfg)
+pam_soundscape_run(cfg, test_n = NULL)
 }
 \arguments{
-\item{cfg}{Config list or path to YAML config file.}
+\item{cfg}{List. Parsed configuration structure from \code{\link{pam_config_read}}.}
+
+\item{test_n}{Integer. Optional. Process only this many files (for tests).}
 }
 \value{
-List with raw, hourly, and site summary data.tables.
+A named list containing \code{raw}, \code{hourly}, \code{diel}, and \code{site_covariates}.
 }
 \description{
-Master Soundscape Pipeline Stage (Stage 2b)
+Run Stage 2b Soundscape Analysis Pipeline
 }

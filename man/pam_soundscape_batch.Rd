@@ -2,16 +2,21 @@
 % Please edit documentation in R/02b_soundscape.R
 \name{pam_soundscape_batch}
 \alias{pam_soundscape_batch}
-\title{Calculate Soundscape Indices Across Audio Files}
+\title{Batch Process Audio Files for Soundscape Indices}
 \usage{
-pam_soundscape_batch(cfg)
+pam_soundscape_batch(file_list, cfg, test_n = NULL)
 }
 \arguments{
-\item{cfg}{Config list or path to YAML config file.}
+\item{file_list}{Character vector. File paths to audio files.}
+
+\item{cfg}{List. Parsed configuration structure from \code{\link{pam_config_read}}.}
+
+\item{test_n}{Integer. Optional. Process only this many files (for tests).}
 }
 \value{
-data.table of raw soundscape results for all files.
+A \code{data.table} containing raw soundscape index values.
 }
 \description{
-Calculate Soundscape Indices Across Audio Files
+Processes a list of audio files in batches of 50, appending results to
+\code{soundscape_raw.csv} and writing checkpoints to \code{done.txt}.
 }

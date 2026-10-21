@@ -2,18 +2,20 @@
 % Please edit documentation in R/02b_soundscape.R
 \name{pam_soundscape_summarise}
 \alias{pam_soundscape_summarise}
-\title{Summarise Soundscape Indices by Hour and Diel Phase}
+\title{Summarize Soundscape Indices into Hourly, Diel, and Site Covariate Metrics}
 \usage{
-pam_soundscape_summarise(cfg, raw_dt = NULL)
+pam_soundscape_summarise(raw_dt, master_dt, cfg = NULL)
 }
 \arguments{
-\item{cfg}{Config list or path to YAML config file.}
+\item{raw_dt}{\code{data.table}. Raw window soundscape indices.}
 
-\item{raw_dt}{Optional data.table of raw soundscape results. If NULL, loaded from disk.}
+\item{master_dt}{\code{data.table}. Master metadata from Stage 1.}
+
+\item{cfg}{List. Parsed configuration structure.}
 }
 \value{
-List of data.tables containing hourly and diel site-level summaries.
+A named list containing \code{hourly}, \code{diel}, and \code{site_covariates}.
 }
 \description{
-Summarise Soundscape Indices by Hour and Diel Phase
+Summarize Soundscape Indices into Hourly, Diel, and Site Covariate Metrics
 }

@@ -1,11 +1,13 @@
 Package: pamflow
 Title: End-to-End Passive Acoustic Monitoring Workflow
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person("Pradeeshwar", "Rajagopal James", email = "pradeeshwarrj@gmail.com",
-    role = c("aut", "cre"))
-Description: Tools for standardising passive acoustic recordings, running
+    role = c("aut", "cre", "cph"))
+Description: Standardising passive acoustic recordings, running
     custom BirdNET classifiers, validating detections, and preparing
-    occupancy-ready detection histories.
+    occupancy-ready detection histories (Workflow A).
+    Standardising passive acoustic recordins, calculating custom list
+    of soundscape indices, patterns in soundscape indices, and reporting (Workflow B). 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -29,6 +31,8 @@ Imports:
     cli,
     data.table,
     fs,
+    ggplot2,
+    glue,
     rlang,
     stats,
     tuneR,
@@ -38,3 +42,4 @@ Config/roxygen2/version: 8.1.1
 URL: https://pradeeshwarrj.github.io/pamflow, https://github.com/pradeeshwarrj/pamflow
 BugReports: https://github.com/pradeeshwarrj/pamflow/issues
 VignetteBuilder: knitr
+Date: 2026-10-21
