@@ -13,6 +13,5 @@ to_scalar_num(x)
 A length-1 numeric, or NA_real_.
 }
 \description{
-Returns NA_real_ for NULL, non-scalar, or non-numeric inputs. Useful because
-soundecology returns can be lists, data.frames, or numeric(0) on short clips.
+Safely Extract a Single Numeric Value from Soundecology/Seewave Returns
 }

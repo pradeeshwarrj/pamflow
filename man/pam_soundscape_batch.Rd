@@ -9,7 +9,7 @@ pam_soundscape_batch(file_list, cfg, test_n = NULL)
 \arguments{
 \item{file_list}{Character vector. File paths to audio files.}
 
-\item{cfg}{List. Parsed configuration structure from \code{\link{pam_config_read}}.}
+\item{cfg}{List. Parsed configuration structure.}
 
 \item{test_n}{Integer. Optional. Process only this many files (for tests).}
 }
@@ -17,6 +17,5 @@ pam_soundscape_batch(file_list, cfg, test_n = NULL)
 A \code{data.table} containing raw soundscape index values.
 }
 \description{
-Processes a list of audio files in batches of 50, appending results to
-\code{soundscape_raw.csv} and writing checkpoints to \code{done.txt}.
+Batch Process Audio Files for Soundscape Indices
 }

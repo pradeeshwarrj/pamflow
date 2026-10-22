@@ -6,6 +6,14 @@
 #' @name soundscape_vis
 NULL
 
+# Quiet R CMD check NOTES for data.table non-standard evaluation
+if (getRversion() >= "2.15.1") {
+  utils::globalVariables(c(
+    "hour", "grid", "diel_phase", "mean_val", "sd_val",
+    "val_mean", "val_sd", "index_name", "y_val"
+  ))
+}
+
 #' Plot 24-Hour Diel Curves for Acoustic Indices
 #'
 #' Generates line plots showing index values across 0-23 hours grouped by grid site.
@@ -44,10 +52,12 @@ pam_soundscape_plot_diel <- function(hourly_dt, indices = NULL, out_dir = NULL, 
 
     if (!mean_col %in% names(dt)) next
 
-    p_dt <- dt[!is.na(get(mean_col))]
+    # Copy subset & create eager y_val column to fix ggplot lazy evaluation bug
+    p_dt <- data.table::copy(dt[!is.na(get(mean_col))])
     if (nrow(p_dt) == 0) next
+    p_dt[, y_val := get(mean_col)]
 
-    p <- ggplot2::ggplot(p_dt, ggplot2::aes(x = hour, y = get(mean_col), color = grid, group = grid)) +
+    p <- ggplot2::ggplot(p_dt, ggplot2::aes(x = hour, y = y_val, color = grid, group = grid)) +
       ggplot2::geom_line(linewidth = 0.8) +
       ggplot2::geom_point(size = 1.5) +
       ggplot2::scale_x_continuous(breaks = seq(0, 23, by = 2)) +
@@ -114,10 +124,12 @@ pam_soundscape_plot_phase <- function(diel_dt, indices = NULL, out_dir = NULL, c
 
     if (!mean_col %in% names(dt)) next
 
-    p_dt <- dt[!is.na(get(mean_col))]
+    # Copy subset & create eager y_val column to fix ggplot lazy evaluation bug
+    p_dt <- data.table::copy(dt[!is.na(get(mean_col))])
     if (nrow(p_dt) == 0) next
+    p_dt[, y_val := get(mean_col)]
 
-    p <- ggplot2::ggplot(p_dt, ggplot2::aes(x = grid, y = get(mean_col), fill = diel_phase)) +
+    p <- ggplot2::ggplot(p_dt, ggplot2::aes(x = grid, y = y_val, fill = diel_phase)) +
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(width = 0.8), width = 0.7) +
       ggplot2::labs(
         title = glue::glue("Day vs. Night Phase Comparison: {toupper(idx)}"),
@@ -169,7 +181,6 @@ pam_soundscape_report <- function(cfg, sc_results = NULL, vis_results = NULL) {
   out_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id, "reports")
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-  # Locate Rmd template in installed package or local workspace
   template_path <- system.file("rmd", "soundscape_report.Rmd", package = "pamflow")
   if (template_path == "" || !file.exists(template_path)) {
     template_path <- file.path(pam_or(cfg$paths$project_root, "."), "inst", "rmd", "soundscape_report.Rmd")
@@ -238,7 +249,21 @@ pam_soundscape_run_vis <- function(cfg, sc_results = NULL, generate_report = TRU
     hourly_dt <- sc_results$hourly
     diel_dt   <- sc_results$diel
   } else {
-    sc_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id)
+    sc_dir_candidates <- c(
+      file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id),
+      file.path(pam_or(cfg$paths$output, cfg$data$output), "soundscape", run_id)
+    )
+    sc_dir <- NULL
+    for (cand in sc_dir_candidates) {
+      if (!is.null(cand) && dir.exists(cand)) {
+        sc_dir <- cand
+        break
+      }
+    }
+    if (is.null(sc_dir)) {
+      sc_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id)
+    }
+
     hourly_path <- file.path(sc_dir, "soundscape_hourly.csv")
     diel_path   <- file.path(sc_dir, "soundscape_diel_summary.csv")
 

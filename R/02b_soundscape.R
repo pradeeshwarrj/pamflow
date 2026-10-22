@@ -2,7 +2,8 @@
 #'
 #' Implementation of ecoacoustic soundscape indices following Bradfer-Lawrence
 #' et al. (2019) guidelines. Computes core acoustic indices with 1-minute
-#' sub-windowing, checkpointing, and timezone-aware hourly/diel summarization.
+#' sub-windowing, checkpointing, multi-core parallel processing, and
+#' timezone-aware hourly/diel summarization.
 #'
 #' @name soundscape
 NULL
@@ -18,9 +19,6 @@ if (getRversion() >= "2.15.1") {
 
 #' Safely Extract a Single Numeric Value from Soundecology/Seewave Returns
 #'
-#' Returns NA_real_ for NULL, non-scalar, or non-numeric inputs. Useful because
-#' soundecology returns can be lists, data.frames, or numeric(0) on short clips.
-#'
 #' @param x An object returned by a soundecology/seewave function.
 #' @return A length-1 numeric, or NA_real_.
 #' @export
@@ -34,10 +32,6 @@ to_scalar_num <- function(x) {
 }
 
 #' Helper to Safely Extract Scalar Numerical Values from Soundecology Returns
-#'
-#' Tries named candidates first; if none match, falls back to the first
-#' numeric element found anywhere in the list. This is robust against
-#' soundecology changing its return element names between versions.
 #'
 #' @param res A list returned by a soundecology function.
 #' @param candidates Character vector of preferred element names.
@@ -58,43 +52,59 @@ get_soundeco_val <- function(res, candidates) {
   NA_real_
 }
 
-#' Compute Ecoacoustic Soundscape Indices for a Single Audio File
+#' Build a cleanroom function environment for PSOCK workers
 #'
-#' Reads a WAV file, applies an optional low-stop (highpass) filter, resamples
-#' high-sample-rate audio to 24 kHz for ecoacoustic frequency bounds (max 11-12 kHz),
-#' splits the recording into internal analysis windows, and computes ecoacoustic
-#' indices dynamically configured in \code{cfg$soundscape$acoustic_indices}.
+#' Prevents workers from loadNamespace()-ing an outdated installed pamflow
+#' copy when closures are serialized. All helper functions are re-parented
+#' to an isolated env whose parent is baseenv().
+#'
+#' @param funs Named list of functions to export.
+#' @return An environment suitable for clusterExport / worker closures.
+#' @keywords internal
+pam_soundscape_export_env <- function(funs) {
+  export_env <- new.env(parent = baseenv())
+  for (nm in names(funs)) {
+    export_env[[nm]] <- funs[[nm]]
+  }
+  for (nm in names(funs)) {
+    f <- export_env[[nm]]
+    if (is.function(f)) {
+      environment(f) <- export_env
+      export_env[[nm]] <- f
+    }
+  }
+  export_env
+}
+
+#' Compute Ecoacoustic Soundscape Indices for a Single Audio File
 #'
 #' @param wav_path Character. Path to input WAV file.
 #' @param low_stop_hz Numeric. Highpass low-stop frequency in Hz (default 500).
-#'   Pass NULL or 0 to skip filtering.
 #' @param cfg List. Parsed configuration structure from \code{\link{pam_config_read}}.
-#' @param window_sec Numeric. Optional window duration in seconds (e.g. 600 for
-#'   10 minutes).
+#' @param window_sec Numeric. Optional window duration in seconds.
 #'
-#' @return A \code{data.table} with columns for \code{file_id}, \code{window_index},
-#'   \code{window_start_sec}, \code{window_end_sec}, and computed index values.
+#' @return A \code{data.table} with file/window metadata and index values.
 #' @export
 pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL) {
   stage <- "02b_soundscape"
-  log_dir <- if (!is.null(cfg) && !is.null(cfg$paths$logs)) cfg$paths$logs else tempdir()
+  log_dir <- if (!is.null(cfg) && !is.null(cfg$paths) && !is.null(cfg$paths$logs)) cfg$paths$logs else tempdir()
   if (!file.exists(wav_path)) {
     stop(glue::glue("WAV file not found: {wav_path}"))
   }
 
-  low_stop_hz <- to_scalar_num(pam_or(low_stop_hz, pam_or(cfg$soundscape$low_stop_hz, 500)))
-  anthro_range <- pam_or(cfg$soundscape$anthro_range, c(1000, 2000))
-  bio_range <- pam_or(cfg$soundscape$bio_range, c(2000, 11000))
+  sc_cfg <- pam_or(cfg$soundscape, cfg$settings$soundscape)
+  low_stop_hz <- to_scalar_num(pam_or(low_stop_hz, pam_or(sc_cfg$low_stop_hz, 500)))
+  anthro_range <- pam_or(sc_cfg$anthro_range, c(1000, 2000))
+  bio_range <- pam_or(sc_cfg$bio_range, c(2000, 11000))
 
-  # Resolve window duration (supports window_mins or window_sec)
   win_sec <- to_scalar_num(pam_or(
     window_sec,
     pam_or(
-      if (!is.null(cfg$soundscape$window_mins)) cfg$soundscape$window_mins * 60 else NULL,
-      pam_or(cfg$soundscape$window_sec, 600)
+      if (!is.null(sc_cfg$window_mins)) sc_cfg$window_mins * 60 else NULL,
+      pam_or(sc_cfg$window_sec, 600)
     )
   ))
-  sub_win_sec <- to_scalar_num(pam_or(cfg$soundscape$sub_window_sec, 60))
+  sub_win_sec <- to_scalar_num(pam_or(sc_cfg$sub_window_sec, 60))
 
   file_id <- tools::file_path_sans_ext(basename(wav_path))
 
@@ -105,18 +115,6 @@ pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_
     }
   )
 
-  # Low-stop filtering if requested
-  if (!is.na(low_stop_hz) && low_stop_hz > 0) {
-    wave <- tryCatch(
-      seewave::ffilter(wave, f = wave@samp.rate, from = low_stop_hz, output = "Wave"),
-      error = function(e) {
-        pam_log("WARN", glue::glue("ffilter failed for {file_id}, using raw wave: {e$message}"), stage, log_dir)
-        wave
-      }
-    )
-  }
-
-  # Downsample to 24 kHz for ecoacoustics (max required freq = 11 kHz)
   target_rate <- 24000
   if (wave@samp.rate > target_rate) {
     wave <- tryCatch(
@@ -135,19 +133,18 @@ pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_
 
   res_list <- vector("list", length(starts))
 
-  # Resolve index settings dynamically; default to all 7 indices if absent
-  idx_settings <- cfg$soundscape$acoustic_indices
+  idx_settings <- pam_or(sc_cfg$acoustic_indices, NULL)
   if (is.null(idx_settings)) {
     idx_settings <- list(ACI = list(), ADI = list(), AEve = list(), Bio = list(), H = list(), M = list(), NDSI = list())
   }
 
-  null_con <- nullfile()
-  sink_active <- FALSE
-  if (is.character(null_con) && length(null_con) == 1) {
-    sink(null_con, type = "output")
-    sink_active <- TRUE
+  null_path <- nullfile()
+  sink_con <- tryCatch(file(null_path, open = "wt"), error = function(e) NULL)
+  if (!is.null(sink_con)) {
+    sink(sink_con, type = "output")
     on.exit({
-      if (sink_active) sink(type = "output")
+      try(sink(type = "output"), silent = TRUE)
+      try(close(sink_con), silent = TRUE)
     }, add = TRUE)
   }
 
@@ -173,7 +170,30 @@ pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_
       samp_end <- min(length(wave@left), ceiling(s_end * wave@samp.rate))
 
       sub_left <- wave@left[samp_start:samp_end]
-      sub_right <- if (wave@stereo && length(wave@right) >= samp_end) wave@right[samp_start:samp_end] else numeric(0)
+      sub_right <- if (isTRUE(wave@stereo) && length(wave@right) >= samp_end) {
+        wave@right[samp_start:samp_end]
+      } else {
+        numeric(0)
+      }
+
+      # High-pass filter sub-window; flatten matrix -> 1D numeric for tuneR::Wave
+      if (!is.na(low_stop_hz) && low_stop_hz > 0 && length(sub_left) > 512) {
+        filt_left <- calc_quiet(as.numeric(seewave::ffilter(
+          sub_left, f = wave@samp.rate, from = low_stop_hz, output = "matrix"
+        )))
+        if (!is.null(filt_left) && length(filt_left) == length(sub_left)) {
+          sub_left <- filt_left
+        }
+
+        if (length(sub_right) > 512) {
+          filt_right <- calc_quiet(as.numeric(seewave::ffilter(
+            sub_right, f = wave@samp.rate, from = low_stop_hz, output = "matrix"
+          )))
+          if (!is.null(filt_right) && length(filt_right) == length(sub_right)) {
+            sub_right <- filt_right
+          }
+        }
+      }
 
       sub_wave <- tuneR::Wave(
         left = sub_left,
@@ -187,41 +207,68 @@ pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_
 
       if ("ACI" %in% names(idx_settings)) {
         res <- calc_quiet(soundecology::acoustic_complexity(sub_wave))
-        sub_res_list$aci <- get_soundeco_val(res, c("Acoustic_Complexity", "AcousticComplexityValue_all", "AcousticComplexityValue_left", "AcousticComplexityValue", "aci_tot"))
+        sub_res_list$aci <- to_scalar_num(get_soundeco_val(res, c(
+          "Acoustic_Complexity", "AcousticComplexityValue_all",
+          "AcousticComplexityValue_left", "AcousticComplexityValue",
+          "aci_tot", "AciTotAll_Run"
+        )))
       }
       if ("ADI" %in% names(idx_settings)) {
         res <- calc_quiet(soundecology::acoustic_diversity(sub_wave))
-        sub_res_list$adi <- get_soundeco_val(res, c("Acoustic_Diversity_Value", "adi_left", "adi_all", "adi"))
+        sub_res_list$adi <- to_scalar_num(get_soundeco_val(res, c(
+          "Acoustic_Diversity_Value", "adi_left", "adi_all", "adi"
+        )))
       }
       if ("AEve" %in% names(idx_settings)) {
         res <- calc_quiet(soundecology::acoustic_evenness(sub_wave))
-        sub_res_list$aeve <- get_soundeco_val(res, c("Acoustic_Evenness_Value", "aeve_left", "aeve_all", "aeve"))
+        sub_res_list$aeve <- to_scalar_num(get_soundeco_val(res, c(
+          "Acoustic_Evenness_Value", "aeve_left", "aeve_all", "aeve"
+        )))
       }
       if ("Bio" %in% names(idx_settings)) {
         flim <- pam_or(idx_settings$Bio$flim, bio_range)
-        res <- calc_quiet(soundecology::bioacoustic_index(sub_wave, min_freq = flim[1], max_freq = flim[2]))
-        sub_res_list$bio <- get_soundeco_val(res, c("Left_Bioacc", "left_area", "area", "bio_index"))
+        res <- calc_quiet(soundecology::bioacoustic_index(
+          sub_wave, min_freq = flim[1], max_freq = flim[2]
+        ))
+        sub_res_list$bio <- to_scalar_num(get_soundeco_val(res, c(
+          "Left_Bioacc", "left_area", "area", "bio_index"
+        )))
       }
       if ("H" %in% names(idx_settings)) {
         h_res <- calc_quiet(seewave::sh(sub_wave, f = sub_wave@samp.rate))
-        sub_res_list$h <- if (is.null(h_res)) NA_real_ else if (is.list(h_res)) get_soundeco_val(h_res, "sh") else to_scalar_num(h_res)
+        sub_res_list$h <- to_scalar_num(
+          if (is.list(h_res)) get_soundeco_val(h_res, "sh") else h_res
+        )
       }
       if ("M" %in% names(idx_settings)) {
-        sub_res_list$m <- calc_quiet(to_scalar_num(seewave::M(sub_wave, f = sub_wave@samp.rate)))
+        m_res <- calc_quiet(seewave::M(sub_wave, f = sub_wave@samp.rate))
+        sub_res_list$m <- to_scalar_num(m_res)
       }
       if ("NDSI" %in% names(idx_settings)) {
-        anthro <- pam_or(idx_settings$NDSI$anthro_range, pam_or(idx_settings$NDSI$flim_antroPh, anthro_range))
-        bio <- pam_or(idx_settings$NDSI$bio_range, pam_or(idx_settings$NDSI$flim_bioPh, bio_range))
-        res <- calc_quiet(soundecology::ndsi(sub_wave, anthro_min = anthro[1], anthro_max = anthro[2], bio_min = bio[1], bio_max = bio[2]))
-        sub_res_list$ndsi <- get_soundeco_val(res, c("ndsi_left", "ndsi_all", "ndsi"))
+        anthro <- pam_or(
+          idx_settings$NDSI$anthro_range,
+          pam_or(idx_settings$NDSI$flim_antroPh, anthro_range)
+        )
+        bio <- pam_or(
+          idx_settings$NDSI$bio_range,
+          pam_or(idx_settings$NDSI$flim_bioPh, bio_range)
+        )
+        res <- calc_quiet(soundecology::ndsi(
+          sub_wave,
+          anthro_min = anthro[1], anthro_max = anthro[2],
+          bio_min = bio[1], bio_max = bio[2]
+        ))
+        sub_res_list$ndsi <- to_scalar_num(get_soundeco_val(res, c(
+          "ndsi_left", "ndsi_all", "ndsi"
+        )))
       }
 
       sub_res[[j]] <- data.table::as.data.table(sub_res_list)
     }
 
     sub_dt <- data.table::rbindlist(sub_res, fill = TRUE)
-
-    means <- sub_dt[, lapply(.SD, mean, na.rm = TRUE), .SDcols = setdiff(names(sub_dt), c("file_name", "window_start_sec"))]
+    idx_cols <- setdiff(names(sub_dt), c("file_name", "window_start_sec"))
+    means <- sub_dt[, lapply(.SD, mean, na.rm = TRUE), .SDcols = idx_cols]
 
     res_list[[i]] <- cbind(
       data.table::data.table(
@@ -237,49 +284,163 @@ pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_
   data.table::rbindlist(res_list)
 }
 
+#' Resolve Soundscape Output Directory
+#'
+#' @param cfg List. Parsed configuration structure.
+#' @return Character scalar path to output directory.
+#' @keywords internal
+pam_soundscape_out_dir <- function(cfg) {
+  sc_cfg <- if (!is.null(cfg)) pam_or(cfg$soundscape, cfg$settings$soundscape) else NULL
+  run_id <- pam_or(if (!is.null(cfg)) cfg$run_id else NULL, pam_or(if (!is.null(sc_cfg)) sc_cfg$run_id else NULL, "run01"))
+
+  if (!is.null(cfg$paths$soundscape)) {
+    return(file.path(cfg$paths$soundscape, run_id))
+  }
+  if (!is.null(cfg$data$soundscape)) {
+    return(file.path(cfg$data$soundscape, run_id))
+  }
+
+  proj_root <- pam_or(cfg$paths$project_root, pam_or(cfg$data$project_root, "."))
+  file.path(proj_root, "data", "soundscape", run_id)
+}
 
 #' Batch Process Audio Files for Soundscape Indices
 #'
-#' Processes a list of audio files in batches of 50, appending results to
-#' \code{soundscape_raw.csv} and writing checkpoints to \code{done.txt}.
-#'
 #' @param file_list Character vector. File paths to audio files.
-#' @param cfg List. Parsed configuration structure from \code{\link{pam_config_read}}.
+#' @param cfg List. Parsed configuration structure.
 #' @param test_n Integer. Optional. Process only this many files (for tests).
 #'
 #' @return A \code{data.table} containing raw soundscape index values.
 #' @export
 pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
   stage <- "02b_soundscape"
-  log_dir <- if (!is.null(cfg$paths$logs)) cfg$paths$logs else tempdir()
-  run_id <- pam_or(cfg$run_id, pam_or(cfg$soundscape$run_id, "run01"))
-  out_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id)
+  log_dir <- if (!is.null(cfg$paths) && !is.null(cfg$paths$logs)) cfg$paths$logs else tempdir()
+  sc_cfg <- pam_or(cfg$soundscape, cfg$settings$soundscape)
+
+  out_dir <- pam_soundscape_out_dir(cfg)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   raw_csv <- file.path(out_dir, "soundscape_raw.csv")
   done_txt <- file.path(out_dir, "done.txt")
+
+  existing_raw <- if (file.exists(raw_csv)) {
+    tryCatch(data.table::fread(raw_csv), error = function(e) data.table::data.table())
+  } else {
+    data.table::data.table()
+  }
 
   done_files <- character(0)
   if (file.exists(done_txt)) {
     done_files <- readLines(done_txt, warn = FALSE)
   }
 
-  to_process <- file_list[!basename(file_list) %in% done_files]
+  # Keep done.txt in sync with actual raw rows
+  if (nrow(existing_raw) > 0 && "file_id" %in% names(existing_raw)) {
+    valid_done_ids <- unique(existing_raw$file_id)
+    valid_done_names <- paste0(valid_done_ids, ".wav")
+    done_files <- intersect(done_files, c(valid_done_ids, valid_done_names))
+  } else if (length(done_files) > 0) {
+    pam_log("WARN", "done.txt found but soundscape_raw.csv is empty/missing. Resetting checkpoint.", stage, log_dir)
+    done_files <- character(0)
+    unlink(done_txt)
+  }
+
+  to_process <- file_list[
+    !basename(file_list) %in% done_files &
+      !tools::file_path_sans_ext(basename(file_list)) %in% done_files
+  ]
 
   if (!is.null(test_n) && test_n > 0) {
     to_process <- utils::head(to_process, test_n)
   }
 
   if (length(to_process) == 0) {
-    pam_log("INFO", "All soundscape batch files already processed (checkpoint complete).", stage, log_dir)
-    if (file.exists(raw_csv)) {
-      return(data.table::fread(raw_csv))
-    } else {
-      return(data.table::data.table())
-    }
+    pam_log("INFO", "All requested soundscape batch files are already processed.", stage, log_dir)
+    return(existing_raw)
   }
 
-  pam_log("INFO", glue::glue("Starting soundscape processing for {length(to_process)} remaining files..."), stage, log_dir)
+  workers_cfg <- pam_or(sc_cfg$workers, pam_or(sc_cfg$no_cores, pam_or(cfg$settings$workers, 1)))
+  if (is.character(workers_cfg)) {
+    if (workers_cfg == "max") {
+      n_cores <- parallel::detectCores()
+    } else if (workers_cfg %in% c("max-1", "-1")) {
+      n_cores <- max(1, parallel::detectCores() - 1)
+    } else {
+      n_cores <- suppressWarnings(as.integer(workers_cfg))
+    }
+  } else {
+    n_cores <- suppressWarnings(as.integer(workers_cfg))
+  }
+  if (is.na(n_cores) || n_cores < 1) n_cores <- 1
+  n_cores <- min(n_cores, length(to_process))
+
+  pam_log(
+    "INFO",
+    glue::glue("Starting soundscape processing for {length(to_process)} remaining files across {n_cores} worker core(s)..."),
+    stage, log_dir
+  )
+
+  # ---- Cleanroom export env (prevents installed-namespace hijack) ----
+  export_env <- pam_soundscape_export_env(list(
+    pam_soundscape_one = pam_soundscape_one,
+    to_scalar_num      = to_scalar_num,
+    get_soundeco_val   = get_soundeco_val,
+    pam_or             = pam_or,
+    pam_log            = pam_log
+  ))
+
+  cl <- NULL
+  if (n_cores > 1) {
+    cl <- tryCatch({
+      c_obj <- parallel::makePSOCKcluster(n_cores)
+      parallel::clusterEvalQ(c_obj, {
+        suppressPackageStartupMessages({
+          library(data.table)
+          library(tuneR)
+          library(seewave)
+          library(soundecology)
+          library(glue)
+        })
+        try(detach("package:pamflow", unload = TRUE, character.only = TRUE), silent = TRUE)
+        if ("pamflow" %in% loadedNamespaces()) {
+          try(unloadNamespace("pamflow"), silent = TRUE)
+        }
+        NULL
+      })
+
+      parallel::clusterExport(c_obj, varlist = ls(export_env, all.names = TRUE), envir = export_env)
+
+      sig_ok <- parallel::clusterEvalQ(c_obj, {
+        fmls <- names(formals(pam_soundscape_one))
+        list(ok = all(c("wav_path", "cfg") %in% fmls), formals = fmls)
+      })
+      bad <- vapply(sig_ok, function(x) !isTRUE(x$ok), logical(1))
+      if (any(bad)) {
+        parallel::stopCluster(c_obj)
+        stop(
+          "Worker pam_soundscape_one is missing 'cfg' formal. ",
+          "Installed pamflow is likely masking dev functions. ",
+          "Formals seen: ", paste(sig_ok[[which(bad)[1]]]$formals, collapse = ", "),
+          ". Run devtools::install() or remove the old install."
+        )
+      }
+
+      c_obj
+    }, error = function(e) {
+      pam_log(
+        "WARN",
+        glue::glue("Failed to start parallel cluster ({e$message}). Falling back to single-core."),
+        stage, log_dir
+      )
+      NULL
+    })
+
+    if (!is.null(cl)) {
+      on.exit({
+        try(parallel::stopCluster(cl), silent = TRUE)
+      }, add = TRUE)
+    }
+  }
 
   batch_size <- 50
   n_batches <- ceiling(length(to_process) / batch_size)
@@ -290,33 +451,53 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
     idx_end <- min(b * batch_size, length(to_process))
     current_batch <- to_process[idx_start:idx_end]
 
-    batch_results <- vector("list", length(current_batch))
-
-    for (i in seq_along(current_batch)) {
-      fpath <- current_batch[i]
-      fname <- basename(fpath)
-
-      res <- tryCatch(
-        pam_soundscape_one(fpath, low_stop_hz = NULL, cfg = cfg),
-        error = function(e) {
-          pam_log("ERROR", glue::glue("Error processing soundscape for {fname}: {e$message}"), stage, log_dir)
-          NULL
-        }
+    if (!is.null(cl)) {
+      worker_fn <- function(fpath) {
+        tryCatch(
+          pam_soundscape_one(fpath, low_stop_hz = NULL, cfg = cfg),
+          error = function(e) list(error = e$message)
+        )
+      }
+      environment(worker_fn) <- list2env(
+        list(
+          pam_soundscape_one = export_env$pam_soundscape_one,
+          cfg = cfg
+        ),
+        parent = baseenv()
       )
 
-      if (!is.null(res)) {
-        batch_results[[i]] <- res
+      batch_results <- parallel::parLapply(cl, current_batch, worker_fn)
+    } else {
+      batch_results <- vector("list", length(current_batch))
+      for (i in seq_along(current_batch)) {
+        fpath <- current_batch[i]
+        fname <- basename(fpath)
+        batch_results[[i]] <- tryCatch(
+          pam_soundscape_one(fpath, low_stop_hz = NULL, cfg = cfg),
+          error = function(e) {
+            pam_log("ERROR", glue::glue("Error processing soundscape for {fname}: {e$message}"), stage, log_dir)
+            NULL
+          }
+        )
       }
     }
 
-    successful_indices <- which(!sapply(batch_results, is.null))
+    for (i in seq_along(batch_results)) {
+      res <- batch_results[[i]]
+      if (is.list(res) && !is.data.frame(res) && !data.table::is.data.table(res) && !is.null(res$error)) {
+        fname <- basename(current_batch[i])
+        pam_log("ERROR", glue::glue("Error processing soundscape for {fname}: {res$error}"), stage, log_dir)
+        batch_results[i] <- list(NULL)
+      }
+    }
+
+    successful_indices <- which(!vapply(batch_results, is.null, logical(1)))
     valid_dt <- data.table::rbindlist(batch_results[successful_indices], fill = TRUE)
 
     if (nrow(valid_dt) > 0) {
       append_mode <- file.exists(raw_csv)
       data.table::fwrite(valid_dt, raw_csv, append = append_mode)
 
-      # ONLY checkpoint files that succeeded
       successful_files <- basename(current_batch[successful_indices])
       cat(paste(successful_files, collapse = "\n"), "\n", file = done_txt, append = TRUE)
     }
@@ -327,7 +508,11 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
     rem_files <- length(to_process) - files_done
     eta_hrs <- rem_files / max(rate, 0.0001)
 
-    pam_log("INFO", glue::glue("Soundscape Batch {b}/{n_batches} complete. Speed: {round(rate, 1)} files/hr | ETA: {round(eta_hrs, 2)} hrs"), stage, log_dir)
+    pam_log(
+      "INFO",
+      glue::glue("Soundscape Batch {b}/{n_batches} complete. Speed: {round(rate, 1)} files/hr | ETA: {round(eta_hrs, 2)} hrs"),
+      stage, log_dir
+    )
   }
 
   if (file.exists(raw_csv)) {
@@ -336,7 +521,6 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
     data.table::data.table()
   }
 }
-
 
 #' Summarize Soundscape Indices into Hourly, Diel, and Site Covariate Metrics
 #'
@@ -348,10 +532,10 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
 #' @export
 pam_soundscape_summarise <- function(raw_dt, master_dt, cfg = NULL) {
   if (is.null(raw_dt) || nrow(raw_dt) == 0) {
-    stop("raw_dt is empty or NULL.")
+    stop("raw_dt is empty or NULL. Verify soundscape batch output or reset done.txt if checkpointing desynced.")
   }
   if (is.null(master_dt) || nrow(master_dt) == 0) {
-    stop("master_dt is empty or NULL.")
+    stop("master_dt is empty or NULL. Verify audio_master.csv output from Stage 1.")
   }
 
   dt_raw <- data.table::copy(raw_dt)
@@ -376,12 +560,13 @@ pam_soundscape_summarise <- function(raw_dt, master_dt, cfg = NULL) {
 
   dt <- merge(dt_raw, dt_meta, by = "file_id", all.x = TRUE)
 
+  sc_cfg <- if (!is.null(cfg)) pam_or(cfg$soundscape, cfg$settings$soundscape) else NULL
   local_tz <- pam_or(
-    cfg$filenames$timezone,
-    pam_or(cfg$soundscape$timezone, "Asia/Kolkata")
+    if (!is.null(cfg)) cfg$filenames$timezone else NULL,
+    pam_or(if (!is.null(sc_cfg)) sc_cfg$timezone else NULL, "Asia/Kolkata")
   )
 
-  day_hours <- pam_or(cfg$soundscape$day_hours, c(6, 17))
+  day_hours <- pam_or(if (!is.null(sc_cfg)) sc_cfg$day_hours else NULL, c(6, 17))
 
   dt[, window_start_sec := as.numeric(window_start_sec)]
 
@@ -466,7 +651,6 @@ pam_soundscape_summarise <- function(raw_dt, master_dt, cfg = NULL) {
   )
 }
 
-
 #' Run Stage 2b Soundscape Analysis Pipeline
 #'
 #' @param cfg List. Parsed configuration structure from \code{\link{pam_config_read}}.
@@ -476,22 +660,50 @@ pam_soundscape_summarise <- function(raw_dt, master_dt, cfg = NULL) {
 #' @export
 pam_soundscape_run <- function(cfg, test_n = NULL) {
   stage <- "02b_soundscape"
-  log_dir <- if (!is.null(cfg$paths$logs)) cfg$paths$logs else tempdir()
-  run_id <- pam_or(cfg$run_id, pam_or(cfg$soundscape$run_id, "run01"))
+  log_dir <- if (!is.null(cfg$paths) && !is.null(cfg$paths$logs)) cfg$paths$logs else tempdir()
+  sc_cfg <- pam_or(cfg$soundscape, cfg$settings$soundscape)
+  run_id <- pam_or(cfg$run_id, pam_or(sc_cfg$run_id, "run01"))
   pam_log("INFO", glue::glue("Starting Stage 2b Soundscape pipeline for run_id: '{run_id}'"), stage, log_dir)
 
-  master_csv <- file.path(cfg$paths$metadata, "audio_master.csv")
-  if (!file.exists(master_csv)) {
-    stop(glue::glue("Master metadata table not found at: {master_csv}. Please run Stage 1 first."))
+  meta_candidates <- c(
+    if (!is.null(cfg$paths$metadata)) file.path(cfg$paths$metadata, "audio_master.csv") else NULL,
+    if (!is.null(cfg$paths$metadata)) file.path(cfg$paths$metadata, "master_recordings.csv") else NULL,
+    file.path(pam_or(cfg$paths$project_root, "."), "data", "metadata", "audio_master.csv"),
+    file.path(pam_or(cfg$paths$project_root, "."), "data", "metadata", "master_recordings.csv"),
+    file.path(pam_or(cfg$paths$output, cfg$data$output), "metadata", "audio_master.csv"),
+    file.path(pam_or(cfg$paths$output, cfg$data$output), "metadata", "master_recordings.csv")
+  )
+
+  master_csv <- NULL
+  for (cand in meta_candidates) {
+    if (!is.null(cand) && file.exists(cand)) {
+      master_csv <- cand
+      break
+    }
+  }
+
+  if (is.null(master_csv)) {
+    stop("Master metadata table ('audio_master.csv' or 'master_recordings.csv') not found. Please run Stage 1 first.")
   }
   master_dt <- data.table::fread(master_csv)
 
-  input_dir <- cfg$paths$audio_standardized
-  if (!dir.exists(input_dir)) {
-    input_dir <- cfg$paths$audio
+  audio_candidates <- c(
+    cfg$paths$audio_standardized,
+    cfg$data$standardized,
+    file.path(pam_or(cfg$paths$project_root, "."), "data", "standardized"),
+    cfg$paths$audio
+  )
+
+  input_dir <- NULL
+  for (cand in audio_candidates) {
+    if (!is.null(cand) && dir.exists(cand)) {
+      input_dir <- cand
+      break
+    }
   }
-  if (!dir.exists(input_dir)) {
-    stop(glue::glue("Audio input directory not found: {input_dir}"))
+
+  if (is.null(input_dir)) {
+    stop("Audio input directory not found. Please verify standardized audio paths in config.")
   }
 
   file_list <- list.files(input_dir, pattern = "\\.wav$", full.names = TRUE, recursive = TRUE)
@@ -501,10 +713,14 @@ pam_soundscape_run <- function(cfg, test_n = NULL) {
 
   raw_dt <- pam_soundscape_batch(file_list, cfg, test_n = test_n)
 
+  if (is.null(raw_dt) || nrow(raw_dt) == 0) {
+    stop("Soundscape batch processing returned 0 rows. Check worker logs or clear done.txt.")
+  }
+
   pam_log("INFO", "Calculating soundscape hourly and diel summaries...", stage, log_dir)
   summaries <- pam_soundscape_summarise(raw_dt, master_dt, cfg)
 
-  out_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id)
+  out_dir <- pam_soundscape_out_dir(cfg)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   data.table::fwrite(summaries$hourly, file.path(out_dir, "soundscape_hourly.csv"))
