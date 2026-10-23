@@ -3,7 +3,8 @@
 #' Implementation of ecoacoustic soundscape indices following Bradfer-Lawrence
 #' et al. (2019) guidelines. Computes core acoustic indices with 1-minute
 #' sub-windowing, checkpointing, multi-core parallel processing, and
-#' timezone-aware hourly/diel summarization.
+#' timezone-aware hourly/diel summarization. Supports WAV and FLAC via
+#' \code{\link{pam_read_audio}} / \code{\link{pam_list_audio}}.
 #'
 #' @name soundscape
 NULL
@@ -78,18 +79,22 @@ pam_soundscape_export_env <- function(funs) {
 
 #' Compute Ecoacoustic Soundscape Indices for a Single Audio File
 #'
-#' @param wav_path Character. Path to input WAV file.
+#' Reads WAV or FLAC via \code{\link{pam_read_audio}}, optionally downsamples
+#' to 24 kHz, applies a high-pass filter at sub-window level, and computes
+#' configured acoustic indices (ACI, ADI, AEve, Bio, H, M, NDSI).
+#'
+#' @param audio_path Character. Path to input audio file (`.wav` or `.flac`).
 #' @param low_stop_hz Numeric. Highpass low-stop frequency in Hz (default 500).
 #' @param cfg List. Parsed configuration structure from \code{\link{pam_config_read}}.
 #' @param window_sec Numeric. Optional window duration in seconds.
 #'
 #' @return A \code{data.table} with file/window metadata and index values.
 #' @export
-pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL) {
+pam_soundscape_one <- function(audio_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL) {
   stage <- "02b_soundscape"
   log_dir <- if (!is.null(cfg) && !is.null(cfg$paths) && !is.null(cfg$paths$logs)) cfg$paths$logs else tempdir()
-  if (!file.exists(wav_path)) {
-    stop(glue::glue("WAV file not found: {wav_path}"))
+  if (!file.exists(audio_path)) {
+    stop(glue::glue("Audio file not found: {audio_path}"))
   }
 
   sc_cfg <- pam_or(cfg$soundscape, cfg$settings$soundscape)
@@ -106,12 +111,12 @@ pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_
   ))
   sub_win_sec <- to_scalar_num(pam_or(sc_cfg$sub_window_sec, 60))
 
-  file_id <- tools::file_path_sans_ext(basename(wav_path))
+  file_id <- tools::file_path_sans_ext(basename(audio_path))
 
   wave <- tryCatch(
-    tuneR::readWave(wav_path),
+    pam_read_audio(audio_path),
     error = function(e) {
-      stop(glue::glue("Failed to read wave file '{wav_path}': {e$message}"))
+      stop(glue::glue("Failed to read audio file '{audio_path}': {e$message}"))
     }
   )
 
@@ -203,7 +208,7 @@ pam_soundscape_one <- function(wav_path, low_stop_hz = NULL, cfg = NULL, window_
         pcm = wave@pcm
       )
 
-      sub_res_list <- list(file_name = basename(wav_path), window_start_sec = w_start)
+      sub_res_list <- list(file_name = basename(audio_path), window_start_sec = w_start)
 
       if ("ACI" %in% names(idx_settings)) {
         res <- calc_quiet(soundecology::acoustic_complexity(sub_wave))
@@ -306,7 +311,7 @@ pam_soundscape_out_dir <- function(cfg) {
 
 #' Batch Process Audio Files for Soundscape Indices
 #'
-#' @param file_list Character vector. File paths to audio files.
+#' @param file_list Character vector. File paths to audio files (WAV or FLAC).
 #' @param cfg List. Parsed configuration structure.
 #' @param test_n Integer. Optional. Process only this many files (for tests).
 #'
@@ -324,7 +329,10 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
   done_txt <- file.path(out_dir, "done.txt")
 
   existing_raw <- if (file.exists(raw_csv)) {
-    tryCatch(data.table::fread(raw_csv), error = function(e) data.table::data.table())
+    tryCatch(
+      data.table::fread(raw_csv, fill = TRUE),
+      error = function(e) data.table::data.table()
+    )
   } else {
     data.table::data.table()
   }
@@ -334,10 +342,15 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
     done_files <- readLines(done_txt, warn = FALSE)
   }
 
-  # Keep done.txt in sync with actual raw rows
+  # Keep done.txt in sync with actual raw rows (WAV + FLAC basenames)
   if (nrow(existing_raw) > 0 && "file_id" %in% names(existing_raw)) {
     valid_done_ids <- unique(existing_raw$file_id)
-    valid_done_names <- paste0(valid_done_ids, ".wav")
+    valid_done_names <- c(
+      paste0(valid_done_ids, ".wav"),
+      paste0(valid_done_ids, ".flac"),
+      paste0(valid_done_ids, ".WAV"),
+      paste0(valid_done_ids, ".FLAC")
+    )
     done_files <- intersect(done_files, c(valid_done_ids, valid_done_names))
   } else if (length(done_files) > 0) {
     pam_log("WARN", "done.txt found but soundscape_raw.csv is empty/missing. Resetting checkpoint.", stage, log_dir)
@@ -381,12 +394,19 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
   )
 
   # ---- Cleanroom export env (prevents installed-namespace hijack) ----
+  # Include audio I/O helpers so FLAC decode works inside pam_soundscape_one
+  # without loading the installed pamflow namespace on workers.
   export_env <- pam_soundscape_export_env(list(
     pam_soundscape_one = pam_soundscape_one,
     to_scalar_num      = to_scalar_num,
     get_soundeco_val   = get_soundeco_val,
     pam_or             = pam_or,
-    pam_log            = pam_log
+    pam_log            = pam_log,
+    pam_read_audio     = pam_read_audio,
+    pam_is_flac        = pam_is_flac,
+    pam_audio_info     = pam_audio_info,
+    pam_audio_exts     = pam_audio_exts,
+    pam_audio_pattern  = pam_audio_pattern
   ))
 
   cl <- NULL
@@ -400,6 +420,7 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
           library(seewave)
           library(soundecology)
           library(glue)
+          library(av)
         })
         try(detach("package:pamflow", unload = TRUE, character.only = TRUE), silent = TRUE)
         if ("pamflow" %in% loadedNamespaces()) {
@@ -412,13 +433,13 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
 
       sig_ok <- parallel::clusterEvalQ(c_obj, {
         fmls <- names(formals(pam_soundscape_one))
-        list(ok = all(c("wav_path", "cfg") %in% fmls), formals = fmls)
+        list(ok = all(c("audio_path", "cfg") %in% fmls), formals = fmls)
       })
       bad <- vapply(sig_ok, function(x) !isTRUE(x$ok), logical(1))
       if (any(bad)) {
         parallel::stopCluster(c_obj)
         stop(
-          "Worker pam_soundscape_one is missing 'cfg' formal. ",
+          "Worker pam_soundscape_one is missing 'audio_path'/'cfg' formals. ",
           "Installed pamflow is likely masking dev functions. ",
           "Formals seen: ", paste(sig_ok[[which(bad)[1]]]$formals, collapse = ", "),
           ". Run devtools::install() or remove the old install."
@@ -516,7 +537,7 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
   }
 
   if (file.exists(raw_csv)) {
-    data.table::fread(raw_csv)
+    data.table::fread(raw_csv, fill = TRUE)
   } else {
     data.table::data.table()
   }
@@ -653,6 +674,9 @@ pam_soundscape_summarise <- function(raw_dt, master_dt, cfg = NULL) {
 
 #' Run Stage 2b Soundscape Analysis Pipeline
 #'
+#' Discovers WAV/FLAC files via \code{\link{pam_list_audio}}, computes indices
+#' with \code{\link{pam_soundscape_batch}}, and writes hourly/diel/site summaries.
+#'
 #' @param cfg List. Parsed configuration structure from \code{\link{pam_config_read}}.
 #' @param test_n Integer. Optional. Process only this many files (for tests).
 #'
@@ -685,7 +709,7 @@ pam_soundscape_run <- function(cfg, test_n = NULL) {
   if (is.null(master_csv)) {
     stop("Master metadata table ('audio_master.csv' or 'master_recordings.csv') not found. Please run Stage 1 first.")
   }
-  master_dt <- data.table::fread(master_csv)
+  master_dt <- data.table::fread(master_csv, fill = TRUE)
 
   audio_candidates <- c(
     cfg$paths$audio_standardized,
@@ -706,10 +730,11 @@ pam_soundscape_run <- function(cfg, test_n = NULL) {
     stop("Audio input directory not found. Please verify standardized audio paths in config.")
   }
 
-  file_list <- list.files(input_dir, pattern = "\\.wav$", full.names = TRUE, recursive = TRUE)
+  file_list <- pam_list_audio(input_dir, recursive = TRUE)
   if (length(file_list) == 0) {
-    stop(glue::glue("No WAV files found in: {input_dir}"))
+    stop(glue::glue("No WAV/FLAC files found in: {input_dir}"))
   }
+  pam_log("INFO", glue::glue("Found {length(file_list)} audio files (wav/flac) in {input_dir}"), stage, log_dir)
 
   raw_dt <- pam_soundscape_batch(file_list, cfg, test_n = test_n)
 

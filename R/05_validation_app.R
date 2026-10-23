@@ -1,5 +1,9 @@
 #' Build the validation Shiny app (internal)
 #'
+#' Interactive review UI for audio clips and spectrograms. Transcodes FLAC
+#' clips to temporary WAV files on demand so HTML5 `<audio>` elements play
+#' reliably in all web browsers.
+#'
 #' @param cfg A `pam_config` object.
 #' @param run_id Detection run.
 #' @param reviewer Reviewer name pre-filled in the app.
@@ -77,6 +81,34 @@ pam_validation_app <- function(cfg, run_id = cfg$birdnet$run_id, reviewer = "",
     rv <- shiny::reactiveValues(pos = pos0, results = results0)
     current <- shiny::reactive(samples[sample_id == ids[rv$pos]])
 
+    # Temporary directory for transcoding FLAC clips for browser compatibility
+    tmp_wav_dir <- tempfile("shiny_wav_")
+    dir.create(tmp_wav_dir, recursive = TRUE, showWarnings = FALSE)
+    shiny::addResourcePath("pamtmps", tmp_wav_dir)
+
+    session$onSessionEnded(function() {
+      if (dir.exists(tmp_wav_dir)) unlink(tmp_wav_dir, recursive = TRUE)
+    })
+
+    # Helper function to ensure playable WAV URL for HTML5 audio controls
+    get_audio_src <- function(s) {
+      clip_path <- file.path(clip_dir, s$clip_file)
+      if (pam_is_flac(clip_path)) {
+        wav_name <- paste0(tools::file_path_sans_ext(s$clip_file), ".wav")
+        tmp_wav_path <- file.path(tmp_wav_dir, wav_name)
+        if (!file.exists(tmp_wav_path)) {
+          if (requireNamespace("av", quietly = TRUE)) {
+            suppressMessages(av::av_audio_convert(clip_path, tmp_wav_path, verbose = FALSE))
+          } else {
+            wave_obj <- pam_read_audio(clip_path)
+            tuneR::writeWave(wave_obj, tmp_wav_path)
+          }
+        }
+        return(paste0("pamtmps/", wav_name))
+      }
+      paste0("pamclips/", s$clip_file)
+    }
+
     output$progress <- shiny::renderUI(tg$p(tg$strong(sprintf(
       "%d of %d reviewed", nrow(rv$results), nrow(samples)))))
     output$meta <- shiny::renderUI({
@@ -88,7 +120,7 @@ pam_validation_app <- function(cfg, run_id = cfg$birdnet$run_id, reviewer = "",
     })
     output$media <- shiny::renderUI({
       s <- current()
-      clip_src <- paste0("pamclips/", s$clip_file)
+      clip_src <- get_audio_src(s)
       shiny::tagList(
         tg$img(src = paste0("pamspecs/", s$spec_file), style = "width:100%;max-width:1000px;"),
         tg$p(sprintf("Detection window: %.1f to %.1f s of the clip (the rest is context)",

@@ -2,13 +2,13 @@
 % Please edit documentation in R/02_filter_audio.R
 \name{pam_filter_one}
 \alias{pam_filter_one}
-\title{Filter one audio file with FFmpeg}
+\title{Filter one audio file with FFmpeg (WAV or FLAC)}
 \usage{
 pam_filter_one(item, filter, ffmpeg = "ffmpeg")
 }
 \arguments{
 \item{item}{List with \code{input}, \code{output} (paths) and \code{bits} (input bit depth;
-16, 24 or 32 are preserved, anything else becomes 16).}
+16, 24 or 32 are preserved for WAV, FLAC outputs \verb{-c:a flac}).}
 
 \item{filter}{Filter string from \code{pam_highpass_filter_string()}.}
 
@@ -21,4 +21,5 @@ A list: \code{ok} (logical) and \code{message} (last FFmpeg error lines, or "").
 Base R only, so it can be shipped to parallel workers without the package
 installed. Writes to \verb{<output>.part} and renames on success, so an
 interrupted run never leaves a half-written file that looks finished.
+Preserves the file format (WAV or FLAC) based on output extension.
 }

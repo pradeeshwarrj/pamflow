@@ -15,5 +15,6 @@ pam_soundscape_run(cfg, test_n = NULL)
 A named list containing \code{raw}, \code{hourly}, \code{diel}, and \code{site_covariates}.
 }
 \description{
-Run Stage 2b Soundscape Analysis Pipeline
+Discovers WAV/FLAC files via \code{\link{pam_list_audio}}, computes indices
+with \code{\link{pam_soundscape_batch}}, and writes hourly/diel/site summaries.
 }

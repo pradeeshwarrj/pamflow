@@ -15,13 +15,16 @@ pam_scan_audio(cfg, force = FALSE)
 A list: \code{master}, \code{deployments}, \code{summary}.
 }
 \description{
-Lists WAV files, parses filenames, reads headers (cached, so re-runs only
-read new files and an interrupted run resumes), joins deployments, adds QC
-flags, and writes the master table and summaries.
+Lists WAV/FLAC files, parses filenames, reads headers (cached, so re-runs
+only read new files and an interrupted run resumes), joins deployments, adds
+QC flags, and writes the master table and summaries.
 }
 \details{
 Writes \code{metadata/audio_headers.csv} (cache), \code{metadata/audio_master.csv},
 \code{outputs/audio_summary_per_grid.csv} and \code{outputs/deployment_issues.csv}.
 Times in CSV files are written as UTC (ISO 8601) by \code{data.table::fwrite}.
 Run with \code{pam_run_stage("01_scan", pam_scan_audio, cfg)} for logging.
+
+Audio discovery uses \code{\link[=pam_list_audio]{pam_list_audio()}} (WAV + FLAC). Header reading uses
+\code{\link[=pam_audio_info]{pam_audio_info()}}.
 }

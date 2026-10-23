@@ -18,11 +18,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Pradeeshwar Rajagopal James \email{pradeeshwarrj@gmail.com} [copyright holder]
+\strong{Maintainer}: Rajagopal James Pradeeshwar \email{pradeeshwarrj@gmail.com} [copyright holder]
 
 Authors:
 \itemize{
-  \item Pradeeshwar Rajagopal James \email{pradeeshwarrj@gmail.com} [copyright holder]
+  \item Rajagopal James Pradeeshwar \email{pradeeshwarrj@gmail.com} [copyright holder]
 }
 
 }

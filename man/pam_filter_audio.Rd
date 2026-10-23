@@ -19,15 +19,15 @@ Invisibly, a list: \code{n_pending}, \code{n_ok}, \code{n_failed}, \code{results
 }
 \description{
 Applies a Butterworth high-pass (default 250 Hz, 48 dB/octave) with FFmpeg
-and writes filtered copies to \code{paths$filtered}, mirroring the folder
-structure and file names of \code{paths$audio_standardized}. Originals are never
-modified.
+and writes filtered copies (WAV or FLAC) to \code{paths$filtered}, mirroring the
+folder structure and file names of \code{paths$audio_standardized}. Originals
+are never modified.
 }
 \details{
 Resumable: completed files are recorded in \verb{metadata/02_filter.done}
 only after the output has been written and verified (readable, same
 duration, sample rate and channels). Per-file outcomes, including FFmpeg
 error text, are appended to \verb{metadata/02_filter_results.csv}. Only files
-with \code{qc_pass == TRUE} are filtered. Run with
-\code{pam_run_stage("02_filter", pam_filter_audio, cfg)}.
+with \code{qc_pass == TRUE} are filtered. Format (WAV vs FLAC) is preserved from
+source files. Run with \code{pam_run_stage("02_filter", pam_filter_audio, cfg)}.
 }

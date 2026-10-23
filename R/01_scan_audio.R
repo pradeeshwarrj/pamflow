@@ -1,17 +1,3 @@
-#' List WAV files under the standardized audio folder
-#'
-#' @param audio_dir Root folder (searched recursively, so grid sub-folders
-#'   such as `G_0263/` are found).
-#' @return Character vector of full paths to `.wav` files (case-insensitive).
-#' @export
-pam_list_audio <- function(audio_dir) {
-  if (!dir.exists(audio_dir)) {
-    rlang::abort(sprintf("Audio folder not found: %s", audio_dir))
-  }
-  files <- as.character(fs::dir_ls(audio_dir, recurse = TRUE, type = "file"))
-  files[grepl("\\.wav$", files, ignore.case = TRUE)]
-}
-
 #' Parse grid and start time from recording filenames
 #'
 #' @param files Character vector of file paths.
@@ -45,37 +31,6 @@ pam_parse_filenames <- function(files, pattern, timezone) {
   dt[, valid_name := !is.na(grid) & !is.na(start_time)]
   dt[, c("date_str", "time_str") := NULL]
   dt[]
-}
-
-#' Read WAV header information without loading audio
-#'
-#' @param paths Character vector of WAV paths.
-#' @return A data.table with `file_path`, `file_size_b`, `sample_rate`,
-#'   `channels`, `bits`, `duration_s`, `readable`. Unreadable (corrupted)
-#'   files get `readable = FALSE` and NA fields; errors never propagate.
-#' @export
-pam_audio_info <- function(paths) {
-  n <- length(paths)
-  out <- vector("list", n)
-  cli::cli_progress_bar("Reading WAV headers", total = n)
-  for (i in seq_len(n)) {
-    h <- tryCatch(tuneR::readWave(paths[i], header = TRUE), error = function(e) NULL)
-    out[[i]] <- if (is.null(h) || is.null(h$samples) || is.na(h$samples)) {
-      list(sample_rate = NA_integer_, channels = NA_integer_, bits = NA_integer_,
-           duration_s = NA_real_, readable = FALSE)
-    } else {
-      list(sample_rate = as.integer(h$sample.rate), channels = as.integer(h$channels),
-           bits = as.integer(h$bits), duration_s = h$samples / h$sample.rate,
-           readable = TRUE)
-    }
-    cli::cli_progress_update()
-  }
-  cli::cli_progress_done()
-  info <- data.table::rbindlist(out)
-  info[, file_path := paths]
-  info[, file_size_b := as.numeric(file.size(paths))]
-  data.table::setcolorder(info, "file_path")
-  info[]
 }
 
 #' Read and clean the deployment sheet
@@ -180,13 +135,21 @@ pam_check_deployments <- function(dep) {
 #' @details Gaps are measured between the end of one file and the start of the
 #'   next within a grid. `qc_pass` requires a valid name, a readable and
 #'   untruncated file, and no duplicate; `short` files and gaps are reported but
-#'   do not fail QC.
+#'   do not fail QC. Truncation checks apply to PCM WAV files (where bit depth
+#'   is non-NA).
 #' @export
 pam_add_qc <- function(master, cfg) {
   tol <- cfg$qc$gap_tolerance_s
   master[, end_time := start_time + duration_s]
-  master[, expected_bytes := 44 + duration_s * sample_rate * channels * bits / 8]
-  master[, truncated := readable & file_size_b < 0.99 * expected_bytes]
+
+  master[, expected_bytes := fifelse(
+    is.na(bits),
+    NA_real_,
+    44 + duration_s * sample_rate * channels * bits / 8
+  )]
+  master[, truncated := readable & !is.na(expected_bytes) &
+           file_size_b < 0.99 * expected_bytes]
+
   master[, modal_duration_s := if (all(is.na(duration_s))) NA_real_ else {
     tab <- table(round(duration_s))
     as.numeric(names(tab)[which.max(tab)])
@@ -261,9 +224,9 @@ pam_audio_summary <- function(master, dep = NULL) {
 
 #' Stage 1: scan standardized audio and build the master metadata table
 #'
-#' Lists WAV files, parses filenames, reads headers (cached, so re-runs only
-#' read new files and an interrupted run resumes), joins deployments, adds QC
-#' flags, and writes the master table and summaries.
+#' Lists WAV/FLAC files, parses filenames, reads headers (cached, so re-runs
+#' only read new files and an interrupted run resumes), joins deployments, adds
+#' QC flags, and writes the master table and summaries.
 #'
 #' @param cfg A `pam_config` object.
 #' @param force If TRUE, discard the header cache and re-read every file.
@@ -272,15 +235,24 @@ pam_audio_summary <- function(master, dep = NULL) {
 #'   `outputs/audio_summary_per_grid.csv` and `outputs/deployment_issues.csv`.
 #'   Times in CSV files are written as UTC (ISO 8601) by `data.table::fwrite`.
 #'   Run with `pam_run_stage("01_scan", pam_scan_audio, cfg)` for logging.
+#'
+#'   Audio discovery uses [pam_list_audio()] (WAV + FLAC). Header reading uses
+#'   [pam_audio_info()].
 #' @export
 pam_scan_audio <- function(cfg, force = FALSE) {
   stage <- "01_scan"; log_dir <- cfg$paths$logs
   dir.create(cfg$paths$metadata, recursive = TRUE, showWarnings = FALSE)
   dir.create(cfg$paths$outputs, recursive = TRUE, showWarnings = FALSE)
 
-  files <- pam_list_audio(cfg$paths$audio_standardized)
-  if (!length(files)) rlang::abort("No .wav files found in the audio folder")
-  pam_log("INFO", sprintf("found %d wav files", length(files)), stage, log_dir)
+  audio_dir <- cfg$paths$audio_standardized
+  if (!dir.exists(audio_dir)) {
+    rlang::abort(sprintf("Audio folder not found: %s", audio_dir))
+  }
+  files <- pam_list_audio(audio_dir)
+  if (!length(files)) {
+    rlang::abort("No .wav/.flac files found in the audio folder")
+  }
+  pam_log("INFO", sprintf("found %d audio files (wav/flac)", length(files)), stage, log_dir)
 
   # header cache doubles as the resume checkpoint
   hdr_path <- file.path(cfg$paths$metadata, "audio_headers.csv")

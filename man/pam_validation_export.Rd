@@ -2,7 +2,7 @@
 % Please edit documentation in R/05_validation_export.R
 \name{pam_validation_export}
 \alias{pam_validation_export}
-\title{Export audio clips and spectrograms for the sampled events}
+\title{Export audio clips and spectrograms for the sampled events (WAV + FLAC)}
 \usage{
 pam_validation_export(cfg, run_id = cfg$birdnet$run_id, force = FALSE)
 }
@@ -20,5 +20,6 @@ Invisibly, list(n_ok, n_failed, failed_ids).
 For every row of \code{validation_samples.csv} whose files are missing, cuts a
 clip (event plus \code{validation$clip_pad_s} seconds of context on each side)
 from the audio the run read, and draws a spectrogram PNG with FFmpeg.
-Existing files are kept, so it can be rerun after each new round.
+Dynamically uses \verb{-c:a flac} or \verb{-c:a pcm_s16le} based on the target clip file
+extension. Existing files are kept, so it can be rerun after each new round.
 }

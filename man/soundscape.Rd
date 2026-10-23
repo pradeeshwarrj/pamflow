@@ -7,5 +7,6 @@
 Implementation of ecoacoustic soundscape indices following Bradfer-Lawrence
 et al. (2019) guidelines. Computes core acoustic indices with 1-minute
 sub-windowing, checkpointing, multi-core parallel processing, and
-timezone-aware hourly/diel summarization.
+timezone-aware hourly/diel summarization. Supports WAV and FLAC via
+\code{\link{pam_read_audio}} / \code{\link{pam_list_audio}}.
 }

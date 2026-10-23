@@ -7,7 +7,7 @@
 pam_soundscape_batch(file_list, cfg, test_n = NULL)
 }
 \arguments{
-\item{file_list}{Character vector. File paths to audio files.}
+\item{file_list}{Character vector. File paths to audio files (WAV or FLAC).}
 
 \item{cfg}{List. Parsed configuration structure.}
 

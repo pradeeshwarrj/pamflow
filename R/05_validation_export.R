@@ -54,12 +54,13 @@ pam_ffmpeg_to_file <- function(args, out, ffmpeg = "ffmpeg") {
   list(ok = ok, message = if (ok) "" else paste(utils::tail(res, 3), collapse = " | "))
 }
 
-#' Export audio clips and spectrograms for the sampled events
+#' Export audio clips and spectrograms for the sampled events (WAV + FLAC)
 #'
 #' For every row of `validation_samples.csv` whose files are missing, cuts a
 #' clip (event plus `validation$clip_pad_s` seconds of context on each side)
 #' from the audio the run read, and draws a spectrogram PNG with FFmpeg.
-#' Existing files are kept, so it can be rerun after each new round.
+#' Dynamically uses `-c:a flac` or `-c:a pcm_s16le` based on the target clip file
+#' extension. Existing files are kept, so it can be rerun after each new round.
 #'
 #' @param cfg A `pam_config` object.
 #' @param run_id Detection run.
@@ -93,9 +94,13 @@ pam_validation_export <- function(cfg, run_id = cfg$birdnet$run_id, force = FALS
   for (i in seq_len(nrow(need))) {
     s <- need[i]
     clip <- file.path(clip_dir, s$clip_file); spec <- file.path(spec_dir, s$spec_file)
+
+    out_ext <- tolower(tools::file_ext(clip))
+    codec_args <- if (out_ext == "flac") c("-c:a", "flac") else c("-c:a", "pcm_s16le")
+
     r1 <- pam_ffmpeg_to_file(
       c("-ss", sprintf("%.3f", s$clip_start_s), "-t", sprintf("%.3f", s$clip_dur_s),
-        "-i", shQuote(file.path(input_dir, s$rel)), "-c:a", "pcm_s16le"), clip, ffmpeg)
+        "-i", shQuote(file.path(input_dir, s$rel)), codec_args), clip, ffmpeg)
     r2 <- if (r1$ok) pam_ffmpeg_to_file(
       c("-i", shQuote(clip), "-lavfi", shQuote(filt), "-frames:v", "1"), spec, ffmpeg) else r1
     if (!r2$ok) {

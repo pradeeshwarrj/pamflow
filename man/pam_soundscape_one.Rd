@@ -4,10 +4,15 @@
 \alias{pam_soundscape_one}
 \title{Compute Ecoacoustic Soundscape Indices for a Single Audio File}
 \usage{
-pam_soundscape_one(wav_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL)
+pam_soundscape_one(
+  audio_path,
+  low_stop_hz = NULL,
+  cfg = NULL,
+  window_sec = NULL
+)
 }
 \arguments{
-\item{wav_path}{Character. Path to input WAV file.}
+\item{audio_path}{Character. Path to input audio file (\code{.wav} or \code{.flac}).}
 
 \item{low_stop_hz}{Numeric. Highpass low-stop frequency in Hz (default 500).}
 
@@ -19,5 +24,7 @@ pam_soundscape_one(wav_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL)
 A \code{data.table} with file/window metadata and index values.
 }
 \description{
-Compute Ecoacoustic Soundscape Indices for a Single Audio File
+Reads WAV or FLAC via \code{\link{pam_read_audio}}, optionally downsamples
+to 24 kHz, applies a high-pass filter at sub-window level, and computes
+configured acoustic indices (ACI, ADI, AEve, Bio, H, M, NDSI).
 }

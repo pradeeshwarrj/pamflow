@@ -25,5 +25,6 @@ Add QC flags to a master audio table
 Gaps are measured between the end of one file and the start of the
 next within a grid. \code{qc_pass} requires a valid name, a readable and
 untruncated file, and no duplicate; \code{short} files and gaps are reported but
-do not fail QC.
+do not fail QC. Truncation checks apply to PCM WAV files (where bit depth
+is non-NA).
 }

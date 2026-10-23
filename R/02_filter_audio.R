@@ -66,25 +66,32 @@ pam_check_ffmpeg <- function(ffmpeg = "ffmpeg", filter = NULL) {
   v$out[1]
 }
 
-#' Filter one audio file with FFmpeg
+#' Filter one audio file with FFmpeg (WAV or FLAC)
 #'
 #' Base R only, so it can be shipped to parallel workers without the package
 #' installed. Writes to `<output>.part` and renames on success, so an
 #' interrupted run never leaves a half-written file that looks finished.
+#' Preserves the file format (WAV or FLAC) based on output extension.
 #'
 #' @param item List with `input`, `output` (paths) and `bits` (input bit depth;
-#'   16, 24 or 32 are preserved, anything else becomes 16).
+#'   16, 24 or 32 are preserved for WAV, FLAC outputs `-c:a flac`).
 #' @param filter Filter string from `pam_highpass_filter_string()`.
 #' @param ffmpeg Executable name or path.
 #' @return A list: `ok` (logical) and `message` (last FFmpeg error lines, or "").
 #' @export
 pam_filter_one <- function(item, filter, ffmpeg = "ffmpeg") {
-  codec <- switch(as.character(item$bits)[1], "24" = "pcm_s24le", "32" = "pcm_s32le",
-                  "pcm_s16le")
+  out_ext <- tolower(tools::file_ext(item$output))
+  if (out_ext == "flac") {
+    codec_args <- c("-c:a", "flac", "-f", "flac")
+  } else {
+    codec <- switch(as.character(item$bits)[1], "24" = "pcm_s24le", "32" = "pcm_s32le",
+                    "pcm_s16le")
+    codec_args <- c("-c:a", codec, "-f", "wav")
+  }
   tmp <- paste0(item$output, ".part")
   dir.create(dirname(item$output), recursive = TRUE, showWarnings = FALSE)
   args <- c("-y", "-nostdin", "-v", "error", "-i", shQuote(item$input),
-            "-af", shQuote(filter), "-c:a", codec, "-f", "wav", shQuote(tmp))
+            "-af", shQuote(filter), codec_args, shQuote(tmp))
   res <- tryCatch(suppressWarnings(system2(ffmpeg, args, stdout = TRUE, stderr = TRUE)),
                   error = function(e) structure(conditionMessage(e), status = 127L))
   status <- attr(res, "status")
@@ -124,7 +131,7 @@ pam_filter_batch <- function(batch, fn, filter, fc, cl = NULL) {
 
   if (any(batch$ok)) {
     good <- batch[ok == TRUE]
-    info <- pam_audio_info(good$output)
+    info <- pam_audio_info_dt(good$output)
     v <- data.table::fcoalesce(
       info$readable &
         abs(info$duration_s - good$exp_dur) <= fc$duration_tolerance_s &
@@ -144,9 +151,9 @@ pam_filter_batch <- function(batch, fn, filter, fc, cl = NULL) {
 #' Stage 2: high-pass filter all QC-passed recordings
 #'
 #' Applies a Butterworth high-pass (default 250 Hz, 48 dB/octave) with FFmpeg
-#' and writes filtered copies to `paths$filtered`, mirroring the folder
-#' structure and file names of `paths$audio_standardized`. Originals are never
-#' modified.
+#' and writes filtered copies (WAV or FLAC) to `paths$filtered`, mirroring the
+#' folder structure and file names of `paths$audio_standardized`. Originals
+#' are never modified.
 #'
 #' @param cfg A `pam_config` object. Uses the `filter` section and paths.
 #' @param master Optional master table from `pam_scan_audio()$master`; if NULL
@@ -157,8 +164,8 @@ pam_filter_batch <- function(batch, fn, filter, fc, cl = NULL) {
 #'   only after the output has been written and verified (readable, same
 #'   duration, sample rate and channels). Per-file outcomes, including FFmpeg
 #'   error text, are appended to `metadata/02_filter_results.csv`. Only files
-#'   with `qc_pass == TRUE` are filtered. Run with
-#'   `pam_run_stage("02_filter", pam_filter_audio, cfg)`.
+#'   with `qc_pass == TRUE` are filtered. Format (WAV vs FLAC) is preserved from
+#'   source files. Run with `pam_run_stage("02_filter", pam_filter_audio, cfg)`.
 #' @export
 pam_filter_audio <- function(cfg, master = NULL, force = FALSE) {
   stage <- "02_filter"; log_dir <- cfg$paths$logs
