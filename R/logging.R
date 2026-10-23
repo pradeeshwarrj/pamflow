@@ -3,16 +3,19 @@
 #' @param level One of "INFO", "WARN", "ERROR".
 #' @param msg Character message.
 #' @param stage Stage name, used as the log file name (`<stage>.log`).
-#' @param log_dir Directory for log files (created if missing).
+#' @param log_dir Directory for log files (created if missing). If NULL, file logging is skipped.
 #' @param echo Also print to the console.
 #' @return The log line, invisibly.
 #' @export
-pam_log <- function(level = c("INFO", "WARN", "ERROR"), msg, stage, log_dir, echo = TRUE) {
+pam_log <- function(level = c("INFO", "WARN", "ERROR"), msg, stage = "pamflow", log_dir = NULL, echo = TRUE) {
   level <- match.arg(level)
   line <- sprintf("%s [%s] [%s] %s", format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
                   level, stage, msg)
-  dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
-  cat(paste0(line, "\n"), file = file.path(log_dir, paste0(stage, ".log")), append = TRUE)
+  if (!is.null(log_dir) && nzchar(log_dir)) {
+    dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
+    cat(paste0(line, "
+"), file = file.path(log_dir, paste0(stage, ".log")), append = TRUE)
+  }
   if (echo) message(line)
   invisible(line)
 }

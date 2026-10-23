@@ -1,6 +1,8 @@
 paths:
   project_root: "."
+  audio_raw: "data/raw"
   audio_standardized: "data/standardized"
+  audio_isolated: "data/isolated"
   filtered: "data/filtered"
   metadata: "metadata"
   deployment_sheet: "metadata/deployments.csv"
@@ -12,10 +14,23 @@ paths:
   reports: "reports"
 
 filenames:
-  # G0059_YYYYMMDD_HHMMSS.wav ; timestamps are local time
-  # Supports both original and chunked files: G0059_YYYYMMDD_HHMMSS_chunk1.wav
-  pattern: "^(?<grid>G\\d{4})_(?<date>\\d{8})_(?<time>\\d{6})(_chunk\\d+)?\\.wav$"
+  # G0059_YYYYMMDD_HHMMSS.flac ; timestamps are local time
+  # Supports both standardized flac and wav formats: G0059_YYYYMMDD_HHMMSS.flac
+  pattern: "^(?<grid>G\\d{4})_(?<date>\\d{8})_(?<time>\\d{6})(_chunk\\d+)?\\.(flac|wav)$"
   timezone: "Asia/Kolkata"
+
+standardization:
+  enabled: true
+  dry_run: false
+  prefix: ""
+  target_format: "flac"            # "flac" or "wav"
+  target_hz: 48000                 # Output sample rate (Hz)
+  channels: 1                      # 1 = Mono, 2 = Stereo
+  min_duration_s: 60               # Files shorter than this go to isolated/memos
+  organize_folders: "grid"         # "grid" (standardized/G0059/), "grid_date", "date", "preserve", "flat"
+  rename_strategy: "auto"          # "auto" (parses timestamp) or "keep"
+  isolate_non_audio: true          # Moves non-audio files to isolated/non_audio/
+  isolate_short: true              # Moves voice memos to isolated/memos/
 
 deployments:
   has_header: true
@@ -123,3 +138,4 @@ report:
   title: "PAM Workflow Report"
   author: ""
   formats: ["html", "excel", "pdf"]
+

@@ -4,10 +4,10 @@
 \alias{pam_config_read}
 \title{Read and validate a pamflow configuration file}
 \usage{
-pam_config_read(path)
+pam_config_read(path = NULL)
 }
 \arguments{
-\item{path}{Path to a YAML config file.}
+\item{path}{Path to a YAML config file. If missing, looks for "config/config.yml" or loads default template.}
 }
 \value{
 A named list of class \code{pam_config}, with all paths resolved

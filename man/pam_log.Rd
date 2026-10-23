@@ -4,7 +4,13 @@
 \alias{pam_log}
 \title{Write a timestamped log line to a per-stage log file}
 \usage{
-pam_log(level = c("INFO", "WARN", "ERROR"), msg, stage, log_dir, echo = TRUE)
+pam_log(
+  level = c("INFO", "WARN", "ERROR"),
+  msg,
+  stage = "pamflow",
+  log_dir = NULL,
+  echo = TRUE
+)
 }
 \arguments{
 \item{level}{One of "INFO", "WARN", "ERROR".}
@@ -13,7 +19,7 @@ pam_log(level = c("INFO", "WARN", "ERROR"), msg, stage, log_dir, echo = TRUE)
 
 \item{stage}{Stage name, used as the log file name (\verb{<stage>.log}).}
 
-\item{log_dir}{Directory for log files (created if missing).}
+\item{log_dir}{Directory for log files (created if missing). If NULL, file logging is skipped.}
 
 \item{echo}{Also print to the console.}
 }
