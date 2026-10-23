@@ -1,8 +1,9 @@
-# Filter one audio file with FFmpeg
+# Filter one audio file with FFmpeg (WAV or FLAC)
 
 Base R only, so it can be shipped to parallel workers without the
 package installed. Writes to `<output>.part` and renames on success, so
 an interrupted run never leaves a half-written file that looks finished.
+Preserves the file format (WAV or FLAC) based on output extension.
 
 ## Usage
 
@@ -15,7 +16,7 @@ pam_filter_one(item, filter, ffmpeg = "ffmpeg")
 - item:
 
   List with `input`, `output` (paths) and `bits` (input bit depth; 16,
-  24 or 32 are preserved, anything else becomes 16).
+  24 or 32 are preserved for WAV, FLAC outputs `-c:a flac`).
 
 - filter:
 

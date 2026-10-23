@@ -1,21 +1,26 @@
-# Read WAV header information without loading audio
+# Read Audio File Metadata (WAV or FLAC)
 
-Read WAV header information without loading audio
+Reads header information (sample rate, duration, channels, bit depth)
+for one or more WAV/FLAC files without loading sample data into memory.
+Returns a data.table with readable status; errors for individual
+unreadable files are caught gracefully and flagged with
+`readable = FALSE`.
 
 ## Usage
 
 ``` r
 pam_audio_info(paths)
+
+pam_audio_info_dt(paths)
 ```
 
 ## Arguments
 
 - paths:
 
-  Character vector of WAV paths.
+  Character vector of file paths.
 
 ## Value
 
-A data.table with `file_path`, `file_size_b`, `sample_rate`, `channels`,
-`bits`, `duration_s`, `readable`. Unreadable (corrupted) files get
-`readable = FALSE` and NA fields; errors never propagate.
+A `data.table` with columns `file_path`, `file_size_b`, `sample_rate`,
+`channels`, `bits`, `duration_s`, `readable`.

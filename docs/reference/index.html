@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,57 @@
         </dt>
         <dd>Validate a pamflow configuration</dd>
       </dl></div><div class="section level2">
+      <h2 id="audio-utilities-wav-flac-">Audio Utilities (WAV + FLAC)<a class="anchor" aria-label="anchor" href="#audio-utilities-wav-flac-"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="utils_audio.html">utils_audio</a></code>
+
+        </dt>
+        <dd>Audio I/O Utilities (WAV + FLAC)</dd>
+
+        <dt>
+
+          <code><a href="pam_audio_exts.html">pam_audio_exts()</a></code>
+
+        </dt>
+        <dd>Supported Audio File Extensions</dd>
+
+        <dt>
+
+          <code><a href="pam_audio_pattern.html">pam_audio_pattern()</a></code>
+
+        </dt>
+        <dd>Regex Pattern Matching Supported Audio Files</dd>
+
+        <dt>
+
+          <code><a href="pam_is_flac.html">pam_is_flac()</a></code>
+
+        </dt>
+        <dd>Check if a File is a FLAC File</dd>
+
+        <dt>
+
+          <code><a href="pam_read_audio.html">pam_read_audio()</a></code>
+
+        </dt>
+        <dd>Read Audio File as a tuneR Wave Object (WAV or FLAC)</dd>
+
+        <dt>
+
+          <code><a href="pam_cut_audio.html">pam_cut_audio()</a></code>
+
+        </dt>
+        <dd>Cut Audio Clip Preserving Source Format</dd>
+      </dl></div><div class="section level2">
       <h2 id="stage-scan-qc">Stage 1 — Scan &amp; QC<a class="anchor" aria-label="anchor" href="#stage-scan-qc"></a></h2>
 
 
@@ -74,10 +125,10 @@
 
         <dt>
 
-          <code><a href="pam_audio_info.html">pam_audio_info()</a></code>
+          <code><a href="pam_audio_info.html">pam_audio_info()</a></code> <code><a href="pam_audio_info.html">pam_audio_info_dt()</a></code>
 
         </dt>
-        <dd>Read WAV header information without loading audio</dd>
+        <dd>Read Audio File Metadata (WAV or FLAC)</dd>
 
         <dt>
 
@@ -91,7 +142,7 @@
           <code><a href="pam_list_audio.html">pam_list_audio()</a></code>
 
         </dt>
-        <dd>List WAV files under the standardized audio folder</dd>
+        <dd>List Audio Files in a Directory (WAV + FLAC)</dd>
 
         <dt>
 
@@ -149,7 +200,7 @@
           <code><a href="pam_filter_one.html">pam_filter_one()</a></code>
 
         </dt>
-        <dd>Filter one audio file with FFmpeg</dd>
+        <dd>Filter one audio file with FFmpeg (WAV or FLAC)</dd>
 
         <dt>
 
@@ -334,7 +385,7 @@
           <code><a href="pam_validation_export.html">pam_validation_export()</a></code>
 
         </dt>
-        <dd>Export audio clips and spectrograms for the sampled events</dd>
+        <dd>Export audio clips and spectrograms for the sampled events (WAV + FLAC)</dd>
 
         <dt>
 
@@ -566,7 +617,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Pradeeshwar Rajagopal James.</p>
+  <p>Developed by Rajagopal James Pradeeshwar.</p>
 </div>
 
 <div class="pkgdown-footer-right">

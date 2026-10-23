@@ -1,27 +1,31 @@
 # Compute Ecoacoustic Soundscape Indices for a Single Audio File
 
-Reads a WAV file, applies an optional low-stop (highpass) filter,
-resamples high-sample-rate audio to 24 kHz for ecoacoustic frequency
-bounds (max 11-12 kHz), splits the recording into internal analysis
-windows, and computes ecoacoustic indices dynamically configured in
-`cfg$soundscape$acoustic_indices`.
+Reads WAV or FLAC via
+[`pam_read_audio`](https://pradeeshwarrj.github.io/pamflow/reference/pam_read_audio.md),
+optionally downsamples to 24 kHz, applies a high-pass filter at
+sub-window level, and computes configured acoustic indices (ACI, ADI,
+AEve, Bio, H, M, NDSI).
 
 ## Usage
 
 ``` r
-pam_soundscape_one(wav_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL)
+pam_soundscape_one(
+  audio_path,
+  low_stop_hz = NULL,
+  cfg = NULL,
+  window_sec = NULL
+)
 ```
 
 ## Arguments
 
-- wav_path:
+- audio_path:
 
-  Character. Path to input WAV file.
+  Character. Path to input audio file (`.wav` or `.flac`).
 
 - low_stop_hz:
 
-  Numeric. Highpass low-stop frequency in Hz (default 500). Pass NULL or
-  0 to skip filtering.
+  Numeric. Highpass low-stop frequency in Hz (default 500).
 
 - cfg:
 
@@ -30,10 +34,8 @@ pam_soundscape_one(wav_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL)
 
 - window_sec:
 
-  Numeric. Optional window duration in seconds (e.g. 600 for 10
-  minutes).
+  Numeric. Optional window duration in seconds.
 
 ## Value
 
-A `data.table` with columns for `file_id`, `window_index`,
-`window_start_sec`, `window_end_sec`, and computed index values.
+A `data.table` with file/window metadata and index values.

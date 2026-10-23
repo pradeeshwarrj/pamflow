@@ -1,8 +1,7 @@
 # Helper to Safely Extract Scalar Numerical Values from Soundecology Returns
 
-Tries named candidates first; if none match, falls back to the first
-numeric element found anywhere in the list. This is robust against
-soundecology changing its return element names between versions.
+Helper to Safely Extract Scalar Numerical Values from Soundecology
+Returns
 
 ## Usage
 

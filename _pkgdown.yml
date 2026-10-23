@@ -19,6 +19,16 @@ reference:
     contents:
       - pam_config_read
       - pam_config_validate
+
+  - title: "Audio Utilities (WAV + FLAC)"
+    contents:
+      - utils_audio
+      - pam_audio_exts
+      - pam_audio_pattern
+      - pam_is_flac
+      - pam_read_audio
+      - pam_cut_audio
+
   - title: "Stage 1 — Scan & QC"
     contents:
       - pam_scan_audio
@@ -30,11 +40,13 @@ reference:
       - pam_match_deployments
       - pam_check_deployments
       - pam_add_qc
+
   - title: "Stage 2 — Filter"
     contents:
       - pam_filter_audio
       - pam_filter_one
       - pam_highpass_filter_string
+
   - title: "Stage 2b — Soundscape Indices"
     contents:
       - soundscape
@@ -43,6 +55,7 @@ reference:
       - pam_soundscape_batch
       - pam_soundscape_summarise
       - to_scalar_num
+
   - title: "Stage 2c — Soundscape Visualizations & Reports"
     contents:
       - soundscape_vis
@@ -50,15 +63,18 @@ reference:
       - pam_soundscape_plot_diel
       - pam_soundscape_plot_phase
       - pam_soundscape_report
+
   - title: "Stage 3 — Detect"
     contents:
       - pam_detect
       - pam_assemble_detections
       - pam_pending_batches
+
   - title: "Stage 4 — Process"
     contents:
       - pam_process_detections
       - pam_clean_detections
+
   - title: "Stage 5 — Validate"
     contents:
       - pam_validate
@@ -70,6 +86,7 @@ reference:
       - pam_validation_metrics
       - pam_validation_report
       - pam_annotate
+
   - title: "Stage 5b — Recall"
     contents:
       - pam_recall_draw
@@ -78,6 +95,7 @@ reference:
       - pam_recall_sample
       - pam_recall_metrics
       - pam_recall_report
+
   - title: "Stage 6 — Occupancy"
     contents:
       - pam_build_occupancy
@@ -86,11 +104,13 @@ reference:
       - pam_detection_matrix
       - pam_occasion_covariates
       - pam_site_covariates
+
   - title: "Stage 8 — Reports"
     contents:
       - pam_report
       - pam_report_data
       - pam_report_excel
+
   - title: "Utilities"
     contents:
       - pam_log

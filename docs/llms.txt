@@ -280,16 +280,32 @@ MIT
 - [`pam_config_validate()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_validate.md)
   : Validate a pamflow configuration
 
+## Audio Utilities (WAV + FLAC)
+
+- [`utils_audio`](https://pradeeshwarrj.github.io/pamflow/reference/utils_audio.md)
+  : Audio I/O Utilities (WAV + FLAC)
+- [`pam_audio_exts()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_exts.md)
+  : Supported Audio File Extensions
+- [`pam_audio_pattern()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_pattern.md)
+  : Regex Pattern Matching Supported Audio Files
+- [`pam_is_flac()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_is_flac.md)
+  : Check if a File is a FLAC File
+- [`pam_read_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_read_audio.md)
+  : Read Audio File as a tuneR Wave Object (WAV or FLAC)
+- [`pam_cut_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_cut_audio.md)
+  : Cut Audio Clip Preserving Source Format
+
 ## Stage 1 — Scan & QC
 
 - [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)
   : Stage 1: scan standardized audio and build the master metadata table
 - [`pam_audio_info()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.md)
-  : Read WAV header information without loading audio
+  [`pam_audio_info_dt()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.md)
+  : Read Audio File Metadata (WAV or FLAC)
 - [`pam_audio_summary()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_summary.md)
   : Summarise the audio master table
 - [`pam_list_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.md)
-  : List WAV files under the standardized audio folder
+  : List Audio Files in a Directory (WAV + FLAC)
 - [`pam_parse_filenames()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_parse_filenames.md)
   : Parse grid and start time from recording filenames
 - [`pam_read_deployments()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_read_deployments.md)
@@ -306,7 +322,7 @@ MIT
 - [`pam_filter_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.md)
   : Stage 2: high-pass filter all QC-passed recordings
 - [`pam_filter_one()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_one.md)
-  : Filter one audio file with FFmpeg
+  : Filter one audio file with FFmpeg (WAV or FLAC)
 - [`pam_highpass_filter_string()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_highpass_filter_string.md)
   : Build the FFmpeg filter string for a Butterworth high-pass
 
@@ -364,7 +380,8 @@ MIT
 - [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)
   : Draw a validation round and add it to the sample file
 - [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)
-  : Export audio clips and spectrograms for the sampled events
+  : Export audio clips and spectrograms for the sampled events (WAV +
+  FLAC)
 - [`pam_validation_sample()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_sample.md)
   : Draw a validation sample from a pool of events
 - [`pam_validation_import()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_import.md)

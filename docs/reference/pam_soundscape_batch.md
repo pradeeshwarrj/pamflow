@@ -1,7 +1,6 @@
 # Batch Process Audio Files for Soundscape Indices
 
-Processes a list of audio files in batches of 50, appending results to
-`soundscape_raw.csv` and writing checkpoints to `done.txt`.
+Batch Process Audio Files for Soundscape Indices
 
 ## Usage
 
@@ -13,12 +12,11 @@ pam_soundscape_batch(file_list, cfg, test_n = NULL)
 
 - file_list:
 
-  Character vector. File paths to audio files.
+  Character vector. File paths to audio files (WAV or FLAC).
 
 - cfg:
 
-  List. Parsed configuration structure from
-  [`pam_config_read`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.md).
+  List. Parsed configuration structure.
 
 - test_n:
 

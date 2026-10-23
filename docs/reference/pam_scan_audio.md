@@ -1,8 +1,8 @@
 # Stage 1: scan standardized audio and build the master metadata table
 
-Lists WAV files, parses filenames, reads headers (cached, so re-runs
-only read new files and an interrupted run resumes), joins deployments,
-adds QC flags, and writes the master table and summaries.
+Lists WAV/FLAC files, parses filenames, reads headers (cached, so
+re-runs only read new files and an interrupted run resumes), joins
+deployments, adds QC flags, and writes the master table and summaries.
 
 ## Usage
 
@@ -32,3 +32,8 @@ Writes `metadata/audio_headers.csv` (cache),
 (ISO 8601) by
 [`data.table::fwrite`](https://rdrr.io/pkg/data.table/man/fwrite.html).
 Run with `pam_run_stage("01_scan", pam_scan_audio, cfg)` for logging.
+
+Audio discovery uses
+[`pam_list_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.md)
+(WAV + FLAC). Header reading uses
+[`pam_audio_info()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.md).
