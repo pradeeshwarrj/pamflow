@@ -1,20 +1,23 @@
-# List WAV files under the standardized audio folder
+# List Audio Files in a Directory (WAV + FLAC)
 
-List WAV files under the standardized audio folder
+List Audio Files in a Directory (WAV + FLAC)
 
 ## Usage
 
 ``` r
-pam_list_audio(audio_dir)
+pam_list_audio(dir, recursive = TRUE)
 ```
 
 ## Arguments
 
-- audio_dir:
+- dir:
 
-  Root folder (searched recursively, so grid sub-folders such as
-  `G_0263/` are found).
+  Character. Directory to scan.
+
+- recursive:
+
+  Logical. Recurse into subdirectories.
 
 ## Value
 
-Character vector of full paths to `.wav` files (case-insensitive).
+Character vector of file paths.

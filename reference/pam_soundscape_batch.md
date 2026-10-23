@@ -12,7 +12,7 @@ pam_soundscape_batch(file_list, cfg, test_n = NULL)
 
 - file_list:
 
-  Character vector. File paths to audio files.
+  Character vector. File paths to audio files (WAV or FLAC).
 
 - cfg:
 

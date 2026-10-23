@@ -33,4 +33,5 @@ time.
 Gaps are measured between the end of one file and the start of the next
 within a grid. `qc_pass` requires a valid name, a readable and
 untruncated file, and no duplicate; `short` files and gaps are reported
-but do not fail QC.
+but do not fail QC. Truncation checks apply to PCM WAV files (where bit
+depth is non-NA).

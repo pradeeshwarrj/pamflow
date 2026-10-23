@@ -1,10 +1,11 @@
-# Export audio clips and spectrograms for the sampled events
+# Export audio clips and spectrograms for the sampled events (WAV + FLAC)
 
 For every row of `validation_samples.csv` whose files are missing, cuts
 a clip (event plus `validation$clip_pad_s` seconds of context on each
 side) from the audio the run read, and draws a spectrogram PNG with
-FFmpeg. Existing files are kept, so it can be rerun after each new
-round.
+FFmpeg. Dynamically uses `-c:a flac` or `-c:a pcm_s16le` based on the
+target clip file extension. Existing files are kept, so it can be rerun
+after each new round.
 
 ## Usage
 

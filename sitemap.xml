@@ -12,7 +12,9 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_add_qc.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_annotate.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_assemble_detections.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_exts.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_pattern.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_summary.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_check_deployments.html</loc></url>
@@ -22,12 +24,14 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_clean_detections.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_config_validate.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_cut_audio.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_daily_effort.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_detection_matrix.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_one.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_highpass_filter_string.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_is_flac.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_log.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_match_deployments.html</loc></url>
@@ -35,6 +39,7 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_parse_filenames.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_pending_batches.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_read_audio.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_read_deployments.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_draw.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_export.html</loc></url>
@@ -72,5 +77,6 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/soundscape.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/soundscape_vis.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/to_scalar_num.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/utils_audio.html</loc></url>
 </urlset>
 

@@ -1,6 +1,10 @@
 # Run Stage 2b Soundscape Analysis Pipeline
 
-Run Stage 2b Soundscape Analysis Pipeline
+Discovers WAV/FLAC files via
+[`pam_list_audio`](https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.md),
+computes indices with
+[`pam_soundscape_batch`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_batch.md),
+and writes hourly/diel/site summaries.
 
 ## Usage
 

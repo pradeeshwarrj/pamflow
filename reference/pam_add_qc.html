@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,8 @@ start time.</p>
     <p>Gaps are measured between the end of one file and the start of the
 next within a grid. <code>qc_pass</code> requires a valid name, a readable and
 untruncated file, and no duplicate; <code>short</code> files and gaps are reported but
-do not fail QC.</p>
+do not fail QC. Truncation checks apply to PCM WAV files (where bit depth
+is non-NA).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -76,7 +77,7 @@ do not fail QC.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Pradeeshwar Rajagopal James.</p>
+  <p>Developed by Rajagopal James Pradeeshwar.</p>
 </div>
 
 <div class="pkgdown-footer-right">
