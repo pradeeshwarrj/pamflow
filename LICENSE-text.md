@@ -1,4 +1,4 @@
 # License
 
     YEAR: 2026
-    COPYRIGHT HOLDER: Pradeeshwar Rajagopal James
+    COPYRIGHT HOLDER: pamflow authors

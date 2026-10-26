@@ -13,6 +13,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="End-to-End Passive Acoustic Monitoring Workflow">
 <meta name="description" content="Standardising passive acoustic recordings, running custom BirdNET classifiers, validating detections, and preparing occupancy-ready detection histories (Workflow A). Standardising passive acoustic recordins, calculating custom list of soundscape indices, patterns in soundscape indices, and reporting (Workflow B).">
 <meta property="og:description" content="Standardising passive acoustic recordings, running custom BirdNET classifiers, validating detections, and preparing occupancy-ready detection histories (Workflow A). Standardising passive acoustic recordins, calculating custom list of soundscape indices, patterns in soundscape indices, and reporting (Workflow B).">
+<meta property="og:image" content="https://pradeeshwarrj.github.io/pamflow/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -48,16 +49,21 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="pamflow">pamflow<a class="anchor" aria-label="anchor" href="#pamflow"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="pamflow-">pamflow 
+<a class="anchor" aria-label="anchor" href="#pamflow-"></a>
+</h1>
+</div>
 <p><strong>End-to-end Passive Acoustic Monitoring workflow</strong></p>
-<p><code>pamflow</code> takes you from raw field recordings to ecological useful data — with a single config file and a handful of function calls.</p>
+<p><code>pamflow</code> takes you from raw field recordings to ecological useful information — with a single config file and a handful of function calls.</p>
 <p><code>Workflow A (Species Detection &amp; Occupancy)</code>: Run BirdNET, clean &amp; merge detections, perform stratified validation with Shiny, build daily site occupancy matrices, and compile executive reports.</p>
 <p><code>Workflow B (Soundscape Analysis)</code>: Compute core acoustic indices (ACI, ADI, AEve, Bio, H, M, NDSI) following Bradfer-Lawrence et al. (2019) with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking, 24-hour diel profiles, and automated HTML diagnostic reports.</p>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
 <ul>
+<li>
+<strong>Raven Compass-style Standardization &amp; Triage</strong> for raw multi-recorder workflow (SongMeter, AudioMoth, SwiftOne)</li>
 <li>
 <strong>Scan &amp; QC</strong> thousands of WAV files automatically</li>
 <li>
@@ -119,11 +125,11 @@
 <code class="sourceCode R"><span><span class="co"># Install devtools if needed</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Install pamflow</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"pradeeshwarrj/pamflow"</span><span class="op">)</span></span>
-<span></span>
 <span><span class="co"># Install birdnetR</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"birdnet-team/birdnetR"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"birdnet-team/birdnetR"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Install pamflow</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"pradeeshwarrj/pamflow"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
@@ -132,22 +138,28 @@
 <h3 id="id_1-set-up-your-project-folder">1. Set up your project folder<a class="anchor" aria-label="anchor" href="#id_1-set-up-your-project-folder"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>MyProject<span class="sc">/</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>├── audio<span class="sc">/</span>                  <span class="co"># WAV files in subfolders by grid</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>│   ├── G0059<span class="sc">/</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>│   └── G0110<span class="sc">/</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>├── metadata<span class="sc">/</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>│   └── deployments.csv     <span class="co"># one row per deployment</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>├── config<span class="sc">/</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>│   └── config.yml          <span class="co"># pipeline settings</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>└── ground_truth<span class="sc">/</span>           <span class="co"># optional, for recall estimation</span></span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>├── data<span class="sc">/</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>│   └── raw<span class="sc">/</span>                <span class="co"># Original recorder dumps (untouched)</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>│       ├── SongMeter<span class="sc">/</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>│       ├── AudioMoth<span class="sc">/</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>│       └── SwiftOne<span class="sc">/</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>├── audio<span class="sc">/</span>                  <span class="co"># Standardized WAV/FLAC (created by Stage 00)</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>│   ├── GXXXX<span class="sc">/</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>│   └── GXXXX<span class="sc">/</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>├── metadata<span class="sc">/</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>│   └── deployments.csv     <span class="co"># one row per deployment</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>├── config<span class="sc">/</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>│   └── config.yml          <span class="co"># pipeline settings</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>└── ground_truth<span class="sc">/</span>           <span class="co"># optional, for recall estimation</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="id_2-create-metadatadeploymentscsv">2. Create <code>metadata/deployments.csv</code>
 <a class="anchor" aria-label="anchor" href="#id_2-create-metadatadeploymentscsv"></a>
 </h3>
-<pre class="csv"><code>grid,recorder,deployment_id,start_datetime,end_datetime
-G0059,SW010,13,05-04-2026 18:30,08-04-2026 16:00
-G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
+<pre class="csv"><code>| grid  | recorder | deployment_id | start_datetime   | end_datetime     |
+|-------|----------|---------------|------------------|------------------|
+| G0059 | SW010    | 13            | 05-04-2026 18:30 | 08-04-2026 16:00 |
+| G0110 | SW012    | 7             | 01-04-2026 06:00 | 10-04-2026 18:00 |</code></pre>
 </div>
 <div class="section level3">
 <h3 id="id_3-create-configconfigyml">3. Create <code>config/config.yml</code>
@@ -158,69 +170,121 @@ G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">paths</span><span class="kw">:</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="at">  </span><span class="fu">project_root</span><span class="kw">:</span><span class="at"> </span><span class="st">"E:/MyProject"</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">  </span><span class="fu">audio</span><span class="kw">:</span><span class="at"> </span><span class="st">"audio"</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">  </span><span class="fu">metadata</span><span class="kw">:</span><span class="at"> </span><span class="st">"metadata"</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">  </span><span class="fu">deployments_file</span><span class="kw">:</span><span class="at"> </span><span class="st">"deployments.csv"</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">  </span><span class="fu">detections</span><span class="kw">:</span><span class="at"> </span><span class="st">"data/detections"</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">  </span><span class="fu">logs</span><span class="kw">:</span><span class="at"> </span><span class="st">"logs"</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">  </span><span class="fu">reports</span><span class="kw">:</span><span class="at"> </span><span class="st">"reports"</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="fu">birdnet</span><span class="kw">:</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="at">  </span><span class="fu">model</span><span class="kw">:</span><span class="at"> </span><span class="st">"BirdNET_GLOBAL_6K_V2.4_Model_FP32.tflite"</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">labels</span><span class="kw">:</span><span class="at"> </span><span class="st">"BirdNet_v2_custom_Labels.txt"</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">  </span><span class="fu">chunk_length_s</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">  </span><span class="fu">overlap_s</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="at">  </span><span class="fu">min_confidence</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.5</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="at">  </span><span class="fu">workers</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="fu">processing</span><span class="kw">:</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="at">  </span><span class="fu">input</span><span class="kw">:</span><span class="at"> </span><span class="st">"standardized"</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="at">  </span><span class="fu">merge_gap_s</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="at">  </span><span class="fu">drop_outside_deployment</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="at">  </span><span class="fu">min_confidence</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.4</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="fu">soundscape</span><span class="kw">:</span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="at">  </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="at">  </span><span class="fu">window_mins</span><span class="kw">:</span><span class="at"> </span><span class="dv">10</span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="at">  </span><span class="fu">low_stop_hz</span><span class="kw">:</span><span class="at"> </span><span class="dv">500</span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="at">  </span><span class="fu">acoustic_indices</span><span class="kw">:</span></span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="at">    </span><span class="fu">ACI</span><span class="kw">:</span></span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="at">    </span><span class="fu">ADI</span><span class="kw">:</span></span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="at">      </span><span class="fu">fmin</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="at">      </span><span class="fu">fmax</span><span class="kw">:</span><span class="at"> </span><span class="dv">24000</span></span>
-<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="at">      </span><span class="fu">bin_step</span><span class="kw">:</span><span class="at"> </span><span class="dv">1000</span></span>
-<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="at">    </span><span class="fu">AEve</span><span class="kw">:</span></span>
-<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="at">    </span><span class="fu">Bio</span><span class="kw">:</span></span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="at">      </span><span class="fu">flim</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2000</span><span class="kw">,</span><span class="at"> </span><span class="dv">11000</span><span class="kw">]</span></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="at">    </span><span class="fu">H</span><span class="kw">:</span></span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="at">    </span><span class="fu">M</span><span class="kw">:</span></span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="at">    </span><span class="fu">NDSI</span><span class="kw">:</span></span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="at">      </span><span class="fu">anthro_range</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1000</span><span class="kw">,</span><span class="at"> </span><span class="dv">2000</span><span class="kw">]</span></span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="at">      </span><span class="fu">bio_range</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2000</span><span class="kw">,</span><span class="at"> </span><span class="dv">11000</span><span class="kw">]</span></span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="at">  </span><span class="fu">day_hours</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">6</span><span class="kw">,</span><span class="at"> </span><span class="dv">17</span><span class="kw">]</span></span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="at">  </span><span class="fu">night_hours</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">18</span><span class="kw">,</span><span class="at"> </span><span class="dv">5</span><span class="kw">]</span></span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="fu">occupancy</span><span class="kw">:</span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="at">  </span><span class="fu">occasion_length_days</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="at">  </span><span class="fu">min_effort_hours</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
-<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="at">  </span><span class="fu">min_detections</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span>
-<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="at">  </span><span class="fu">timezone</span><span class="kw">:</span><span class="at"> </span><span class="st">"Asia/Kolkata"</span></span>
-<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a></span>
-<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a><span class="fu">report</span><span class="kw">:</span></span>
-<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a><span class="at">  </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"PAM Report"</span></span>
-<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a><span class="at">  </span><span class="fu">format</span><span class="kw">:</span><span class="at"> </span><span class="st">"html"</span></span></code></pre></div>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="at">  </span><span class="fu">raw</span><span class="kw">:</span><span class="at"> </span><span class="st">"data/raw"</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="at">  </span><span class="fu">audio</span><span class="kw">:</span><span class="at"> </span><span class="st">"audio"</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="at">  </span><span class="fu">metadata</span><span class="kw">:</span><span class="at"> </span><span class="st">"metadata"</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="at">  </span><span class="fu">deployments_file</span><span class="kw">:</span><span class="at"> </span><span class="st">"deployments.csv"</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="at">  </span><span class="fu">detections</span><span class="kw">:</span><span class="at"> </span><span class="st">"data/detections"</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="at">  </span><span class="fu">logs</span><span class="kw">:</span><span class="at"> </span><span class="st">"logs"</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="at">  </span><span class="fu">reports</span><span class="kw">:</span><span class="at"> </span><span class="st">"reports"</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="fu">standardization</span><span class="kw">:</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="at">  </span><span class="fu">min_duration_s</span><span class="kw">:</span><span class="at"> </span><span class="dv">60</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="at">  </span><span class="fu">timezone</span><span class="kw">:</span><span class="at"> </span><span class="st">"Asia/Kolkata"</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="at">  </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">"^(?&lt;grid&gt;G</span><span class="sc">\\</span><span class="st">d{4})_(?&lt;date&gt;</span><span class="sc">\\</span><span class="st">d{8})_(?&lt;time&gt;</span><span class="sc">\\</span><span class="st">d{6})(_chunk</span><span class="sc">\\</span><span class="st">d+)?</span><span class="sc">\\</span><span class="st">.(flac|wav)$"</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="at">  </span><span class="fu">output_format</span><span class="kw">:</span><span class="at"> </span><span class="st">"flac"</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="fu">birdnet</span><span class="kw">:</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="at">  </span><span class="fu">model</span><span class="kw">:</span><span class="at"> </span><span class="st">"BirdNET_GLOBAL_6K_V2.4_Model_FP32.tflite"</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="at">  </span><span class="fu">labels</span><span class="kw">:</span><span class="at"> </span><span class="st">"BirdNet_v2_custom_Labels.txt"</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="at">  </span><span class="fu">chunk_length_s</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="at">  </span><span class="fu">overlap_s</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="at">  </span><span class="fu">min_confidence</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.5</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="at">  </span><span class="fu">workers</span><span class="kw">:</span><span class="at"> </span><span class="dv">4</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="fu">processing</span><span class="kw">:</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="at">  </span><span class="fu">input</span><span class="kw">:</span><span class="at"> </span><span class="st">"standardized"</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="at">  </span><span class="fu">merge_gap_s</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="at">  </span><span class="fu">drop_outside_deployment</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="at">  </span><span class="fu">min_confidence</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.4</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="fu">soundscape</span><span class="kw">:</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="at">  </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="at">  </span><span class="fu">window_mins</span><span class="kw">:</span><span class="at"> </span><span class="dv">10</span></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="at">  </span><span class="fu">low_stop_hz</span><span class="kw">:</span><span class="at"> </span><span class="dv">500</span></span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="at">  </span><span class="fu">acoustic_indices</span><span class="kw">:</span></span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="at">    </span><span class="fu">ACI</span><span class="kw">:</span></span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="at">    </span><span class="fu">ADI</span><span class="kw">:</span></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="at">      </span><span class="fu">fmin</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="at">      </span><span class="fu">fmax</span><span class="kw">:</span><span class="at"> </span><span class="dv">24000</span></span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="at">      </span><span class="fu">bin_step</span><span class="kw">:</span><span class="at"> </span><span class="dv">1000</span></span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="at">    </span><span class="fu">AEve</span><span class="kw">:</span></span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="at">    </span><span class="fu">Bio</span><span class="kw">:</span></span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="at">      </span><span class="fu">flim</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2000</span><span class="kw">,</span><span class="at"> </span><span class="dv">11000</span><span class="kw">]</span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="at">    </span><span class="fu">H</span><span class="kw">:</span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="at">    </span><span class="fu">M</span><span class="kw">:</span></span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="at">    </span><span class="fu">NDSI</span><span class="kw">:</span></span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="at">      </span><span class="fu">anthro_range</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">1000</span><span class="kw">,</span><span class="at"> </span><span class="dv">2000</span><span class="kw">]</span></span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="at">      </span><span class="fu">bio_range</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">2000</span><span class="kw">,</span><span class="at"> </span><span class="dv">11000</span><span class="kw">]</span></span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="at">  </span><span class="fu">day_hours</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">6</span><span class="kw">,</span><span class="at"> </span><span class="dv">17</span><span class="kw">]</span></span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a><span class="at">  </span><span class="fu">night_hours</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="dv">18</span><span class="kw">,</span><span class="at"> </span><span class="dv">5</span><span class="kw">]</span></span>
+<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a><span class="fu">occupancy</span><span class="kw">:</span></span>
+<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a><span class="at">  </span><span class="fu">occasion_length_days</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb5-57"><a href="#cb5-57" tabindex="-1"></a><span class="at">  </span><span class="fu">min_effort_hours</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb5-58"><a href="#cb5-58" tabindex="-1"></a><span class="at">  </span><span class="fu">min_detections</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span>
+<span id="cb5-59"><a href="#cb5-59" tabindex="-1"></a><span class="at">  </span><span class="fu">timezone</span><span class="kw">:</span><span class="at"> </span><span class="st">"Asia/Kolkata"</span></span>
+<span id="cb5-60"><a href="#cb5-60" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" tabindex="-1"></a><span class="fu">report</span><span class="kw">:</span></span>
+<span id="cb5-62"><a href="#cb5-62" tabindex="-1"></a><span class="at">  </span><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"PAM Report"</span></span>
+<span id="cb5-63"><a href="#cb5-63" tabindex="-1"></a><span class="at">  </span><span class="fu">format</span><span class="kw">:</span><span class="at"> </span><span class="st">"html"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="id_4-run-the-pipeline">4. Run the pipeline<a class="anchor" aria-label="anchor" href="#id_4-run-the-pipeline"></a>
 </h3>
+<p>Stage 00: Standardization &amp; Data Triage (Raven Compass)</p>
+<p>Raw multi-recorder dumps are often messy (mixed formats, voice memos, field notes, inconsistent filenames). Stage 00 standardizes them without modifying original raw files.</p>
+</div>
+<div class="section level3">
+<h3 id="interactive-shiny-app">Interactive Shiny App<a class="anchor" aria-label="anchor" href="#interactive-shiny-app"></a>
+</h3>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pradeeshwarrj/pamflow" class="external-link">pamflow</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/pam_standardization_app.html">pam_standardization_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The GUI provides three tabs:</p>
+<ul>
+<li><p>[Inspect] — Preview files, extract metadata, test filename regex</p></li>
+<li><p>[Convert] — Batch convert and organize into standardized folders</p></li>
+<li><p>[Log] — Live processing log</p></li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="headless-standardization-r">Headless Standardization R<a class="anchor" aria-label="anchor" href="#headless-standardization-r"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pradeeshwarrj/pamflow" class="external-link">pamflow</a></span><span class="op">)</span></span>
+<span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pam_config_read.html">pam_config_read</a></span><span class="op">(</span><span class="st">"E:/MyProject/config/config.yml"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/pam_standardize.html">pam_standardize</a></span><span class="op">(</span></span>
+<span>  raw_dir <span class="op">=</span> <span class="st">"E:/MyProject/data/raw"</span>,</span>
+<span>  out_dir <span class="op">=</span> <span class="st">"E:/MyProject/audio"</span>,</span>
+<span>  config  <span class="op">=</span> <span class="va">cfg</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="what-stage-00-does">What Stage 00 does:<a class="anchor" aria-label="anchor" href="#what-stage-00-does"></a>
+</h4>
+<ul>
+<li><p>Extracts grid IDs and timestamps from SongMeter, AudioMoth, and SwiftOne filenames</p></li>
+<li><p>Isolates voice memos (&lt; 60 s), text logs, and unreadable files into isolated/</p></li>
+<li><p>Converts and renames audio into a uniform structure under audio/G####/</p></li>
+<li><p>Leaves all original raw files untouched</p></li>
+</ul>
+</div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="workflow-a-detection--occupancy-pipeline">Workflow A: Detection &amp; Occupancy Pipeline<a class="anchor" aria-label="anchor" href="#workflow-a-detection--occupancy-pipeline"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pradeeshwarrj/pamflow" class="external-link">pamflow</a></span><span class="op">)</span></span>
 <span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pam_config_read.html">pam_config_read</a></span><span class="op">(</span><span class="st">"E:/MyProject/config/config.yaml"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Stage 00: Standardize raw recorder dumps (if not done via Shiny app)</span></span>
+<span><span class="fu"><a href="reference/pam_standardize.html">pam_standardize</a></span><span class="op">(</span></span>
+<span>  raw_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">project_root</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">raw</span><span class="op">)</span>,</span>
+<span>  out_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">project_root</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">audio</span><span class="op">)</span>,</span>
+<span>  config  <span class="op">=</span> <span class="va">cfg</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Stage 1: Scan audio and check deployments</span></span>
 <span><span class="fu"><a href="reference/pam_scan_audio.html">pam_scan_audio</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></span>
@@ -250,9 +314,16 @@ G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
 <div class="section level2">
 <h2 id="workflow-b-soundscape-analysis-pipeline">Workflow B: Soundscape Analysis Pipeline<a class="anchor" aria-label="anchor" href="#workflow-b-soundscape-analysis-pipeline"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pradeeshwarrj/pamflow" class="external-link">pamflow</a></span><span class="op">)</span></span>
 <span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pam_config_read.html">pam_config_read</a></span><span class="op">(</span><span class="st">"E:/MyProject/config/config.yaml"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Stage 00: Standardize raw recorder dumps</span></span>
+<span><span class="fu"><a href="reference/pam_standardize.html">pam_standardize</a></span><span class="op">(</span></span>
+<span>  raw_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">project_root</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">raw</span><span class="op">)</span>,</span>
+<span>  out_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">project_root</span>, <span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">audio</span><span class="op">)</span>,</span>
+<span>  config  <span class="op">=</span> <span class="va">cfg</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Stage 1: Scan audio and check deployments</span></span>
 <span><span class="fu"><a href="reference/pam_scan_audio.html">pam_scan_audio</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></span>
@@ -282,71 +353,77 @@ G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
 <tbody>
 <tr class="odd">
 <td>Both</td>
+<td>00</td>
+<td><code>pam_standardize()/pam_standarization_app()</code></td>
+<td>Raven Compass-style triage: metadata extraction, memoisolation (&lt;60s), non-audio log separation, FLAC/WAV standardization</td>
+</tr>
+<tr class="even">
+<td>Both</td>
 <td>1</td>
 <td><code><a href="reference/pam_scan_audio.html">pam_scan_audio()</a></code></td>
 <td>Inventories audio files, matches to deployments, flags QC issues</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Both</td>
 <td>2</td>
 <td><code><a href="reference/pam_filter_audio.html">pam_filter_audio()</a></code></td>
 <td>High-pass filter on the QC checked files; can be customized</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>B</td>
 <td>2b</td>
 <td><code><a href="reference/pam_soundscape_run.html">pam_soundscape_run()</a></code></td>
 <td>Computes soundscape indices per 10-min window with 500Hz high-pass filter</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>B</td>
 <td>2c</td>
 <td><code><a href="reference/pam_soundscape_run_vis.html">pam_soundscape_run_vis()</a></code></td>
 <td>Plots 24-hour diel profiles, Day/Night comparisons, and generates HTML report</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>A</td>
 <td>3</td>
 <td><code><a href="reference/pam_detect.html">pam_detect()</a></code></td>
 <td>Runs BirdNET on all files in parallel batches; resumable</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>A</td>
 <td>4</td>
 <td><code><a href="reference/pam_process_detections.html">pam_process_detections()</a></code></td>
 <td>Filters by confidence, deployment window, species; merges overlapping windows</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>A</td>
 <td>5</td>
 <td><code><a href="reference/pam_validation_draw.html">pam_validation_draw()</a></code></td>
 <td>Draws a stratified random sample for manual review</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>A</td>
 <td>5</td>
 <td><code><a href="reference/pam_validation_export.html">pam_validation_export()</a></code></td>
 <td>Cuts short WAV clips around each sampled detection</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>A</td>
 <td>5</td>
 <td><code>pam_validation_app()</code></td>
 <td>Shiny app to listen and confirm/reject species</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>A</td>
 <td>5</td>
 <td><code><a href="reference/pam_validation_metrics.html">pam_validation_metrics()</a></code></td>
 <td>Computes precision by species and confidence band</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>A</td>
 <td>6</td>
 <td><code><a href="reference/pam_build_occupancy.html">pam_build_occupancy()</a></code></td>
 <td>Builds daily detection matrices, effort, and site covariates</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>A</td>
 <td>8</td>
 <td><code><a href="reference/pam_report.html">pam_report()</a></code></td>
@@ -355,35 +432,40 @@ G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
 </tbody>
 </table>
 <blockquote>
-<p><strong>Note:</strong> All functions take <code>cfg</code> as their only required argument. The <code>run_id</code> is read from the config file.</p>
+<p><strong>Note:</strong> All stage functions take <code>cfg</code> as their primary argument. The run_id is read from the config file. Stage 00 can also be run interactively via <code><a href="reference/pam_standardization_app.html">pam_standardization_app()</a></code>.</p>
 </blockquote>
 </div>
 <div class="section level2">
 <h2 id="outputs">Outputs<a class="anchor" aria-label="anchor" href="#outputs"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>MyProject<span class="sc">/</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>├── data<span class="sc">/</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>│   ├── master_table.csv</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>│   ├── soundscape<span class="sc">/</span>run01<span class="sc">/</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>│   │   ├── soundscape_raw.csv</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>│   │   ├── soundscape_hourly.csv</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>│   │   ├── soundscape_diel_summary.csv</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>│   │   ├── soundscape_site_covariates.csv</span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>│   │   ├── plots<span class="sc">/</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>│   │   │   ├── diel_hourly_aci.png</span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>│   │   │   └── diel_phase_aci.png</span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>│   │   └── reports<span class="sc">/</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>│   │       └── Soundscape_Report_run01.html</span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>│   ├── detections<span class="sc">/</span>run01<span class="sc">/</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>│   │   ├── batches<span class="sc">/</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>│   │   └── processed<span class="sc">/</span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>│   └── occupancy<span class="sc">/</span>run01<span class="sc">/</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>│       ├── detection_matrices<span class="sc">/</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>│       ├── effort.csv</span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>│       └── site_covariates.csv</span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>├── validation<span class="sc">/</span>run01<span class="sc">/</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>├── reports<span class="sc">/</span></span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>└── logs<span class="sc">/</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>MyProject<span class="sc">/</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>├── data<span class="sc">/</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>│   ├── raw<span class="sc">/</span>                         <span class="co"># Original recorder dumps (never modified)</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>│   ├── isolated<span class="sc">/</span>                    <span class="co"># Memos, logs, corrupt files (from Stage 00)</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>│   ├── master_table.csv</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>│   ├── soundscape<span class="sc">/</span>run01<span class="sc">/</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>│   │   ├── soundscape_raw.csv</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>│   │   ├── soundscape_hourly.csv</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>│   │   ├── soundscape_diel_summary.csv</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>│   │   ├── soundscape_site_covariates.csv</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>│   │   ├── plots<span class="sc">/</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>│   │   │   ├── diel_hourly_aci.png</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>│   │   │   └── diel_phase_aci.png</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>│   │   └── reports<span class="sc">/</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>│   │       └── Soundscape_Report_run01.html</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>│   ├── detections<span class="sc">/</span>run01<span class="sc">/</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>│   │   ├── batches<span class="sc">/</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>│   │   └── processed<span class="sc">/</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>│   └── occupancy<span class="sc">/</span>run01<span class="sc">/</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>│       ├── detection_matrices<span class="sc">/</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>│       ├── effort.csv</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>│       └── site_covariates.csv</span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>├── audio<span class="sc">/</span>                           <span class="co"># Standardized audio (from Stage 00)</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>│   ├── G0059<span class="sc">/</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>│   └── G0110<span class="sc">/</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>├── validation<span class="sc">/</span>run01<span class="sc">/</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>├── reports<span class="sc">/</span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>└── logs<span class="sc">/</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="configuration-reference">Configuration Reference<a class="anchor" aria-label="anchor" href="#configuration-reference"></a>
@@ -403,60 +485,78 @@ G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00</code></pre>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><code>standardization</code></td>
+<td><code>min_duration_s</code></td>
+<td>60</td>
+<td>Files shorter than this are isolated as memos</td>
+</tr>
+<tr class="even">
+<td><code>standardization</code></td>
+<td><code>timezone</code></td>
+<td><code>"Asia/Kolkata"</code></td>
+<td>Timezone for filename datetime parsing</td>
+</tr>
+<tr class="odd">
+<td><code>standardization</code></td>
+<td><code>output_format</code></td>
+<td><code>"wav/flac"</code></td>
+<td>Output audio format (<code>flac</code> or <code>wav</code>)</td>
+</tr>
+<tr class="even">
 <td><code>birdnet</code></td>
 <td><code>workers</code></td>
 <td>4</td>
 <td>Number of parallel CPU cores</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>birdnet</code></td>
 <td><code>min_confidence</code></td>
 <td>0.5</td>
 <td>Minimum BirdNET score to keep</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>birdnet</code></td>
 <td><code>chunk_length_s</code></td>
 <td>3</td>
 <td>Audio chunk length in seconds</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>processing</code></td>
 <td><code>input</code></td>
 <td><code>"standardized"</code></td>
 <td>Use raw (<code>"standardized"</code>) or filtered audio</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>processing</code></td>
 <td><code>merge_gap_s</code></td>
 <td>3</td>
 <td>Gap (seconds) for merging overlapping detections</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>processing</code></td>
 <td><code>drop_outside_deployment</code></td>
 <td><code>true</code></td>
 <td>Remove detections outside deployment windows</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>occupancy</code></td>
 <td><code>occasion_length_days</code></td>
 <td>1</td>
 <td>Days per sampling occasion</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>occupancy</code></td>
 <td><code>min_effort_hours</code></td>
 <td>2</td>
 <td>Minimum recording hours per occasion</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>occupancy</code></td>
 <td><code>min_detections</code></td>
 <td>5</td>
 <td>Minimum total detections to include a species</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>occupancy</code></td>
 <td><code>timezone</code></td>
 <td><code>"Asia/Kolkata"</code></td>

@@ -2,8 +2,8 @@
 
 **End-to-end Passive Acoustic Monitoring workflow**
 
-`pamflow` takes you from raw field recordings to ecological useful data
-— with a single config file and a handful of function calls.
+`pamflow` takes you from raw field recordings to ecological useful
+information — with a single config file and a handful of function calls.
 
 `Workflow A (Species Detection & Occupancy)`: Run BirdNET, clean & merge
 detections, perform stratified validation with Shiny, build daily site
@@ -16,6 +16,8 @@ with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking,
 
 ## Features
 
+- **Raven Compass-style Standardization & Triage** for raw
+  multi-recorder workflow (SongMeter, AudioMoth, SwiftOne)
 - **Scan & QC** thousands of WAV files automatically
 - **Batch BirdNET detection** with parallel workers and resume support
 - **Clean & merge** overlapping detections into events
@@ -51,11 +53,11 @@ system("ffmpeg -version")  # prints version
 # Install devtools if needed
 install.packages("devtools")
 
-# Install pamflow
-devtools::install_github("pradeeshwarrj/pamflow")
-
 # Install birdnetR
 devtools::install_github("birdnet-team/birdnetR")
+
+# Install pamflow
+devtools::install_github("pradeeshwarrj/pamflow")
 ```
 
 ## Quick Start
@@ -64,9 +66,14 @@ devtools::install_github("birdnet-team/birdnetR")
 
 ``` R
 MyProject/
-├── audio/                  # WAV files in subfolders by grid
-│   ├── G0059/
-│   └── G0110/
+├── data/
+│   └── raw/                # Original recorder dumps (untouched)
+│       ├── SongMeter/
+│       ├── AudioMoth/
+│       └── SwiftOne/
+├── audio/                  # Standardized WAV/FLAC (created by Stage 00)
+│   ├── GXXXX/
+│   └── GXXXX/
 ├── metadata/
 │   └── deployments.csv     # one row per deployment
 ├── config/
@@ -77,9 +84,10 @@ MyProject/
 ### 2. Create `metadata/deployments.csv`
 
 ``` csv
-grid,recorder,deployment_id,start_datetime,end_datetime
-G0059,SW010,13,05-04-2026 18:30,08-04-2026 16:00
-G0110,SW012,7,01-04-2026 06:00,10-04-2026 18:00
+| grid  | recorder | deployment_id | start_datetime   | end_datetime     |
+|-------|----------|---------------|------------------|------------------|
+| G0059 | SW010    | 13            | 05-04-2026 18:30 | 08-04-2026 16:00 |
+| G0110 | SW012    | 7             | 01-04-2026 06:00 | 10-04-2026 18:00 |
 ```
 
 ### 3. Create `config/config.yml`
@@ -90,12 +98,19 @@ run_id: "run01"
 
 paths:
   project_root: "E:/MyProject"
+  raw: "data/raw"
   audio: "audio"
   metadata: "metadata"
   deployments_file: "deployments.csv"
   detections: "data/detections"
   logs: "logs"
   reports: "reports"
+
+standardization:
+  min_duration_s: 60
+  timezone: "Asia/Kolkata"
+  pattern: "^(?<grid>G\\d{4})_(?<date>\\d{8})_(?<time>\\d{6})(_chunk\\d+)?\\.(flac|wav)$"
+  output_format: "flac"
 
 birdnet:
   model: "BirdNET_GLOBAL_6K_V2.4_Model_FP32.tflite"
@@ -145,11 +160,64 @@ report:
 
 ### 4. Run the pipeline
 
+Stage 00: Standardization & Data Triage (Raven Compass)
+
+Raw multi-recorder dumps are often messy (mixed formats, voice memos,
+field notes, inconsistent filenames). Stage 00 standardizes them without
+modifying original raw files.
+
+### Interactive Shiny App
+
+``` r
+library(pamflow)
+pam_standardization_app()
+```
+
+The GUI provides three tabs:
+
+- \[Inspect\] — Preview files, extract metadata, test filename regex
+
+- \[Convert\] — Batch convert and organize into standardized folders
+
+- \[Log\] — Live processing log
+
+### Headless Standardization R
+
+``` r
+library(pamflow)
+cfg <- pam_config_read("E:/MyProject/config/config.yml")
+
+pam_standardize(
+  raw_dir = "E:/MyProject/data/raw",
+  out_dir = "E:/MyProject/audio",
+  config  = cfg
+)
+```
+
+#### What Stage 00 does:
+
+- Extracts grid IDs and timestamps from SongMeter, AudioMoth, and
+  SwiftOne filenames
+
+- Isolates voice memos (\< 60 s), text logs, and unreadable files into
+  isolated/
+
+- Converts and renames audio into a uniform structure under audio/G####/
+
+- Leaves all original raw files untouched
+
 ## Workflow A: Detection & Occupancy Pipeline
 
 ``` r
 library(pamflow)
 cfg <- pam_config_read("E:/MyProject/config/config.yaml")
+
+# Stage 00: Standardize raw recorder dumps (if not done via Shiny app)
+pam_standardize(
+  raw_dir = file.path(cfg$paths$project_root, cfg$paths$raw),
+  out_dir = file.path(cfg$paths$project_root, cfg$paths$audio),
+  config  = cfg
+)
 
 # Stage 1: Scan audio and check deployments
 pam_scan_audio(cfg)
@@ -183,6 +251,13 @@ pam_report(cfg)
 library(pamflow)
 cfg <- pam_config_read("E:/MyProject/config/config.yaml")
 
+# Stage 00: Standardize raw recorder dumps
+pam_standardize(
+  raw_dir = file.path(cfg$paths$project_root, cfg$paths$raw),
+  out_dir = file.path(cfg$paths$project_root, cfg$paths$audio),
+  config  = cfg
+)
+
 # Stage 1: Scan audio and check deployments
 pam_scan_audio(cfg)
 
@@ -195,29 +270,34 @@ vis_results <- pam_soundscape_run_vis(cfg)
 
 ## Pipeline Stages
 
-| Workflow | Stage | Function                                                                                                  | What it does                                                                  |
-|----------|-------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| Both     | 1     | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)                 | Inventories audio files, matches to deployments, flags QC issues              |
-| Both     | 2     | [`pam_filter_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.md)             | High-pass filter on the QC checked files; can be customized                   |
-| B        | 2b    | [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)         | Computes soundscape indices per 10-min window with 500Hz high-pass filter     |
-| B        | 2c    | [`pam_soundscape_run_vis()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.md) | Plots 24-hour diel profiles, Day/Night comparisons, and generates HTML report |
-| A        | 3     | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)                         | Runs BirdNET on all files in parallel batches; resumable                      |
-| A        | 4     | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md) | Filters by confidence, deployment window, species; merges overlapping windows |
-| A        | 5     | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)       | Draws a stratified random sample for manual review                            |
-| A        | 5     | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)   | Cuts short WAV clips around each sampled detection                            |
-| A        | 5     | `pam_validation_app()`                                                                                    | Shiny app to listen and confirm/reject species                                |
-| A        | 5     | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md) | Computes precision by species and confidence band                             |
-| A        | 6     | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)       | Builds daily detection matrices, effort, and site covariates                  |
-| A        | 8     | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)                         | Generates HTML report and Excel workbook                                      |
+| Workflow | Stage | Function                                                                                                  | What it does                                                                                                               |
+|----------|-------|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| Both     | 00    | `pam_standardize()/pam_standarization_app()`                                                              | Raven Compass-style triage: metadata extraction, memoisolation (\<60s), non-audio log separation, FLAC/WAV standardization |
+| Both     | 1     | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)                 | Inventories audio files, matches to deployments, flags QC issues                                                           |
+| Both     | 2     | [`pam_filter_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.md)             | High-pass filter on the QC checked files; can be customized                                                                |
+| B        | 2b    | [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)         | Computes soundscape indices per 10-min window with 500Hz high-pass filter                                                  |
+| B        | 2c    | [`pam_soundscape_run_vis()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.md) | Plots 24-hour diel profiles, Day/Night comparisons, and generates HTML report                                              |
+| A        | 3     | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)                         | Runs BirdNET on all files in parallel batches; resumable                                                                   |
+| A        | 4     | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md) | Filters by confidence, deployment window, species; merges overlapping windows                                              |
+| A        | 5     | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)       | Draws a stratified random sample for manual review                                                                         |
+| A        | 5     | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)   | Cuts short WAV clips around each sampled detection                                                                         |
+| A        | 5     | `pam_validation_app()`                                                                                    | Shiny app to listen and confirm/reject species                                                                             |
+| A        | 5     | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md) | Computes precision by species and confidence band                                                                          |
+| A        | 6     | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)       | Builds daily detection matrices, effort, and site covariates                                                               |
+| A        | 8     | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)                         | Generates HTML report and Excel workbook                                                                                   |
 
-> **Note:** All functions take `cfg` as their only required argument.
-> The `run_id` is read from the config file.
+> **Note:** All stage functions take `cfg` as their primary argument.
+> The run_id is read from the config file. Stage 00 can also be run
+> interactively via
+> [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md).
 
 ## Outputs
 
 ``` R
 MyProject/
 ├── data/
+│   ├── raw/                         # Original recorder dumps (never modified)
+│   ├── isolated/                    # Memos, logs, corrupt files (from Stage 00)
 │   ├── master_table.csv
 │   ├── soundscape/run01/
 │   │   ├── soundscape_raw.csv
@@ -236,6 +316,9 @@ MyProject/
 │       ├── detection_matrices/
 │       ├── effort.csv
 │       └── site_covariates.csv
+├── audio/                           # Standardized audio (from Stage 00)
+│   ├── G0059/
+│   └── G0110/
 ├── validation/run01/
 ├── reports/
 └── logs/
@@ -243,18 +326,21 @@ MyProject/
 
 ## Configuration Reference
 
-| Section      | Key                       | Default          | Description                                      |
-|--------------|---------------------------|------------------|--------------------------------------------------|
-| `birdnet`    | `workers`                 | 4                | Number of parallel CPU cores                     |
-| `birdnet`    | `min_confidence`          | 0.5              | Minimum BirdNET score to keep                    |
-| `birdnet`    | `chunk_length_s`          | 3                | Audio chunk length in seconds                    |
-| `processing` | `input`                   | `"standardized"` | Use raw (`"standardized"`) or filtered audio     |
-| `processing` | `merge_gap_s`             | 3                | Gap (seconds) for merging overlapping detections |
-| `processing` | `drop_outside_deployment` | `true`           | Remove detections outside deployment windows     |
-| `occupancy`  | `occasion_length_days`    | 1                | Days per sampling occasion                       |
-| `occupancy`  | `min_effort_hours`        | 2                | Minimum recording hours per occasion             |
-| `occupancy`  | `min_detections`          | 5                | Minimum total detections to include a species    |
-| `occupancy`  | `timezone`                | `"Asia/Kolkata"` | Timezone for day boundaries                      |
+| Section           | Key                       | Default          | Description                                      |
+|-------------------|---------------------------|------------------|--------------------------------------------------|
+| `standardization` | `min_duration_s`          | 60               | Files shorter than this are isolated as memos    |
+| `standardization` | `timezone`                | `"Asia/Kolkata"` | Timezone for filename datetime parsing           |
+| `standardization` | `output_format`           | `"wav/flac"`     | Output audio format (`flac` or `wav`)            |
+| `birdnet`         | `workers`                 | 4                | Number of parallel CPU cores                     |
+| `birdnet`         | `min_confidence`          | 0.5              | Minimum BirdNET score to keep                    |
+| `birdnet`         | `chunk_length_s`          | 3                | Audio chunk length in seconds                    |
+| `processing`      | `input`                   | `"standardized"` | Use raw (`"standardized"`) or filtered audio     |
+| `processing`      | `merge_gap_s`             | 3                | Gap (seconds) for merging overlapping detections |
+| `processing`      | `drop_outside_deployment` | `true`           | Remove detections outside deployment windows     |
+| `occupancy`       | `occasion_length_days`    | 1                | Days per sampling occasion                       |
+| `occupancy`       | `min_effort_hours`        | 2                | Minimum recording hours per occasion             |
+| `occupancy`       | `min_detections`          | 5                | Minimum total detections to include a species    |
+| `occupancy`       | `timezone`                | `"Asia/Kolkata"` | Timezone for day boundaries                      |
 
 ## Resumability
 
