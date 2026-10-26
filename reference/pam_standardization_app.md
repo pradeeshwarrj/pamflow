@@ -1,0 +1,26 @@
+# Launch PAM Standardization & Data Triage Shiny App
+
+Interactive GUI for inspecting raw acoustic data, parsing timestamps,
+previewing conversions, isolating non-audio/memo files, and performing
+standardized audio transcoding.
+
+## Usage
+
+``` r
+pam_standardization_app(cfg = NULL, raw_dir = NULL)
+```
+
+## Arguments
+
+- cfg:
+
+  Optional configuration object from
+  [`pam_load_config()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_load_config.md).
+
+- raw_dir:
+
+  Optional path override for raw audio directory.
+
+## Value
+
+Runs Shiny application.

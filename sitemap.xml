@@ -28,14 +28,18 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_daily_effort.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_detection_matrix.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_extract_grid.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_one.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_highpass_filter_string.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_inspect_raw.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_is_flac.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_load_config.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_log.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_match_deployments.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_occasion_covariates.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_parse_datetime.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_parse_filenames.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_pending_batches.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.html</loc></url>
@@ -64,6 +68,8 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validate.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.html</loc></url>

@@ -275,6 +275,8 @@ MIT
   : Read and validate a pamflow configuration file
 - [`pam_config_validate()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_validate.md)
   : Validate a pamflow configuration
+- [`pam_load_config()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_load_config.md)
+  : Alias for pam_config_read
 
 ## Audio Utilities (WAV + FLAC)
 
@@ -290,6 +292,19 @@ MIT
   : Read Audio File as a tuneR Wave Object (WAV or FLAC)
 - [`pam_cut_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_cut_audio.md)
   : Cut Audio Clip Preserving Source Format
+
+## Stage 0 — Standardization & Triage
+
+- [`pam_standardize()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.md)
+  : Standardize Raw PAM Audio Files (Stage 00 Engine)
+- [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md)
+  : Launch PAM Standardization & Data Triage Shiny App
+- [`pam_inspect_raw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_inspect_raw.md)
+  : Inspect Raw Audio Directory
+- [`pam_parse_datetime()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_parse_datetime.md)
+  : Parse Datetime from Audio Filename or Metadata
+- [`pam_extract_grid()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_extract_grid.md)
+  : Extract Grid, Recorder, or Site Identifier from Filename
 
 ## Stage 1 — Scan & QC
 

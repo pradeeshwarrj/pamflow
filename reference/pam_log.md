@@ -5,7 +5,13 @@ Write a timestamped log line to a per-stage log file
 ## Usage
 
 ``` r
-pam_log(level = c("INFO", "WARN", "ERROR"), msg, stage, log_dir, echo = TRUE)
+pam_log(
+  level = c("INFO", "WARN", "ERROR"),
+  msg,
+  stage = "pamflow",
+  log_dir = NULL,
+  echo = TRUE
+)
 ```
 
 ## Arguments
@@ -24,7 +30,8 @@ pam_log(level = c("INFO", "WARN", "ERROR"), msg, stage, log_dir, echo = TRUE)
 
 - log_dir:
 
-  Directory for log files (created if missing).
+  Directory for log files (created if missing). If NULL, file logging is
+  skipped.
 
 - echo:
 

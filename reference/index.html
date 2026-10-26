@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,13 @@
 
         </dt>
         <dd>Validate a pamflow configuration</dd>
+
+        <dt>
+
+          <code><a href="pam_load_config.html">pam_load_config()</a></code>
+
+        </dt>
+        <dd>Alias for pam_config_read</dd>
       </dl></div><div class="section level2">
       <h2 id="audio-utilities-wav-flac-">Audio Utilities (WAV + FLAC)<a class="anchor" aria-label="anchor" href="#audio-utilities-wav-flac-"></a></h2>
 
@@ -106,6 +113,50 @@
 
         </dt>
         <dd>Cut Audio Clip Preserving Source Format</dd>
+      </dl></div><div class="section level2">
+      <h2 id="stage-standardization-triage">Stage 0 — Standardization &amp; Triage<a class="anchor" aria-label="anchor" href="#stage-standardization-triage"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="pam_standardize.html">pam_standardize()</a></code>
+
+        </dt>
+        <dd>Standardize Raw PAM Audio Files (Stage 00 Engine)</dd>
+
+        <dt>
+
+          <code><a href="pam_standardization_app.html">pam_standardization_app()</a></code>
+
+        </dt>
+        <dd>Launch PAM Standardization &amp; Data Triage Shiny App</dd>
+
+        <dt>
+
+          <code><a href="pam_inspect_raw.html">pam_inspect_raw()</a></code>
+
+        </dt>
+        <dd>Inspect Raw Audio Directory</dd>
+
+        <dt>
+
+          <code><a href="pam_parse_datetime.html">pam_parse_datetime()</a></code>
+
+        </dt>
+        <dd>Parse Datetime from Audio Filename or Metadata</dd>
+
+        <dt>
+
+          <code><a href="pam_extract_grid.html">pam_extract_grid()</a></code>
+
+        </dt>
+        <dd>Extract Grid, Recorder, or Site Identifier from Filename</dd>
       </dl></div><div class="section level2">
       <h2 id="stage-scan-qc">Stage 1 — Scan &amp; QC<a class="anchor" aria-label="anchor" href="#stage-scan-qc"></a></h2>
 
@@ -617,7 +668,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Rajagopal James Pradeeshwar.</p>
+  <p>Developed by Pradeeshwar Rajagopal James.</p>
 </div>
 
 <div class="pkgdown-footer-right">
