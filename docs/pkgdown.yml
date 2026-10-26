@@ -3,7 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   pamflow-guide: pamflow-guide.html
-last_built: 2026-10-26T04:33Z
+last_built: 2026-10-26T11:44Z
 urls:
   reference: https://pradeeshwarrj.github.io/pamflow/reference
   article: https://pradeeshwarrj.github.io/pamflow/articles

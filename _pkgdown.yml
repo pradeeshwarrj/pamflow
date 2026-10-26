@@ -3,6 +3,7 @@ url: https://pradeeshwarrj.github.io/pamflow/
 template:
   bootstrap: 5
   bootswatch: flatly
+  logo: man/figures/logo.png
 
 navbar:
   structure:
