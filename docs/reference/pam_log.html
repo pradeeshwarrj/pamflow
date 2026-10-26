@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pam_log</span><span class="op">(</span>level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"INFO"</span>, <span class="st">"WARN"</span>, <span class="st">"ERROR"</span><span class="op">)</span>, <span class="va">msg</span>, <span class="va">stage</span>, <span class="va">log_dir</span>, echo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pam_log</span><span class="op">(</span></span>
+<span>  level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"INFO"</span>, <span class="st">"WARN"</span>, <span class="st">"ERROR"</span><span class="op">)</span>,</span>
+<span>  <span class="va">msg</span>,</span>
+<span>  stage <span class="op">=</span> <span class="st">"pamflow"</span>,</span>
+<span>  log_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  echo <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -60,7 +66,7 @@
 
 
 <dt id="arg-log-dir">log_dir<a class="anchor" aria-label="anchor" href="#arg-log-dir"></a></dt>
-<dd><p>Directory for log files (created if missing).</p></dd>
+<dd><p>Directory for log files (created if missing). If NULL, file logging is skipped.</p></dd>
 
 
 <dt id="arg-echo">echo<a class="anchor" aria-label="anchor" href="#arg-echo"></a></dt>
@@ -77,7 +83,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Rajagopal James Pradeeshwar.</p>
+  <p>Developed by Pradeeshwar Rajagopal James.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -19,6 +19,7 @@ reference:
     contents:
       - pam_config_read
       - pam_config_validate
+      - pam_load_config
 
   - title: "Audio Utilities (WAV + FLAC)"
     contents:
@@ -28,6 +29,14 @@ reference:
       - pam_is_flac
       - pam_read_audio
       - pam_cut_audio
+
+  - title: "Stage 0 — Standardization & Triage"
+    contents:
+      - pam_standardize
+      - pam_standardization_app
+      - pam_inspect_raw
+      - pam_parse_datetime
+      - pam_extract_grid
 
   - title: "Stage 1 — Scan & QC"
     contents:

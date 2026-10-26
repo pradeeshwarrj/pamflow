@@ -5,14 +5,15 @@ Read and validate a pamflow configuration file
 ## Usage
 
 ``` r
-pam_config_read(path)
+pam_config_read(path = NULL)
 ```
 
 ## Arguments
 
 - path:
 
-  Path to a YAML config file.
+  Path to a YAML config file. If missing, looks for "config/config.yml"
+  or loads default template.
 
 ## Value
 

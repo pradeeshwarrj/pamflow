@@ -18,10 +18,10 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Rajagopal James Pradeeshwar <pradeeshwarrj@gmail.com>
+**Maintainer**: Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com>
 \[copyright holder\]
 
 Authors:
 
-- Rajagopal James Pradeeshwar <pradeeshwarrj@gmail.com> \[copyright
+- Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com> \[copyright
   holder\]
