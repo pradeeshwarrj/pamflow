@@ -3,6 +3,11 @@
 
 # pamflow <a href="https://pradeeshwarrj.github.io/pamflow/"><img src="man/figures/logo.png" alt="pamflow website" align="right" height="139"/></a>
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/pradeeshwarrj/pamflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pradeeshwarrj/pamflow/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 **End-to-end Passive Acoustic Monitoring workflow**
 
 `pamflow` takes you from raw field recordings to ecological useful
