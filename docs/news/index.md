@@ -1,5 +1,38 @@
 # Changelog
 
+## pamflow 0.4.0
+
+### Stage 00 Data Triage & Standardization
+
+- **Audio Standardization Engine**: Added
+  [`pam_standardize()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.md)
+  to process multi-format field audio (WAV, FLAC, MP3) into uniform 48
+  kHz Mono WAV format while keeping raw audio files strictly read-only.
+- **Raven Compass Triage App**: Added
+  [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md),
+  an interactive Shiny app with `[Inspect]`, `[Convert]`, and `[Log]`
+  tabs.
+- **Automatic Isolation**: Short files (\< 60 seconds) or corrupt audio
+  are automatically segregated into `data/isolated/`.
+- **Metadata Parsing**: Added
+  [`pam_parse_datetime()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_parse_datetime.md)
+  and
+  [`pam_extract_grid()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_extract_grid.md)
+  to extract timestamps and deployment/sensor IDs directly from
+  filenames.
+
+### Infrastructure, Branding & Documentation
+
+- **Package Logo**: Integrated hexagonal logo (`man/figures/logo.png`)
+  and site favicons.
+
+### Compliance & Maintenance
+
+- Standardized log outputs with strict uppercase log levels (`"INFO"`,
+  `"WARN"`, `"ERROR"`).
+- Ensured pure ASCII compliance across all `.R` files and Shiny
+  interfaces.
+
 ## pamflow 0.3.0
 
 ### Major Features

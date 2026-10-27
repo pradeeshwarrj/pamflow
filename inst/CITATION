@@ -1,0 +1,11 @@
+bibentry(
+  bibtype = "Manual",
+  title = "pamflow: End-to-End Passive Acoustic Monitoring Workflow",
+  author = c(
+    person("Pradeeshwar", email = "pradeeshwarrj@gmail.com", role = c("aut", "cre", "cph"))
+  ),
+  year = "2026",
+  note = "R package version 0.4.0",
+  url = "https://pradeeshwarrj.github.io/pamflow/"
+)
+

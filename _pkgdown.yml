@@ -5,6 +5,10 @@ template:
   bootswatch: flatly
   logo: man/figures/logo.png
 
+home:
+  sidebar:
+    structure: [links, license, community, authors, citation, dev]
+
 navbar:
   structure:
     left: [intro, reference, articles, news]

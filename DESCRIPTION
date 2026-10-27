@@ -1,11 +1,7 @@
 Package: pamflow
 Title: End-to-End Passive Acoustic Monitoring Workflow
 Version: 0.4.0
-Authors@R: person(
-    given = c("Rajagopal James"),
-    family = "Pradeeshwar", 
-    email = "pradeeshwarrj@gmail.com",
-    role = c("aut", "cre", "cph"))
+Authors@R: person("RJ", "Pradeeshwar", email = "pradeeshwarrj@gmail.com", role = c("aut", "cre", "cph"))
 Description: Standardising passive acoustic recordings, running
     custom BirdNET classifiers, validating detections, and preparing
     occupancy-ready detection histories (Workflow A).
