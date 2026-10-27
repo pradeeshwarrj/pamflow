@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Standardising passive acoustic recordings, running custom BirdNET classifiers, validating detections, and preparing occupancy-ready detection histories (Workflow A). Standardising passive acoustic recordins, calculating custom list of soundscape indices, patterns in soundscape indices, and reporting (Workflow B).
+Standardising passive acoustic recordings, running BirdNET acoustic scanning, validating detections, calculating soundscape diversity indices, and preparing occupancy-ready detection histories and reports.
 }
 \seealso{
 Useful links:

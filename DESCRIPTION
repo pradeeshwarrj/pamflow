@@ -2,14 +2,14 @@ Package: pamflow
 Title: End-to-End Passive Acoustic Monitoring Workflow
 Version: 0.4.0
 Authors@R: person("RJ", "Pradeeshwar", email = "pradeeshwarrj@gmail.com", role = c("aut", "cre", "cph"))
-Description: Standardising passive acoustic recordings, running
-    custom BirdNET classifiers, validating detections, and preparing
-    occupancy-ready detection histories (Workflow A).
-    Standardising passive acoustic recordins, calculating custom list
-    of soundscape indices, patterns in soundscape indices, and reporting (Workflow B). 
+Description: Standardising passive acoustic recordings, running BirdNET acoustic
+    scanning, validating detections, calculating soundscape diversity indices,
+    and preparing occupancy-ready detection histories and reports.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
+Depends: 
+    R (>= 4.0.0)
 Imports: 
     av,
     cli,
@@ -26,7 +26,6 @@ Imports:
     yaml
 Suggests: 
     birdnetR,
-    birdnetTools,
     knitr,
     openxlsx,
     rmarkdown,
@@ -35,9 +34,10 @@ Suggests:
     testthat (>= 3.0.0),
     ubms,
     unmarked
+Remotes: 
+    github::birdnet-team/birdnetR
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.1
 URL: https://pradeeshwarrj.github.io/pamflow, https://github.com/pradeeshwarrj/pamflow
 BugReports: https://github.com/pradeeshwarrj/pamflow/issues
 VignetteBuilder: knitr
-Date: 2026-10-23
