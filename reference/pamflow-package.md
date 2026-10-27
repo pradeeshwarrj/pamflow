@@ -18,10 +18,9 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Rajagopal James Pradeeshwar <pradeeshwarrj@gmail.com>
-\[copyright holder\]
+**Maintainer**: RJ Pradeeshwar <pradeeshwarrj@gmail.com> \[copyright
+holder\]
 
 Authors:
 
-- Rajagopal James Pradeeshwar <pradeeshwarrj@gmail.com> \[copyright
-  holder\]
+- RJ Pradeeshwar <pradeeshwarrj@gmail.com> \[copyright holder\]

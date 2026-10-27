@@ -2,21 +2,21 @@
 
 ## Authors
 
-- **Rajagopal James Pradeeshwar**. Author, maintainer, copyright holder.
+- **RJ Pradeeshwar**. Author, maintainer, copyright holder.
 
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/pradeeshwarrj/pamflow/blob/master/DESCRIPTION)
+[`inst/CITATION`](https://github.com/pradeeshwarrj/pamflow/blob/master/inst/CITATION)
 
-Pradeeshwar R (2026). *pamflow: End-to-End Passive Acoustic Monitoring
+Pradeeshwar (2026). *pamflow: End-to-End Passive Acoustic Monitoring
 Workflow*. R package version 0.4.0,
-<https://pradeeshwarrj.github.io/pamflow>.
+<https://pradeeshwarrj.github.io/pamflow/>.
 
     @Manual{,
       title = {pamflow: End-to-End Passive Acoustic Monitoring Workflow},
-      author = {Rajagopal James Pradeeshwar},
+      author = {{Pradeeshwar}},
       year = {2026},
       note = {R package version 0.4.0},
-      url = {https://pradeeshwarrj.github.io/pamflow},
+      url = {https://pradeeshwarrj.github.io/pamflow/},
     }

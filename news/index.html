@@ -33,6 +33,30 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="pamflow-040">pamflow 0.4.0<a class="anchor" aria-label="anchor" href="#pamflow-040"></a></h2>
+<div class="section level3">
+<h3 id="stage-data-triage--standardization-0-4-0">Stage 00 Data Triage &amp; Standardization<a class="anchor" aria-label="anchor" href="#stage-data-triage--standardization-0-4-0"></a></h3>
+<ul><li>
+<strong>Audio Standardization Engine</strong>: Added <code><a href="../reference/pam_standardize.html">pam_standardize()</a></code> to process multi-format field audio (WAV, FLAC, MP3) into uniform 48 kHz Mono WAV format while keeping raw audio files strictly read-only.</li>
+<li>
+<strong>Raven Compass Triage App</strong>: Added <code><a href="../reference/pam_standardization_app.html">pam_standardization_app()</a></code>, an interactive Shiny app with <code>[Inspect]</code>, <code>[Convert]</code>, and <code>[Log]</code> tabs.</li>
+<li>
+<strong>Automatic Isolation</strong>: Short files (&lt; 60 seconds) or corrupt audio are automatically segregated into <code>data/isolated/</code>.</li>
+<li>
+<strong>Metadata Parsing</strong>: Added <code><a href="../reference/pam_parse_datetime.html">pam_parse_datetime()</a></code> and <code><a href="../reference/pam_extract_grid.html">pam_extract_grid()</a></code> to extract timestamps and deployment/sensor IDs directly from filenames.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="infrastructure-branding--documentation-0-4-0">Infrastructure, Branding &amp; Documentation<a class="anchor" aria-label="anchor" href="#infrastructure-branding--documentation-0-4-0"></a></h3>
+<ul><li>
+<strong>Package Logo</strong>: Integrated hexagonal logo (<code>man/figures/logo.png</code>) and site favicons.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="compliance--maintenance-0-4-0">Compliance &amp; Maintenance<a class="anchor" aria-label="anchor" href="#compliance--maintenance-0-4-0"></a></h3>
+<ul><li>Standardized log outputs with strict uppercase log levels (<code>"INFO"</code>, <code>"WARN"</code>, <code>"ERROR"</code>).</li>
+<li>Ensured pure ASCII compliance across all <code>.R</code> files and Shiny interfaces.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="pamflow-030">pamflow 0.3.0<a class="anchor" aria-label="anchor" href="#pamflow-030"></a></h2>
 <div class="section level3">
 <h3 id="major-features-0-3-0">Major Features<a class="anchor" aria-label="anchor" href="#major-features-0-3-0"></a></h3>
@@ -95,7 +119,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Rajagopal James Pradeeshwar.</p>
+  <p>Developed by RJ Pradeeshwar.</p>
 </div>
 
 <div class="pkgdown-footer-right">
