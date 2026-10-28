@@ -520,7 +520,7 @@ pam_soundscape_batch <- function(file_list, cfg, test_n = NULL) {
       data.table::fwrite(valid_dt, raw_csv, append = append_mode)
 
       successful_files <- basename(current_batch[successful_indices])
-      cat(paste(successful_files, collapse = "\n"), "\n", file = done_txt, append = TRUE)
+      cat(paste0(successful_files, "\n"), file = done_txt, append = TRUE, sep = "")
     }
 
     elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "hours"))

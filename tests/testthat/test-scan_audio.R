@@ -394,3 +394,219 @@ test_that("pam_audio_summary: grids_without_deployment reported", {
   expect_true("G0099" %in% summ$grids_without_deployment)
   expect_false("G0001" %in% summ$grids_without_deployment)
 })
+
+# ── pam_parse_filenames: bad pattern ──────────────────────────────────────────
+
+test_that("pam_parse_filenames: pattern without grid/date/time groups aborts", {
+  expect_error(pam_parse_filenames("a.wav", "^(?<grid>G\\d+)", "UTC"), "named groups")
+  expect_error(pam_parse_filenames("a.wav", "^G\\d+", "UTC"), "named groups")
+})
+
+# ── pam_read_deployments: repairs and errors ──────────────────────────────────
+
+test_that("pam_read_deployments: too few columns aborts", {
+  csv <- write_dep_csv("59,dep001,2026-04-01")
+  expect_error(pam_read_deployments(make_dep_cfg(csv)), "columns")
+})
+
+test_that("pam_read_deployments: has_header skips the first line", {
+  csv <- write_dep_csv(c("g,id,d1,t1,d2,t2,rec,lat,lon",
+                         "59,dep001,2026-04-01,06:00,2026-04-15,18:00,SM4,12.3,77.5"))
+  cfg <- make_dep_cfg(csv); cfg$deployments$has_header <- TRUE
+  dep <- pam_read_deployments(cfg)
+  expect_equal(nrow(dep), 1L)
+  expect_equal(dep$grid, "G0059")
+})
+
+test_that("pam_read_deployments: '/' and '.' separators and seconds are normalised", {
+  csv <- write_dep_csv("59,dep001,01/04/2026,06.30.15,15.04.2026,18:00:30,SM4,12.3,77.5")
+  cfg <- make_dep_cfg(csv); cfg$deployments$date_format <- "%d-%m-%Y"
+  dep <- pam_read_deployments(cfg)
+  expect_equal(format(dep$deploy_start, "%Y-%m-%d %H:%M"), "2026-04-01 06:30")
+  expect_equal(format(dep$retrieve_end, "%Y-%m-%d %H:%M"), "2026-04-15 18:00")
+})
+
+test_that("pam_read_deployments: recovery year before 2000 is repaired with a warning", {
+  csv <- write_dep_csv("59,dep001,01-04-2026,06:00,15-04-0206,18:00,SM4,12.3,77.5")
+  cfg <- make_dep_cfg(csv); cfg$deployments$date_format <- "%d-%m-%Y"
+  expect_warning(dep <- pam_read_deployments(cfg), "Recovery year repaired")
+  expect_equal(format(dep$retrieve_end, "%Y-%m-%d"), "2026-04-15")
+})
+
+test_that("pam_read_deployments: unparseable dates become NA instead of failing", {
+  csv <- write_dep_csv("59,dep001,not-a-date,06:00,,,SM4,12.3,77.5")
+  dep <- pam_read_deployments(make_dep_cfg(csv))
+  expect_true(is.na(dep$deploy_start))
+  expect_true(is.na(dep$retrieve_end))
+})
+
+# ── pam_check_deployments: remaining issues ───────────────────────────────────
+
+test_that("pam_check_deployments: unparseable start and assumed recovery time flagged", {
+  dep <- data.table::data.table(
+    deployment_id = c("d1", "d2"), grid = c("G1", "G2"),
+    deploy_start = as.POSIXct(c(NA, "2026-04-01 06:00"), tz = "Asia/Kolkata"),
+    retrieve_end = as.POSIXct(c("2026-04-02 18:00", "2026-04-02 18:00"), tz = "Asia/Kolkata"),
+    recovery_time_missing = c(FALSE, TRUE))
+  issues <- pam_check_deployments(dep)
+  expect_true(any(grepl("start missing", issues$issue) & issues$deployment_id == "d1"))
+  expect_true(any(grepl("end of day assumed", issues$issue) & issues$deployment_id == "d2"))
+})
+
+# ── pam_add_qc: additional flags ──────────────────────────────────────────────
+
+test_that("pam_add_qc: file much shorter than the modal duration is flagged short but passes", {
+  master <- make_master(grids = rep("G1", 3),
+                        starts = c("2026-04-10 06:00:00", "2026-04-10 07:00:00", "2026-04-10 08:00:00"),
+                        durations_s = c(3600, 3600, 1800))
+  out <- pam_add_qc(master, make_qc_cfg())
+  expect_equal(out$short, c(FALSE, FALSE, TRUE))
+  expect_true(all(out$qc_pass))
+})
+
+test_that("pam_add_qc: overlapping files are flagged overlap_before", {
+  master <- make_master(grids = rep("G1", 2),
+                        starts = c("2026-04-10 06:00:00", "2026-04-10 06:30:00"),
+                        durations_s = c(3600, 3600))
+  out <- pam_add_qc(master, make_qc_cfg())
+  expect_equal(out$overlap_before, c(FALSE, TRUE))
+  expect_equal(out$gap_before, c(FALSE, FALSE))
+})
+
+test_that("pam_add_qc: NA bit depth (compressed) is never flagged truncated", {
+  master <- make_master(grids = "G1", starts = "2026-04-10 06:00:00", durations_s = 3600,
+                        bits = NA_real_, file_size_b = 1000)
+  out <- pam_add_qc(master, make_qc_cfg())
+  expect_false(out$truncated)
+  expect_true(out$qc_pass)
+})
+
+test_that("pam_add_qc: unreadable or invalid-name files fail qc", {
+  m1 <- make_master(grids = "G1", starts = "2026-04-10 06:00:00", durations_s = 3600,
+                    readable = FALSE)
+  m2 <- make_master(grids = "G1", starts = "2026-04-10 06:00:00", durations_s = 3600,
+                    valid_name = FALSE)
+  expect_false(pam_add_qc(m1, make_qc_cfg())$qc_pass)
+  expect_false(pam_add_qc(m2, make_qc_cfg())$qc_pass)
+})
+
+# ── pam_audio_summary: deployment reporting ───────────────────────────────────
+
+test_that("pam_audio_summary: deployments_without_audio lists unmatched deployments", {
+  master <- make_master(grids = "G0001", starts = "2026-04-10 06:00:00", durations_s = 3600)
+  master[, `:=`(truncated = FALSE, short = FALSE, duplicate = FALSE, gap_before = FALSE,
+                overlap_before = FALSE, qc_pass = TRUE, in_deployment = TRUE,
+                deployment_id = "dep001")]
+  dep <- data.table::data.table(deployment_id = c("dep001", "dep002"), grid = c("G0001", "G0002"),
+                                recorder = "SM4")
+  summ <- pam_audio_summary(master, dep)
+  expect_equal(summ$deployments_without_audio$deployment_id, "dep002")
+  expect_length(summ$grids_without_deployment, 0L)
+})
+
+test_that("pam_audio_summary: without deployments the two deployment reports are NULL", {
+  master <- make_master(grids = "G0001", starts = "2026-04-10 06:00:00", durations_s = 3600)
+  master[, `:=`(truncated = FALSE, short = FALSE, duplicate = FALSE, gap_before = FALSE,
+                overlap_before = FALSE, qc_pass = TRUE, in_deployment = TRUE)]
+  summ <- pam_audio_summary(master)
+  expect_null(summ$grids_without_deployment)
+  expect_null(summ$deployments_without_audio)
+})
+
+# ── pam_scan_audio orchestration ──────────────────────────────────────────────
+
+scan_write_wav <- function(path, dur = 1, sr = 8000L) {
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  n <- as.integer(dur * sr)
+  tuneR::writeWave(tuneR::Wave(left = as.integer(1000 * sin(2 * pi * 440 * seq_len(n) / sr)),
+                               samp.rate = sr, bit = 16), path)
+}
+
+mk_scan_cfg <- function(root, dep_row = "59,dep001,2026-04-01,06:00,2026-04-15,18:00,SM4,12.3,77.5") {
+  csv <- write_dep_csv(dep_row, dir = root)
+  cfg <- make_dep_cfg(csv)
+  cfg$paths <- c(cfg$paths, list(
+    audio_standardized = file.path(root, "audio"), metadata = file.path(root, "meta"),
+    outputs = file.path(root, "out"), logs = file.path(root, "logs")))
+  cfg$qc <- list(gap_tolerance_s = 5, header_chunk_size = 1L)
+  cfg$filenames <- list(pattern = pat, timezone = "Asia/Kolkata")
+  cfg
+}
+
+mk_scan_audio <- function(root, times = c("060000", "060001")) {
+  for (tm in times) {
+    scan_write_wav(file.path(root, "audio", "G0059", sprintf("G0059_20260405_%s.wav", tm)))
+  }
+}
+
+test_that("pam_scan_audio: builds master, summaries and caches headers", {
+  skip_if_not_installed("tuneR")
+  root <- withr::local_tempdir(); cfg <- mk_scan_cfg(root); mk_scan_audio(root)
+  res <- suppressMessages(pam_scan_audio(cfg))
+  expect_named(res, c("master", "deployments", "summary"))
+  expect_equal(nrow(res$master), 2L)
+  expect_true(all(res$master$in_deployment))
+  expect_true(all(res$master$valid_name))
+  expect_true(all(res$master$qc_pass))
+  expect_equal(res$summary$overall$n_files, 2L)
+  expect_true(file.exists(file.path(root, "meta", "audio_headers.csv")))
+  expect_true(file.exists(file.path(root, "meta", "audio_master.csv")))
+  expect_true(file.exists(file.path(root, "out", "audio_summary_per_grid.csv")))
+  expect_true(file.exists(file.path(root, "out", "deployment_issues.csv")))
+})
+
+test_that("pam_scan_audio: re-run reads only new files; force re-reads everything", {
+  skip_if_not_installed("tuneR")
+  root <- withr::local_tempdir(); cfg <- mk_scan_cfg(root); mk_scan_audio(root)
+  orig_info <- pamflow:::pam_audio_info
+  n_read <- 0L
+  testthat::local_mocked_bindings(
+    pam_audio_info = function(files) { n_read <<- n_read + length(files); orig_info(files) },
+    .package = "pamflow")
+  suppressMessages(pam_scan_audio(cfg))
+  expect_equal(n_read, 2L)
+
+  n_read <- 0L
+  suppressMessages(pam_scan_audio(cfg))
+  expect_equal(n_read, 0L)
+
+  scan_write_wav(file.path(root, "audio", "G0059", "G0059_20260405_060002.wav"))
+  n_read <- 0L
+  res <- suppressMessages(pam_scan_audio(cfg))
+  expect_equal(n_read, 1L)
+  expect_equal(nrow(res$master), 3L)
+
+  n_read <- 0L
+  suppressMessages(pam_scan_audio(cfg, force = TRUE))
+  expect_equal(n_read, 3L)
+})
+
+test_that("pam_scan_audio: deployment issues are written and logged as a warning", {
+  skip_if_not_installed("tuneR")
+  root <- withr::local_tempdir()
+  cfg <- mk_scan_cfg(root, "59,dep001,2026-04-01,06:00,2026-04-15,,SM4,12.3,77.5")
+  mk_scan_audio(root)
+  suppressMessages(pam_scan_audio(cfg))
+  issues <- data.table::fread(file.path(root, "out", "deployment_issues.csv"))
+  expect_true(any(grepl("end of day assumed", issues$issue)))
+  expect_match(paste(readLines(file.path(root, "logs", "01_scan.log")), collapse = "\n"),
+               "deployment issues")
+})
+
+test_that("pam_scan_audio: recordings outside every deployment are kept but flagged", {
+  skip_if_not_installed("tuneR")
+  root <- withr::local_tempdir()
+  cfg <- mk_scan_cfg(root, "59,dep001,2026-01-01,06:00,2026-01-02,18:00,SM4,12.3,77.5")
+  mk_scan_audio(root)
+  res <- suppressMessages(pam_scan_audio(cfg))
+  expect_equal(nrow(res$master), 2L)
+  expect_false(any(res$master$in_deployment))
+  expect_equal(res$summary$overall$n_outside_deployment, 2L)
+})
+
+test_that("pam_scan_audio: aborts when the audio folder is missing or empty", {
+  root <- withr::local_tempdir(); cfg <- mk_scan_cfg(root)
+  expect_error(suppressMessages(pam_scan_audio(cfg)), "Audio folder not found")
+  dir.create(file.path(root, "audio"))
+  expect_error(suppressMessages(pam_scan_audio(cfg)), "No .wav/.flac files")
+})

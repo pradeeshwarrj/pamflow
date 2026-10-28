@@ -286,3 +286,197 @@ test_that("pam_occasion_covariates: empty effort returns table with julian_date 
   expect_true("julian_date" %in% names(cov))
   expect_equal(nrow(cov), 0L)
 })
+
+# ── pam_daily_effort: midnight-crossing branch ───────────────────────────────
+
+test_that("pam_daily_effort: midnight-crossing recording is split across two days", {
+  # 23:30 start, 3600 s duration → crosses midnight in UTC
+  master <- data.table::data.table(
+    site_id       = "G1_R1",
+    start_time    = as.POSIXct("2024-01-01 23:30:00", tz = "UTC"),
+    duration_s    = 3600,   # spans into 2024-01-02
+    qc_pass       = TRUE,
+    in_deployment = TRUE
+  )
+  eff <- pamflow:::pam_daily_effort(master, tz = "UTC", min_effort_h = 0)
+  expect_equal(nrow(eff), 2L)
+  dates <- sort(eff$occasion_date)
+  expect_equal(dates, as.Date(c("2024-01-01", "2024-01-02")))
+  expect_equal(sum(eff$effort_hours), 1.0, tolerance = 1e-6)
+})
+
+# ── pam_site_covariates: optional coordinate columns ─────────────────────────
+
+test_that("pam_site_covariates: includes latitude/longitude when present", {
+  master <- data.table::data.table(
+    site_id       = c("G1", "G1"),
+    grid          = c("G1", "G1"),
+    deployment_id = c("D1", "D1"),
+    latitude      = c(12.5, 12.5),
+    longitude     = c(77.5, 77.5),
+    qc_pass       = TRUE,
+    in_deployment = TRUE
+  )
+  effort <- data.table::data.table(
+    site_id       = "G1",
+    occasion_date = as.Date("2024-01-01"),
+    effort_hours  = 4.0,
+    sufficient    = TRUE
+  )
+  cov <- pamflow:::pam_site_covariates(master, effort)
+  expect_true("latitude" %in% names(cov))
+  expect_true("longitude" %in% names(cov))
+  expect_equal(cov$latitude[1], 12.5)
+})
+
+test_that("pam_site_covariates: total_effort_hours and n_occasions_surveyed are summed", {
+  master <- data.table::data.table(
+    site_id = "G1", grid = "G1", deployment_id = "D1"
+  )
+  effort <- data.table::data.table(
+    site_id       = c("G1", "G1"),
+    occasion_date = as.Date(c("2024-01-01", "2024-01-02")),
+    effort_hours  = c(3.0, 5.0),
+    sufficient    = c(TRUE, TRUE)
+  )
+  cov <- pamflow:::pam_site_covariates(master, effort)
+  expect_equal(cov$total_effort_hours, 8.0)
+  expect_equal(cov$n_occasions_surveyed, 2L)
+})
+
+# ── pam_detection_matrix: multi-species events ───────────────────────────────
+
+test_that("pam_detection_matrix: two sites produce two rows", {
+  effort <- data.table::data.table(
+    site_id       = c("S1", "S2"),
+    occasion_date = as.Date(c("2024-01-01", "2024-01-01")),
+    effort_hours  = c(4.0, 4.0),
+    sufficient    = c(TRUE, TRUE)
+  )
+  events <- data.table::data.table(
+    site_id       = "S1",
+    occasion_date = as.Date("2024-01-01"),
+    confidence    = 0.9
+  )
+  wide <- pamflow:::pam_detection_matrix(events, effort, threshold = 0.5)
+  expect_equal(nrow(wide), 2L)
+  expect_equal(wide[site_id == "S1", "2024-01-01", with = FALSE][[1]], 1L)
+  expect_equal(wide[site_id == "S2", "2024-01-01", with = FALSE][[1]], 0L)
+})
+
+# ── pam_build_occupancy: full orchestration with stub inputs ──────────────────
+
+# Builds a minimal project on disk: 1 site, 2 days x 3 one-hour recordings,
+# and detections for "Aus bus" (12) and "Bus cus" (2).
+make_occ_project <- function(tmp, det_cols = c("filename", "species", "confidence",
+                                               "detection_datetime"),
+                             thresh_file = NULL) {
+  meta_dir <- file.path(tmp, "metadata")
+  det_dir  <- file.path(tmp, "detections", "run01", "processed")
+  dir.create(meta_dir, recursive = TRUE)
+  dir.create(det_dir, recursive = TRUE)
+
+  starts <- c(paste0("2024-03-01T0", 3:5, ":00:00Z"),
+              paste0("2024-03-02T0", 3:5, ":00:00Z"))
+  master <- data.table::data.table(
+    file_name     = paste0("f", 1:6, ".wav"),
+    grid          = "G1",
+    deployment_id = 1L,
+    start_time    = starts,
+    duration_s    = 3600,
+    qc_pass       = TRUE,
+    in_deployment = TRUE
+  )
+  data.table::fwrite(master, file.path(meta_dir, "audio_master.csv"))
+
+  det <- data.table::data.table(
+    filename           = c(rep(paste0("f", 1:6, ".wav"), 2), "f1.wav", "f2.wav"),
+    species            = c(rep("Aus bus", 12), "Bus cus", "Bus cus"),
+    confidence         = 0.9,
+    detection_datetime = c(rep(c(paste("2024-03-01", c("08:45:00", "09:45:00", "10:45:00")),
+                                 paste("2024-03-02", c("08:45:00", "09:45:00", "10:45:00"))), 2),
+                           "2024-03-01 08:50:00", "2024-03-01 09:50:00")
+  )
+  if (!"detection_datetime" %in% det_cols) {
+    det[, detection_datetime := NULL]
+  }
+  data.table::fwrite(det, file.path(det_dir, "detections_clean.csv"))
+
+  list(
+    paths = list(
+      metadata     = meta_dir,
+      detections   = file.path(tmp, "detections"),
+      occupancy    = file.path(tmp, "occupancy"),
+      logs         = file.path(tmp, "logs"),
+      project_root = tmp
+    ),
+    filenames  = list(timezone = "Asia/Kolkata"),
+    occupancy  = list(run_id = "run01", min_effort_hours = 2, min_detections = 10),
+    processing = list(min_confidence = 0.5, species_thresholds_file = thresh_file)
+  )
+}
+
+test_that("pam_build_occupancy: builds histories, covariates and summary on disk", {
+  tmp <- withr::local_tempdir()
+  cfg <- make_occ_project(tmp)
+  res <- suppressMessages(pam_build_occupancy(cfg, run_id = "run01", force = TRUE))
+
+  occ_dir <- file.path(tmp, "occupancy", "run01")
+  expect_true(file.exists(file.path(occ_dir, "detection_history_Aus_bus.csv")))
+  expect_true(file.exists(file.path(occ_dir, "occasion_covariates.csv")))
+  expect_true(file.exists(file.path(occ_dir, "site_covariates.csv")))
+  expect_true(file.exists(file.path(occ_dir, "occupancy_summary.csv")))
+  # Species below min_detections gets no history
+  expect_false(file.exists(file.path(occ_dir, "detection_history_Bus_cus.csv")))
+
+  expect_named(res, c("histories", "effort", "site_covariates", "summary"))
+  expect_equal(names(res$histories), "Aus bus")
+  expect_equal(res$summary$n_sites, 1L)
+  expect_equal(res$summary$n_occasions, 2L)
+  expect_equal(res$summary$n_sites_detected, 1L)
+  expect_equal(res$summary$naive_occupancy, 1)
+  expect_equal(res$summary$threshold_used, 0.5)
+  expect_equal(res$site_covariates$total_effort_hours, 6)
+})
+
+test_that("pam_build_occupancy: per-species threshold file overrides global threshold", {
+  tmp <- withr::local_tempdir()
+  thr <- file.path(tmp, "thr.csv")
+  data.table::fwrite(data.table::data.table(scientific_name = "Aus bus", threshold = 0.95), thr)
+  cfg <- make_occ_project(tmp, thresh_file = thr)
+  res <- suppressMessages(pam_build_occupancy(cfg, run_id = "run01", force = TRUE))
+  expect_equal(res$summary$threshold_used, 0.95)
+  expect_equal(res$summary$n_sites_detected, 0L)
+  expect_equal(res$summary$naive_occupancy, 0)
+})
+
+test_that("pam_build_occupancy: missing thresholds file falls back to global threshold", {
+  tmp <- withr::local_tempdir()
+  cfg <- make_occ_project(tmp, thresh_file = file.path(tmp, "nope.csv"))
+  res <- suppressMessages(pam_build_occupancy(cfg, run_id = "run01", force = TRUE))
+  expect_equal(res$summary$threshold_used, 0.5)
+})
+
+test_that("pam_build_occupancy: returns NULL when no species meet min_detections", {
+  tmp <- withr::local_tempdir()
+  cfg <- make_occ_project(tmp)
+  cfg$occupancy$min_detections <- 100
+  res <- suppressMessages(pam_build_occupancy(cfg, run_id = "run01", force = TRUE))
+  expect_null(res)
+  expect_false(file.exists(file.path(tmp, "occupancy", "run01", "occupancy_summary.csv")))
+})
+
+test_that("pam_build_occupancy: errors when detections_clean.csv is missing", {
+  tmp <- withr::local_tempdir()
+  cfg <- make_occ_project(tmp)
+  unlink(file.path(tmp, "detections", "run01", "processed", "detections_clean.csv"))
+  expect_error(suppressMessages(pam_build_occupancy(cfg, run_id = "run01", force = TRUE)),
+               "detections_clean.csv not found")
+})
+
+test_that("pam_build_occupancy: errors when detections lack any timestamp column", {
+  tmp <- withr::local_tempdir()
+  cfg <- make_occ_project(tmp, det_cols = c("filename", "species", "confidence"))
+  expect_error(suppressMessages(pam_build_occupancy(cfg, run_id = "run01", force = TRUE)),
+               "detection_datetime")
+})

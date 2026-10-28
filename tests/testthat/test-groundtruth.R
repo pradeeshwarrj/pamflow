@@ -168,3 +168,165 @@ test_that("annotation app saves, validates and resumes", {
   expect_equal(nrow(r2), 3)                         # a new session resumed at an unannotated segment
   expect_equal(anyDuplicated(r2$segment_id), 0)
 })
+
+# ── pam_truth_long ────────────────────────────────────────────────────────────
+
+test_that("pam_truth_long: splits labels, trims, strips common-name suffix", {
+  truth <- data.table::data.table(segment_id = 1:2,
+                                  present = c("Aus a_X; Bus b_Y", ""),
+                                  possible = c("", "Cus c_Z"))
+  tl <- pamflow:::pam_truth_long(truth)
+  data.table::setorder(tl, segment_id, scientific_name)
+  expect_equal(tl$scientific_name, c("Aus a", "Bus b", "Cus c"))
+  expect_equal(tl$status, c("present", "present", "possible"))
+})
+
+test_that("pam_truth_long: present wins over possible for the same species", {
+  truth <- data.table::data.table(segment_id = 1L, present = "Aus a_X", possible = "Aus a_X")
+  tl <- pamflow:::pam_truth_long(truth)
+  expect_equal(nrow(tl), 1L)
+  expect_equal(tl$status, "present")
+})
+
+test_that("pam_truth_long: NA and empty annotations give an empty typed table", {
+  truth <- data.table::data.table(segment_id = 1:2, present = c(NA_character_, ""),
+                                  possible = c("", NA_character_))
+  tl <- pamflow:::pam_truth_long(truth)
+  expect_equal(nrow(tl), 0L)
+  expect_named(tl, c("segment_id", "scientific_name", "status"))
+})
+
+# ── pam_recall_metrics: extra branches ────────────────────────────────────────
+
+test_that("pam_recall_metrics: possible-only pairs are excluded from all counts", {
+  segs <- data.table::data.table(segment_id = 1L, rel = "f1", seg_start = 0, seg_end = 60)
+  truth <- data.table::data.table(segment_id = 1L, present = "", possible = "Aus a_X",
+                                  other = "", none_audible = FALSE)
+  ev <- data.table::data.table(rel = "f1", scientific_name = "Aus a", start_time = 5,
+                               end_time = 8, confidence = 0.9)
+  m <- pam_recall_metrics(truth, segs, ev, classes = "Aus a", thresholds = 0.3)
+  # the only pair is "possible", so nothing is counted and no rows are produced
+  expect_equal(nrow(m), 0L)
+  expect_false("Aus a" %in% m$scientific_name)
+})
+
+test_that("pam_recall_metrics: classes are extended with species seen in events", {
+  segs <- data.table::data.table(segment_id = 1L, rel = "f1", seg_start = 0, seg_end = 60)
+  truth <- data.table::data.table(segment_id = 1L, present = "", possible = "",
+                                  other = "", none_audible = TRUE)
+  ev <- data.table::data.table(rel = "f1", scientific_name = "Zus z", start_time = 5,
+                               end_time = 8, confidence = 0.9)
+  m <- pam_recall_metrics(truth, segs, ev, classes = "Aus a", thresholds = 0.5)
+  expect_true("Zus z" %in% m$scientific_name)
+  expect_equal(m[scientific_name == "Zus z", fp], 1)
+})
+
+test_that("pam_recall_metrics: output is ordered by threshold with ALL row and Wilson bounds", {
+  segs <- data.table::data.table(segment_id = 1:2, rel = "f1",
+                                 seg_start = c(0, 60), seg_end = c(60, 120))
+  truth <- data.table::data.table(segment_id = 1:2, present = c("Aus a_X", "Aus a_X"),
+                                  possible = "", other = "", none_audible = FALSE)
+  ev <- data.table::data.table(rel = "f1", scientific_name = "Aus a", start_time = 5,
+                               end_time = 8, confidence = 0.9)
+  m <- pam_recall_metrics(truth, segs, ev, classes = "Aus a", thresholds = c(0.5, 0.3))
+  expect_equal(m$threshold, c(0.3, 0.3, 0.5, 0.5))
+  expect_equal(m$scientific_name[1:2], c("ALL", "Aus a"))
+  r <- m[scientific_name == "ALL" & threshold == 0.3]
+  expect_equal(r$recall, 0.5)
+  expect_true(r$recall_low <= r$recall && r$recall <= r$recall_high)
+})
+
+# ── pam_recall_report ─────────────────────────────────────────────────────────
+
+write_gt_files <- function(cfg, segs, truth) {
+  gt <- file.path(cfg$paths$validation, "ground_truth")
+  dir.create(gt, recursive = TRUE, showWarnings = FALSE)
+  data.table::fwrite(segs, file.path(gt, "recall_segments.csv"))
+  data.table::fwrite(truth, file.path(gt, "recall_annotations.csv"))
+  gt
+}
+
+mk_gt_segs <- function() {
+  data.table::data.table(segment_id = 1:3, rel = c("a.wav", "a.wav", "b.wav"),
+                         seg_start = c(0, 60, 0), seg_end = c(60, 120, 60))
+}
+
+mk_gt_truth <- function() {
+  data.table::data.table(
+    segment_id = 1:3, present = c("Aus a_X", "", ""), possible = "",
+    other = c("", "", "frog"), none_audible = c(FALSE, TRUE, FALSE),
+    note = "", reviewer = "me", reviewed_at = "2026-04-10")
+}
+
+mk_gt_pool <- function() {
+  data.table::data.table(rel = "a.wav", scientific_name = "Aus a", start_time = 5,
+                         end_time = 8, confidence = 0.9)
+}
+
+test_that("pam_recall_report: aborts when segments or annotations are missing", {
+  root <- withr::local_tempdir()
+  cfg <- mk_cfg_gt(root)
+  expect_error(pam_recall_report(cfg, "t", pool = mk_gt_pool()), "Segments or annotations missing")
+})
+
+test_that("pam_recall_report: writes metrics CSV and counts empty / other-only segments", {
+  root <- withr::local_tempdir()
+  cfg <- mk_cfg_gt(root)
+  write_gt_files(cfg, mk_gt_segs(), mk_gt_truth())
+  res <- suppressMessages(pam_recall_report(cfg, "t", thresholds = c(0.3, 0.5), pool = mk_gt_pool()))
+  expect_equal(res$n_segments, 3L)
+  expect_equal(res$n_no_species, 1L)
+  expect_equal(res$n_other_only, 1L)
+  out <- file.path(cfg$paths$detections, "t", "validation", "recall_by_species_threshold.csv")
+  expect_true(file.exists(out))
+  expect_true("ALL" %in% res$metrics$scientific_name)
+})
+
+test_that("pam_recall_report: defaults thresholds to band edges except the last", {
+  root <- withr::local_tempdir()
+  cfg <- mk_cfg_gt(root)
+  write_gt_files(cfg, mk_gt_segs(), mk_gt_truth())
+  res <- suppressMessages(pam_recall_report(cfg, "t", pool = mk_gt_pool()))
+  expect_setequal(unique(res$metrics$threshold), c(0.3, 0.4, 0.5, 0.7))
+})
+
+test_that("pam_recall_report: keeps latest annotation per segment and uses labels file classes", {
+  root <- withr::local_tempdir()
+  cfg <- mk_cfg_gt(root)
+  truth <- data.table::rbindlist(list(mk_gt_truth(), mk_gt_truth()[1][, present := ""]))
+  write_gt_files(cfg, mk_gt_segs(), truth)
+  lab <- file.path(root, "labels.txt")
+  writeLines(c("Aus a_X", "Qus q_W"), lab)
+  testthat::local_mocked_bindings(
+    pam_detect_settings = function(cfg) list(labels_file = lab), .package = "pamflow")
+  res <- suppressMessages(pam_recall_report(cfg, "t", thresholds = 0.5, pool = mk_gt_pool()))
+  expect_equal(res$n_segments, 3L)                   # duplicate segment_id collapsed
+  expect_true("Qus q" %in% res$metrics$scientific_name)
+  # the later (empty) annotation replaced the earlier one for segment 1
+  expect_equal(res$metrics[scientific_name == "Aus a", tp], 0)
+})
+
+test_that("pam_recall_report: ignores segments from recordings the run did not process", {
+  root <- withr::local_tempdir()
+  cfg <- mk_cfg_gt(root)
+  write_gt_files(cfg, mk_gt_segs(), mk_gt_truth())
+  dir.create(file.path(cfg$paths$detections, "t"), recursive = TRUE)
+  data.table::fwrite(data.table::data.table(rel = "a.wav", ok = TRUE),
+                     file.path(cfg$paths$detections, "t", "file_results.csv"))
+  expect_warning(
+    res <- suppressMessages(pam_recall_report(cfg, "t", thresholds = 0.5, pool = mk_gt_pool())),
+    "did not process")
+  expect_equal(res$n_segments, 2L)
+})
+
+test_that("pam_recall_report: aborts when no annotated segment belongs to the run", {
+  root <- withr::local_tempdir()
+  cfg <- mk_cfg_gt(root)
+  write_gt_files(cfg, mk_gt_segs(), mk_gt_truth())
+  dir.create(file.path(cfg$paths$detections, "t"), recursive = TRUE)
+  data.table::fwrite(data.table::data.table(rel = "zzz.wav", ok = TRUE),
+                     file.path(cfg$paths$detections, "t", "file_results.csv"))
+  expect_error(suppressWarnings(suppressMessages(
+    pam_recall_report(cfg, "t", thresholds = 0.5, pool = mk_gt_pool()))),
+    "No annotated segments")
+})

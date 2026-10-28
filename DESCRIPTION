@@ -31,9 +31,10 @@ Suggests:
     rmarkdown,
     soundecology,
     spOccupancy,
-    testthat (>= 3.0.0),
+    testthat (>= 3.2.0),
     ubms,
-    unmarked
+    unmarked,
+    withr
 Remotes: 
     github::birdnet-team/birdnetR
 Config/testthat/edition: 3

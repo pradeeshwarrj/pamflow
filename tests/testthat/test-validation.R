@@ -168,3 +168,96 @@ test_that("shiny app saves verdicts and resumes", {
   expect_equal(nrow(r2), 4)                  # a new session resumed at an unreviewed sample
   expect_equal(anyDuplicated(r2$sample_id), 0)
 })
+
+# ── pam_validation_import / report / metrics edge cases ──────────────────────
+
+mk_val_cfg <- function(root) {
+  list(paths = list(detections = file.path(root, "det"), logs = file.path(root, "logs")),
+       birdnet = list(run_id = "t"),
+       validation = list(bands = list(0.3, 0.4, 0.5, 0.7, 1.0)))
+}
+
+write_val_files <- function(cfg, samples, results) {
+  vd <- file.path(cfg$paths$detections, "t", "validation")
+  dir.create(vd, recursive = TRUE, showWarnings = FALSE)
+  if (!is.null(samples)) data.table::fwrite(samples, file.path(vd, "validation_samples.csv"))
+  if (!is.null(results)) data.table::fwrite(results, file.path(vd, "validation_results.csv"))
+  vd
+}
+
+mk_val_samples <- function() {
+  data.table::data.table(sample_id = 1:4, scientific_name = "Aus bus",
+                         confidence = c(0.35, 0.35, 0.8, 0.8))
+}
+
+mk_val_results <- function() {
+  data.table::data.table(
+    sample_id = c(1, 2, 3, 3, 4),
+    verdict = c("Correct ", " incorrect", "unsure", "CORRECT", "incorrect"),
+    true_species = c("", "Bus cus_B", "", "", ""),
+    note = "", reviewer = "me", reviewed_at = "2026-04-10")
+}
+
+test_that("pam_validation_import: errors when samples or results are missing", {
+  root <- withr::local_tempdir(); cfg <- mk_val_cfg(root)
+  write_val_files(cfg, mk_val_samples(), NULL)
+  expect_error(pam_validation_import(cfg, "t"), "Sample or results file missing")
+})
+
+test_that("pam_validation_import: joins, normalises verdicts and keeps the latest per sample", {
+  root <- withr::local_tempdir(); cfg <- mk_val_cfg(root)
+  write_val_files(cfg, mk_val_samples(), mk_val_results())
+  val <- pam_validation_import(cfg, "t")
+  expect_equal(nrow(val), 4L)
+  expect_equal(val$verdict, c("correct", "incorrect", "correct", "incorrect"))
+  expect_equal(val[sample_id == 2, true_species], "Bus cus_B")
+})
+
+test_that("pam_validation_import: samples without a verdict are dropped", {
+  root <- withr::local_tempdir(); cfg <- mk_val_cfg(root)
+  write_val_files(cfg, mk_val_samples(), mk_val_results()[sample_id %in% c(1, 2)])
+  expect_equal(nrow(pam_validation_import(cfg, "t")), 2L)
+})
+
+test_that("pam_validation_report: writes the three precision tables and returns metrics", {
+  root <- withr::local_tempdir(); cfg <- mk_val_cfg(root)
+  vd <- write_val_files(cfg, mk_val_samples(), mk_val_results())
+  pool <- data.table::data.table(scientific_name = "Aus bus",
+                                 confidence = c(rep(0.35, 5), rep(0.8, 5)))
+  m <- suppressMessages(pam_validation_report(cfg, "t", pool = pool))
+  expect_named(m, c("cells", "thresholds", "confusion"))
+  expect_true(file.exists(file.path(vd, "precision_by_cell.csv")))
+  expect_true(file.exists(file.path(vd, "precision_by_threshold.csv")))
+  expect_true(file.exists(file.path(vd, "confusion_incorrect.csv")))
+  expect_equal(m$cells[band_idx == 1, precision], 0.5)
+  expect_equal(m$cells[band_idx == 4, precision], 0.5)
+  expect_equal(nrow(m$confusion), 2L)
+})
+
+test_that("pam_validation_metrics: species with no reviews get zero counts and NA precision", {
+  pool <- data.table::data.table(scientific_name = c("Aus bus", "Bus cus"), confidence = 0.35)
+  val <- data.table::data.table(scientific_name = "Aus bus", confidence = 0.35,
+                                verdict = "correct", true_species = "")
+  m <- pam_validation_metrics(val, pool, bands)
+  bc <- m$cells[scientific_name == "Bus cus"]
+  expect_equal(bc$n_reviewed, 0L)
+  expect_true(is.na(bc$precision))
+  thr <- m$thresholds[scientific_name == "Bus cus" & min_confidence == 0.3]
+  expect_equal(thr$coverage, 0)
+  expect_true(is.na(thr$precision_est))
+})
+
+test_that("pam_validation_metrics: no incorrect verdicts gives an empty confusion table", {
+  pool <- data.table::data.table(scientific_name = "Aus bus", confidence = c(0.35, 0.8))
+  val <- data.table::data.table(scientific_name = "Aus bus", confidence = c(0.35, 0.8),
+                                verdict = "correct", true_species = "")
+  m <- pam_validation_metrics(val, pool, bands)
+  expect_equal(nrow(m$confusion), 0L)
+})
+
+test_that("pam_wilson_ci: higher confidence gives a wider interval", {
+  w95 <- pam_wilson_ci(10, 20, 0.95); w90 <- pam_wilson_ci(10, 20, 0.90)
+  expect_gt(w95$high - w95$low, w90$high - w90$low)
+  expect_gte(pam_wilson_ci(0, 10)$low, 0)
+  expect_lte(pam_wilson_ci(10, 10)$high, 1)
+})
