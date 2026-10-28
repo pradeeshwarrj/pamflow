@@ -127,3 +127,162 @@ test_that("pam_occasion_covariates: julian date", {
   cov <- pamflow:::pam_occasion_covariates(effort)
   expect_equal(cov$julian_date, c(1L, 2L, 4L))
 })
+
+# ── pam_site_covariates ───────────────────────────────────────────────────────
+
+test_that("pam_site_covariates: merges effort totals per site", {
+  master <- data.table::data.table(
+    site_id       = c("G0001", "G0001", "G0002"),
+    grid          = c("G0001", "G0001", "G0002"),
+    deployment_id = c("d1",    "d1",    "d2"),
+    latitude      = c(12.34,   12.34,   12.50),
+    longitude     = c(77.56,   77.56,   77.60)
+  )
+  effort <- data.table::data.table(
+    site_id       = c("G0001", "G0001", "G0002"),
+    occasion_date = as.Date(c("2026-04-10", "2026-04-11", "2026-04-10")),
+    effort_hours  = c(5, 4, 3),
+    sufficient    = c(TRUE, TRUE, TRUE)
+  )
+  cov <- pamflow:::pam_site_covariates(master, effort)
+
+  expect_s3_class(cov, "data.table")
+  expect_equal(nrow(cov), 2L)   # 2 unique sites
+  g1 <- cov[site_id == "G0001"]
+  g2 <- cov[site_id == "G0002"]
+  expect_equal(g1$total_effort_hours,   9)
+  expect_equal(g1$n_occasions_surveyed, 2L)
+  expect_equal(g2$total_effort_hours,   3)
+  expect_equal(g2$n_occasions_surveyed, 1L)
+})
+
+test_that("pam_site_covariates: site with no effort rows gets zeros", {
+  master <- data.table::data.table(
+    site_id = "G0099", grid = "G0099", deployment_id = "d99",
+    latitude = 12.0, longitude = 77.0
+  )
+  effort <- data.table::data.table(
+    site_id = character(), occasion_date = as.Date(character()),
+    effort_hours = numeric(), sufficient = logical()
+  )
+  cov <- pamflow:::pam_site_covariates(master, effort)
+
+  expect_equal(nrow(cov), 1L)
+  expect_equal(cov$total_effort_hours,   0)
+  expect_equal(cov$n_occasions_surveyed, 0L)
+})
+
+# ── pam_build_occupancy (orchestrator) ───────────────────────────────────────
+
+test_that("pam_build_occupancy: skips rebuild when outputs exist and force = FALSE", {
+  tmp <- withr::local_tempdir()
+  occ_dir <- file.path(tmp, "occupancy", "run01")
+  dir.create(occ_dir, recursive = TRUE)
+  # Pre-create the summary sentinel that signals a complete run
+  writeLines("done", file.path(occ_dir, "occupancy_summary.csv"))
+
+  cfg <- list(
+    paths = list(
+      metadata   = tmp,
+      detections = tmp,
+      occupancy  = file.path(tmp, "occupancy"),
+      logs       = file.path(tmp, "logs")
+    ),
+    filenames  = list(timezone = "Asia/Kolkata"),
+    occupancy  = list(run_id = "run01", min_effort_hours = 2, min_detections = 1),
+    processing = list(min_confidence = 0.5,
+                      species_thresholds_file = NULL)
+  )
+
+  result <- pam_build_occupancy(cfg, run_id = "run01", force = FALSE)
+  expect_null(result)   # returns invisible(NULL) when skipped
+})
+
+test_that("pam_build_occupancy: errors informatively when audio_master.csv missing", {
+  tmp <- withr::local_tempdir()
+  cfg <- list(
+    paths = list(
+      metadata   = tmp,
+      detections = tmp,
+      occupancy  = file.path(tmp, "occupancy"),
+      logs       = file.path(tmp, "logs")
+    ),
+    filenames  = list(timezone = "Asia/Kolkata"),
+    occupancy  = list(run_id = "run01", min_effort_hours = 2, min_detections = 1),
+    processing = list(min_confidence = 0.5,
+                      species_thresholds_file = NULL)
+  )
+  expect_error(
+    pam_build_occupancy(cfg, run_id = "run01", force = TRUE),
+    "audio_master.csv not found"
+  )
+})
+
+# ── additional edge cases ─────────────────────────────────────────────────────
+
+test_that("pam_site_id: adds site_id even when all rows have qc_pass FALSE", {
+  dt <- data.table::data.table(
+    grid          = "G1",
+    deployment_id = "d1",
+    qc_pass       = FALSE
+  )
+  pamflow:::pam_site_id(dt)
+  expect_true("site_id" %in% names(dt))
+  expect_equal(nrow(dt), 1L)
+})
+
+test_that("pam_daily_effort: recording below min_effort_h is flagged insufficient", {
+  m <- data.table::data.table(
+    site_id       = "G1_R1",
+    start_time    = as.POSIXct("2024-01-01 06:00:00", tz = "UTC"),
+    duration_s    = 3600,     # 1 hour — below 2 h threshold
+    qc_pass       = TRUE,
+    in_deployment = TRUE
+  )
+  eff <- pamflow:::pam_daily_effort(m, tz = "UTC", min_effort_h = 2)
+  expect_false(eff$sufficient[1])
+})
+
+test_that("pam_detection_matrix: detection below threshold becomes 0 not 1", {
+  effort <- data.table::data.table(
+    site_id       = "G1_R1",
+    occasion_date = as.Date("2024-01-01"),
+    effort_hours  = 8,
+    sufficient    = TRUE
+  )
+  events <- data.table::data.table(
+    site_id       = "G1_R1",
+    occasion_date = as.Date("2024-01-01"),
+    confidence    = 0.3    # below default threshold of 0.5
+  )
+  wide <- pamflow:::pam_detection_matrix(events, effort, threshold = 0.5)
+  expect_equal(wide[site_id == "G1_R1", "2024-01-01", with = FALSE][[1]], 0L)
+})
+
+test_that("pam_detection_matrix: insufficient effort day is NA", {
+  effort <- data.table::data.table(
+    site_id       = "G1_R1",
+    occasion_date = as.Date("2024-01-01"),
+    effort_hours  = 0.5,
+    sufficient    = FALSE
+  )
+  events <- data.table::data.table(
+    site_id       = character(),
+    occasion_date = as.Date(character()),
+    confidence    = numeric()
+  )
+  wide <- pamflow:::pam_detection_matrix(events, effort, threshold = 0.5)
+  expect_true(is.na(wide[site_id == "G1_R1", "2024-01-01", with = FALSE][[1]]))
+})
+
+test_that("pam_occasion_covariates: empty effort returns table with julian_date column", {
+  eff_empty <- data.table::data.table(
+    site_id       = character(),
+    occasion_date = as.Date(character()),
+    effort_hours  = numeric(),
+    sufficient    = logical()
+  )
+  cov <- pamflow:::pam_occasion_covariates(eff_empty)
+  expect_true("julian_date" %in% names(cov))
+  expect_equal(nrow(cov), 0L)
+})

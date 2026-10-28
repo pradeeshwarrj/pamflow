@@ -36,3 +36,57 @@ test_that("a missing input fails cleanly and leaves no partial file", {
   expect_false(file.exists(outp))
   expect_false(file.exists(paste0(outp, ".part")))
 })
+
+# ── pam_butterworth_q: order variants and validation ─────────────────────────
+
+test_that("pam_butterworth_q: order=2 returns one value close to 1/sqrt(2)", {
+  q <- pamflow:::pam_butterworth_q(2L)
+  expect_length(q, 1L)
+  expect_equal(round(q, 4), 0.7071)
+})
+
+test_that("pam_butterworth_q: order=4 returns two Q values", {
+  q <- pamflow:::pam_butterworth_q(4L)
+  expect_length(q, 2L)
+  expect_equal(round(sort(q), 4), c(0.5412, 1.3066))
+})
+
+test_that("pam_butterworth_q: all values are positive and finite", {
+  q <- pamflow:::pam_butterworth_q(8L)
+  expect_true(all(is.finite(q)))
+  expect_true(all(q > 0))
+})
+
+test_that("pam_butterworth_q: odd order aborts", {
+  expect_error(pamflow:::pam_butterworth_q(3L), "even number")
+})
+
+test_that("pam_butterworth_q: order below 2 aborts", {
+  expect_error(pamflow:::pam_butterworth_q(1L), regexp = "2")
+})
+
+# ── pam_highpass_filter_string: validation ───────────────────────────────────
+
+test_that("pam_highpass_filter_string: order=4 produces two-section cascade", {
+  f <- pam_highpass_filter_string(500, 4L)
+  expect_equal(lengths(regmatches(f, gregexpr("highpass=", f))), 2L)
+  expect_match(f, "f=500")
+})
+
+test_that("pam_highpass_filter_string: returns a single string", {
+  f <- pam_highpass_filter_string(250, 8L)
+  expect_type(f, "character")
+  expect_length(f, 1L)
+})
+
+test_that("pam_highpass_filter_string: negative cutoff aborts", {
+  expect_error(pam_highpass_filter_string(-1, 8L), "positive number")
+})
+
+test_that("pam_highpass_filter_string: zero cutoff aborts", {
+  expect_error(pam_highpass_filter_string(0, 8L), "positive number")
+})
+
+test_that("pam_highpass_filter_string: non-numeric cutoff aborts", {
+  expect_error(pam_highpass_filter_string("abc", 8L))
+})
