@@ -125,6 +125,25 @@ reference:
       - pam_report_data
       - pam_report_excel
 
+  - title: "Standalone tool — BirdNET model training (not a workflow stage)"
+    desc: >
+      Train your own BirdNET classifier from R or in a point-and-click app.
+      Nothing in the workflow calls these functions; the trained model is used
+      by pointing the `birdnet:` section of the config at it.
+    contents:
+      - pam_train_app
+      - pam_birdnet_train_prepare
+      - pam_birdnet_train
+      - pam_birdnet_train_repeat
+      - pam_birdnet_train_metrics
+
+  - title: "BirdNET environment & benchmark"
+    contents:
+      - pam_birdnet_setup
+      - pam_birdnet_doctor
+      - pam_birdnet_cleanup
+      - pam_birdnet_benchmark
+
   - title: "Utilities"
     contents:
       - pam_log

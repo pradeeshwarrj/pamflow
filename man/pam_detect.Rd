@@ -29,11 +29,16 @@ Reads from the filtered folder (default) or the standardized folder
 raw detections in batches to \verb{<detections>/<run_id>/batches/}.
 }
 \details{
+BirdNET runs in pamflow's Python inference environment (see
+\code{pam_birdnet_setup()}) using the \code{birdnet} Python package, which does its
+own multiprocessing: \code{birdnet$workers} worker processes each load the
+model (an unset value means half of the physical cores). \code{top_k} limits
+the species kept per 3 s segment (NULL = all above \code{min_confidence}).
 Resumable. A file is marked done (\verb{<run_dir>/done.txt}) only after
 its batch file is on disk, and files with no detections count as done.
 If a crash happens between writing a batch and updating the checkpoint,
 those files are re-run, and \code{pam_assemble_detections()} removes the
 duplicates. Per-file outcomes (seconds, errors) go to \code{file_results.csv};
-settings and the \code{birdnetR} version go to \code{run_settings_*.yml}.
+settings and the \code{birdnet} package version go to \code{run_settings_*.yml}.
 Run with \code{pam_run_stage("03_detect", pam_detect, cfg)}.
 }

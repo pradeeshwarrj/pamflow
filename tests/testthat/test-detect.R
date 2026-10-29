@@ -1,6 +1,7 @@
 # test-detect.R
-# Tests for Stage 3 pure helpers (no BirdNET, no Python required).
-# pam_detect_settings() validates and resolves model paths.
+# Tests for Stage 3 helpers and the pam_detect() orchestration. No BirdNET and no
+# Python are needed: the batch runner and the model check are replaced by fakes.
+# (The batch runner itself is covered in test-detect_py.R.)
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -26,11 +27,9 @@ make_detect_cfg <- function(model_dir, classifier_name = "MyBird") {
       labels_file     = NULL,
       min_confidence  = 0.5,
       overlap_s       = 0,
-      batch_size      = 64L,
       use_bandpass    = TRUE,
       bandpass_fmin   = 0,
       bandpass_fmax   = 15000,
-      tflite_threads  = 1L,
       run_id          = "run01",
       workers         = 1L,
       input           = "filtered"
@@ -178,32 +177,6 @@ test_that("pam_birdnet_normalise: empty data frame returns typed empty frame", {
 test_that("pam_birdnet_normalise: unrecognised columns throw an error", {
   bad <- data.frame(a = 1, b = 2, c = "x", stringsAsFactors = FALSE)
   expect_error(pamflow:::pam_birdnet_normalise(bad), "Unrecognised")
-})
-
-# ── pam_portable ──────────────────────────────────────────────────────────────
-
-test_that("pam_portable: wrapped function still works with helper injected into its env", {
-  helper <- function(x) x * 2
-  fn     <- function(x) helper(x) + 1
-
-  # Before wrapping, fn looks up helper in its definition environment
-  portable_fn <- pamflow:::pam_portable(fn, helper = helper)
-  expect_equal(portable_fn(3), 7)  # 3*2 + 1
-})
-
-test_that("pam_portable: environment of wrapped fn is NOT the original env", {
-  fn  <- function() NULL
-  pfn <- pamflow:::pam_portable(fn)
-  expect_false(identical(environment(pfn), environment(fn)))
-})
-
-test_that("pam_portable: multiple helpers are all available inside wrapped fn", {
-  double <- function(x) x * 2
-  triple <- function(x) x * 3
-  fn     <- function(x) double(x) + triple(x)
-
-  pfn <- pamflow:::pam_portable(fn, double = double, triple = triple)
-  expect_equal(pfn(4), 4 * 2 + 4 * 3)
 })
 
 # ── pam_assemble_detections ───────────────────────────────────────────────────
@@ -381,6 +354,14 @@ test_that("pam_detect_settings: explicit relative labels_file is resolved and ch
   expect_error(pamflow:::pam_detect_settings(cfg), "Custom classifier files not found")
 })
 
+test_that("pam_detect_settings: the removed birdnetR engine is rejected with a clear message", {
+  cfg <- make_detect_cfg(make_model_dir())
+  cfg$birdnet$backend <- "birdnetR"
+  expect_error(pamflow:::pam_detect_settings(cfg), "birdnetR engine was removed")
+  cfg$birdnet$backend <- "birdnet"
+  expect_equal(pamflow:::pam_detect_settings(cfg)$workers, 1L)
+})
+
 test_that("pam_detect_settings: NULL model_dir aborts", {
   cfg <- make_detect_cfg("x")
   cfg$birdnet$model_dir <- NULL
@@ -405,8 +386,7 @@ test_that("pam_birdnet_normalise: scientific_name without common_name is unrecog
 
 # ── pam_detect orchestration (worker stubbed) ─────────────────────────────────
 
-# Self-contained stand-in for pam_birdnet_run_batch (pam_portable gives it a
-# global environment, so it may only use base R and options).
+# Stand-in for pam_birdnet_run_batch_py().
 fake_detect_worker <- function(items, s) {
   empty <- data.frame(start_s = numeric(), end_s = numeric(), scientific_name = character(),
                       common_name = character(), confidence = numeric(),
@@ -422,8 +402,6 @@ fake_detect_worker <- function(items, s) {
     }
     list(rel = it$rel, ok = TRUE, message = "", seconds = 0.2, det = det)
   })
-  attr(out, "api") <- "new"
-  attr(out, "dropped") <- getOption("pamtest.dropped", character())
   out
 }
 
@@ -450,13 +428,16 @@ mk_detect_project <- function(rels = c("G1/a.wav", "G1/b.wav", "G1/quiet.wav", "
 }
 
 skip_if_no_detect_deps <- function() {
-  skip_if_not_installed("birdnetR")
   skip_if_not_installed("yaml")
 }
 
+# Replace the Python batch runner and the model check, so no Python is needed.
 local_fake_worker <- function(.env = parent.frame()) {
-  testthat::local_mocked_bindings(pam_birdnet_run_batch = fake_detect_worker,
-                                  .package = "pamflow", .env = .env)
+  testthat::local_mocked_bindings(
+    pam_birdnet_run_batch_py = fake_detect_worker,
+    pam_birdnet_py_check = function(s) list(ok = TRUE, birdnet_version = "test", message = ""),
+    pam_birdnet_cleanup = function(...) invisible(data.frame(pid = integer(), killed = logical())),
+    .package = "pamflow", .env = .env)
 }
 
 test_that("pam_detect: processes files, writes batches, checkpoint, results and settings", {
@@ -534,16 +515,6 @@ test_that("pam_detect: master is read from audio_master.csv when not supplied", 
   expect_equal(res$n_done, 1L)
 })
 
-test_that("pam_detect: ignored birdnetR settings are logged as a warning", {
-  skip_if_no_detect_deps(); local_fake_worker()
-  withr::local_options(pamtest.dropped = c("batch_size", "use_bandpass"))
-  p <- mk_detect_project(rels = "G1/a.wav")
-  suppressMessages(pam_detect(p$cfg, master = p$master))
-  log_txt <- paste(readLines(file.path(p$cfg$paths$logs, "03_detect.log")), collapse = "\n")
-  expect_match(log_txt, "IGNORED")
-  expect_match(log_txt, "batch_size, use_bandpass")
-})
-
 test_that("pam_detect: a crashing batch is logged, files stay pending, run continues", {
   skip_if_no_detect_deps(); local_fake_worker()
   p <- mk_detect_project()
@@ -556,15 +527,6 @@ test_that("pam_detect: a crashing batch is logged, files stay pending, run conti
   withr::local_options(pamtest.explode = NULL)
   res2 <- suppressMessages(pam_detect(p$cfg, master = p$master))
   expect_equal(res2$n_done, 3L)
-})
-
-test_that("pam_detect: runs with parallel workers", {
-  skip_on_cran()
-  skip_if_no_detect_deps(); local_fake_worker()
-  p <- mk_detect_project(workers = 2L)
-  res <- suppressMessages(pam_detect(p$cfg, master = p$master))
-  expect_equal(res$n_done, 3L)
-  expect_equal(res$n_detections, 4L)
 })
 
 # ── pam_assemble_detections: extra branches ──────────────────────────────────
@@ -622,113 +584,4 @@ test_that("pam_assemble_detections: POSIXct-style master start_time is also acce
     common_name = "A", confidence = 0.9), master_start = "2024-01-01T06:00:00Z", tz = "UTC")
   res <- pamflow:::pam_assemble_detections(cfg, "run01")
   expect_equal(format(res$recording_start, "%H:%M"), "06:00")
-})
-
-# ── pam_birdnet_run_batch (birdnetR faked) ───────────────────────────────────
-
-test_that("pam_birdnet_run_batch: errors when birdnetR is not installed", {
-  with_mocked_bindings(
-    requireNamespace = function(pkg, ...) FALSE,
-    .package = "base",
-    expect_error(pamflow:::pam_birdnet_run_batch(list(), list()), "not installed")
-  )
-})
-
-bn_state <- new.env()
-
-bn_settings <- function(threads = 1L) {
-  list(model_dir = "m", classifier_name = "c", labels_file = "l", model_file = "m.tflite",
-       tflite_threads = threads, min_confidence = 0.5, overlap_s = 0, batch_size = 64L,
-       use_bandpass = TRUE, bandpass_fmin = 0, bandpass_fmax = 15000)
-}
-
-bn_predict <- function(object, x, min_confidence = 0.1, chunk_overlap_s = 0, batch_size = 1L,
-                       use_bandpass = TRUE, bandpass_fmin = 0L, bandpass_fmax = 15000L, ...) {
-  bn_state$predict_fn(x)
-}
-bn_predict_limited <- function(object, x, min_confidence = 0.1, ...) bn_state$predict_fn(x)
-registerS3method("predict", "pam_fake_model", bn_predict)
-registerS3method("predict", "pam_fake_model_lim", bn_predict_limited)
-
-# Fakes the installed birdnetR (whichever API generation it has) and resets the cache.
-setup_fake_birdnet <- function(model_class = "pam_fake_model", .env = parent.frame()) {
-  skip_if_not_installed("birdnetR")
-  genv <- globalenv()
-  if (exists(".pam_birdnet_cache", envir = genv, inherits = FALSE)) {
-    rm(".pam_birdnet_cache", envir = genv)
-  }
-  withr::defer(if (exists(".pam_birdnet_cache", envir = genv, inherits = FALSE)) {
-    rm(".pam_birdnet_cache", envir = genv)
-  }, envir = .env)
-  bn_state$loads <- 0L
-  bn_state$predict_fn <- function(path) {
-    data.frame(start_time = c(0, 3), end_time = c(3, 6),
-               species_name = "Aus bus_Common A", confidence = c(0.9, 0.7),
-               stringsAsFactors = FALSE)
-  }
-  ns <- asNamespace("birdnetR")
-  new_api <- exists("load_custom", envir = ns, inherits = FALSE)
-  if (new_api) {
-    testthat::local_mocked_bindings(
-      load_custom = function(model, species_list) {
-        bn_state$loads <- bn_state$loads + 1L
-        structure(list(), class = model_class)
-      }, .package = "birdnetR", .env = .env)
-  } else {
-    skip_if(!exists("birdnet_model_custom", envir = ns, inherits = FALSE), "unsupported birdnetR")
-    testthat::local_mocked_bindings(
-      birdnet_model_custom = function(...) {
-        bn_state$loads <- bn_state$loads + 1L
-        structure(list(), class = model_class)
-      },
-      predict_species_from_audio_file = function(model, path, ...) bn_state$predict_fn(path),
-      .package = "birdnetR", .env = .env)
-  }
-  invisible(new_api)
-}
-
-test_that("pam_birdnet_run_batch: predicts each file and normalises the output", {
-  setup_fake_birdnet()
-  items <- list(list(rel = "a.wav", path = "/x/a.wav"), list(rel = "b.wav", path = "/x/b.wav"))
-  out <- pamflow:::pam_birdnet_run_batch(items, bn_settings())
-  expect_length(out, 2L)
-  expect_true(all(vapply(out, function(o) o$ok, logical(1))))
-  expect_equal(out[[1]]$rel, "a.wav")
-  expect_equal(out[[1]]$det$scientific_name, c("Aus bus", "Aus bus"))
-  expect_equal(out[[1]]$det$common_name[1], "Common A")
-  expect_true(attr(out, "api") %in% c("new", "legacy"))
-  expect_length(attr(out, "dropped"), 0L)
-})
-
-test_that("pam_birdnet_run_batch: a failing file is isolated and reported", {
-  setup_fake_birdnet()
-  bn_state$predict_fn <- function(path) {
-    if (grepl("bad", path)) stop("cannot decode")
-    data.frame(start_time = 0, end_time = 3, species_name = "Aus bus_A", confidence = 0.9,
-               stringsAsFactors = FALSE)
-  }
-  items <- list(list(rel = "bad.wav", path = "/x/bad.wav"), list(rel = "ok.wav", path = "/x/ok.wav"))
-  out <- pamflow:::pam_birdnet_run_batch(items, bn_settings())
-  expect_false(out[[1]]$ok)
-  expect_match(out[[1]]$message, "cannot decode")
-  expect_equal(nrow(out[[1]]$det), 0L)
-  expect_true(out[[2]]$ok)
-})
-
-test_that("pam_birdnet_run_batch: empty item list only loads the model, which is cached", {
-  setup_fake_birdnet()
-  out <- pamflow:::pam_birdnet_run_batch(list(), bn_settings())
-  expect_length(out, 0L)
-  pamflow:::pam_birdnet_run_batch(list(), bn_settings())
-  expect_equal(bn_state$loads, 1L)
-  pamflow:::pam_birdnet_run_batch(list(), bn_settings(threads = 2L))   # settings changed
-  expect_equal(bn_state$loads, 2L)
-})
-
-test_that("pam_birdnet_run_batch: unsupported predict arguments are reported as dropped", {
-  new_api <- setup_fake_birdnet(model_class = "pam_fake_model_lim")
-  skip_if(!new_api, "dropped-argument handling only applies to the newer birdnetR API")
-  out <- pamflow:::pam_birdnet_run_batch(list(), bn_settings())
-  expect_setequal(attr(out, "dropped"),
-                  c("chunk_overlap_s", "batch_size", "use_bandpass", "bandpass_fmin", "bandpass_fmax"))
 })

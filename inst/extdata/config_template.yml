@@ -67,13 +67,20 @@ birdnet:
   labels_file: null         # set only if your labels file has a different name
   min_confidence: 0.3
   overlap_s: 0              # 0 to 3 seconds
-  batch_size: 8
   use_bandpass: true        # BirdNET's own band limits; the 250 Hz high-pass is done by FFmpeg
   bandpass_fmin: 0
   bandpass_fmax: 15000
-  tflite_threads: 1         # threads per worker (used by the CRAN birdnetR API)
-  workers: 4                # separate R processes, each with its own model copy
+  workers: null             # parallel worker processes, each with its own model copy.
+                            # null = half of the physical cores.
+                            # Keep it below your physical core count so the computer stays usable
   chunk_size: 100           # files per batch; progress is saved after each batch
+  # BirdNET runs in pamflow's Python environment: create it once with pam_birdnet_setup("inference")
+  top_k: null               # max species kept per 3 s segment; null = every species above min_confidence
+  py_batch_size: 1          # segments per inference call (1 is best for the CPU TFLite backend)
+  n_producers: 1            # threads that decode audio
+  sigmoid_sensitivity: 1.0  # same meaning as the Analyzer's sensitivity (1.0 = default)
+  device: "CPU"             # TensorFlow has no GPU support on native Windows
+  python_env: null          # folder of the Python environment; null = pamflow's default
 
 processing:
   min_confidence: 0.5

@@ -16,43 +16,62 @@ knitr::opts_chunk$set(
 # pamflow <a href="https://pradeeshwarrj.github.io/pamflow/"><img src="man/figures/logo.png" alt="pamflow website" align="right" height="139"/></a>
 
 <!-- badges: start -->
-  [![R-CMD-check](https://github.com/pradeeshwarrj/pamflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pradeeshwarrj/pamflow/actions/workflows/R-CMD-check.yaml)
-  <!-- badges: end -->
+
+[![R-CMD-check](https://github.com/pradeeshwarrj/pamflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pradeeshwarrj/pamflow/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
 
 **End-to-end Passive Acoustic Monitoring workflow**
 
-`pamflow` takes you from raw field recordings to ecological useful information — with a single config file and a handful of function calls.
+`pamflow` takes you from raw field recordings to ecological useful
+information — with a single config file and a handful of function calls.
 
-`Workflow A (Species Detection & Occupancy)`: Run BirdNET, clean & merge detections, perform stratified validation with Shiny, build daily site occupancy matrices, and compile executive reports.
+`Workflow A (Species Detection & Occupancy)`: Run BirdNET, clean & merge
+detections, perform stratified validation with Shiny, build daily site
+occupancy matrices, and compile executive reports.
 
-`Workflow B (Soundscape Analysis)`: Compute core acoustic indices (ACI, ADI, AEve, Bio, H, M, NDSI) following Bradfer-Lawrence et al. (2019) with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking, 24-hour diel profiles, and automated HTML diagnostic reports.
+`Workflow B (Soundscape Analysis)`: Compute core acoustic indices (ACI,
+ADI, AEve, Bio, H, M, NDSI) following Bradfer-Lawrence et al. (2019)
+with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking,
+24-hour diel profiles, and automated HTML diagnostic reports.
 
 ## Features
 
-- **Raven Compass-style Standardization & Triage** for raw multi-recorder workflow (SongMeter, AudioMoth, SwiftOne)
+- **Raven Compass-style Standardization & Triage** for raw
+  multi-recorder workflow (SongMeter, AudioMoth, SwiftOne)
 - **Scan & QC** thousands of WAV files automatically
 - **Batch BirdNET detection** with parallel workers and resume support
+  (runs the Python `birdnet` package; no birdnetR needed)
 - **Clean & merge** overlapping detections into events
 - **Interactive validation** via Shiny app with precision metrics
-- **Occupancy detection histories** (daily 1/0 matrices per site per species)
-- **Ecoacoustic Soundscape Indices** Dynamic computation of ACI, ADI, AEve, Bio, H, M, and NDSI.
-- **Soundscape Visualizations & HTML Reports** 24-hour diel profiles, Day vs. Night comparisons, sitecovariate tables, and standalone HTML reports.
+- **Occupancy detection histories** (daily 1/0 matrices per site per
+  species)
+- **Standalone BirdNET training tool** (separate from the workflow): train
+  your own classifier from R or in a point-and-click app, with per-class
+  test results
+- **Ecoacoustic Soundscape Indices** Dynamic computation of ACI, ADI,
+  AEve, Bio, H, M, and NDSI.
+- **Soundscape Visualizations & HTML Reports** 24-hour diel profiles,
+  Day vs. Night comparisons, sitecovariate tables, and standalone HTML
+  reports.
 
 ## Prerequisites
 
-| Software | Version | Notes                       |
-|----------|---------|-----------------------------|
-| R        | ≥ 4.3   | 64-bit                      |
-| Python   | ≥ 3.9   | Required by BirdNET         |
-| FFmpeg   | any     | Required for audio clipping |
-| birdnetR | latest  | BirdNET model wrapper       |
+| Software | Version | Notes                                                        |
+|----------|---------|--------------------------------------------------------------|
+| R        | ≥ 4.3   | 64-bit                                                       |
+| uv       | latest  | Creates pamflow's private Python environment for BirdNET     |
+| FFmpeg   | any     | Required for audio clipping                                  |
 
-Verify in R:
+On Windows install uv with `winget install --id astral-sh.uv` (other systems:
+see <https://docs.astral.sh/uv/>). pamflow downloads the Python version it
+needs, so no system Python is required.
+
+Verify in R after installing pamflow:
 
 ``` r
 R.version.string           # ≥ 4.3
-reticulate::py_available() # TRUE
 system("ffmpeg -version")  # prints version
+pamflow::pam_birdnet_doctor()
 ```
 
 ## Installation
@@ -61,33 +80,33 @@ system("ffmpeg -version")  # prints version
 # Install devtools if needed
 install.packages("devtools")
 
-# Install birdnetR
-devtools::install_github("birdnet-team/birdnetR")
-
 # Install pamflow
 devtools::install_github("pradeeshwarrj/pamflow")
+
+# Create the Python environment BirdNET runs in (once; downloads TensorFlow, a few minutes)
+pamflow::pam_birdnet_setup("inference")
+# Optional, only for the standalone model-training tool (see "Training a custom BirdNET classifier"):
+pamflow::pam_birdnet_setup("training")
 ```
 
 ## Quick Start
 
 ### 1. Set up your project folder
 
-```         
-MyProject/
-├── data/
-│   └── raw/                # Original recorder dumps (untouched)
-│       ├── SongMeter/
-│       ├── AudioMoth/
-│       └── SwiftOne/
-├── audio/                  # Standardized WAV/FLAC (created by Stage 00)
-│   ├── GXXXX/
-│   └── GXXXX/
-├── metadata/
-│   └── deployments.csv     # one row per deployment
-├── config/
-│   └── config.yml          # pipeline settings
-└── ground_truth/           # optional, for recall estimation
-```
+    MyProject/
+    ├── data/
+    │   └── raw/                # Original recorder dumps (untouched)
+    │       ├── SongMeter/
+    │       ├── AudioMoth/
+    │       └── SwiftOne/
+    ├── audio/                  # Standardized WAV/FLAC (created by Stage 00)
+    │   ├── GXXXX/
+    │   └── GXXXX/
+    ├── metadata/
+    │   └── deployments.csv     # one row per deployment
+    ├── config/
+    │   └── config.yml          # pipeline settings
+    └── ground_truth/           # optional, for recall estimation
 
 ### 2. Create `metadata/deployments.csv`
 
@@ -121,12 +140,12 @@ standardization:
   output_format: "flac"
 
 birdnet:
-  model: "BirdNET_GLOBAL_6K_V2.4_Model_FP32.tflite"
-  labels: "BirdNet_v2_custom_Labels.txt"
-  chunk_length_s: 3
+  model_dir: "models/custom_classifier"   # folder with your .tflite and _Labels.txt
+  classifier_name: "CustomClassifier"     # files: <name>.tflite and <name>_Labels.txt
   overlap_s: 0
-  min_confidence: 0.5
-  workers: 4
+  min_confidence: 0.3
+  workers: null                           # null = half of the physical cores
+  chunk_size: 100                         # files per batch; progress is saved after each
 
 processing:
   input: "standardized"
@@ -170,7 +189,9 @@ report:
 
 Stage 00: Standardization & Data Triage (Raven Compass)
 
-Raw multi-recorder dumps are often messy (mixed formats, voice memos, field notes, inconsistent filenames). Stage 00 standardizes them without modifying original raw files.
+Raw multi-recorder dumps are often messy (mixed formats, voice memos,
+field notes, inconsistent filenames). Stage 00 standardizes them without
+modifying original raw files.
 
 ### Interactive Shiny App
 
@@ -181,11 +202,11 @@ pam_standardization_app()
 
 The GUI provides three tabs:
 
-- [Inspect] — Preview files, extract metadata, test filename regex
+- \[Inspect\] — Preview files, extract metadata, test filename regex
 
-- [Convert] — Batch convert and organize into standardized folders
+- \[Convert\] — Batch convert and organize into standardized folders
 
-- [Log] — Live processing log
+- \[Log\] — Live processing log
 
 ### Headless Standardization R
 
@@ -202,9 +223,11 @@ pam_standardize(
 
 #### What Stage 00 does:
 
-- Extracts grid IDs and timestamps from SongMeter, AudioMoth, and SwiftOne filenames
+- Extracts grid IDs and timestamps from SongMeter, AudioMoth, and
+  SwiftOne filenames
 
-- Isolates voice memos (\< 60 s), text logs, and unreadable files into isolated/
+- Isolates voice memos (\< 60 s), text logs, and unreadable files into
+  isolated/
 
 - Converts and renames audio into a uniform structure under audio/G####/
 
@@ -275,7 +298,7 @@ vis_results <- pam_soundscape_run_vis(cfg)
 ## Pipeline Stages
 
 | Workflow | Stage | Function | What it does |
-|------------------|------------------|------------------|-------------------|
+|----|----|----|----|
 | Both | 00 | `pam_standardize()/pam_standarization_app()` | Raven Compass-style triage: metadata extraction, memoisolation (\<60s), non-audio log separation, FLAC/WAV standardization |
 | Both | 1 | `pam_scan_audio()` | Inventories audio files, matches to deployments, flags QC issues |
 | Both | 2 | `pam_filter_audio()` | High-pass filter on the QC checked files; can be customized |
@@ -290,51 +313,79 @@ vis_results <- pam_soundscape_run_vis(cfg)
 | A | 6 | `pam_build_occupancy()` | Builds daily detection matrices, effort, and site covariates |
 | A | 8 | `pam_report()` | Generates HTML report and Excel workbook |
 
-> **Note:** All stage functions take `cfg` as their primary argument. The run_id is read from the config file. Stage 00 can also be run interactively via `pam_standardization_app()`.
+> **Note:** All stage functions take `cfg` as their primary argument.
+> The run_id is read from the config file. Stage 00 can also be run
+> interactively via `pam_standardization_app()`.
+
+## Training a custom BirdNET classifier (standalone tool)
+
+Training your own classifier is **separate from the workflow**: it is not a
+pipeline stage, no stage function calls it, and the workflow runs without it.
+Use it when you need a `.tflite` model to give to Stage 3.
+
+``` r
+# Once: the training environment (downloads BirdNET-Analyzer and TensorFlow)
+pamflow::pam_birdnet_setup("training")
+
+# Point-and-click app, laid out like the BirdNET-Analyzer GUI training tab
+pamflow::pam_train_app()
+
+# Or from code
+pamflow::pam_birdnet_train_prepare("E:/clips")            # check the training folder
+res <- pamflow::pam_birdnet_train("E:/clips", "E:/models/MyModel",
+                                  test_data = "E:/clips_test")
+res$evaluation$classes                                     # precision, recall, F1, AUPRC, AUROC per class
+```
+
+It runs BirdNET-Analyzer's own `birdnet-train` (version 2.4.0), so results match
+the Analyzer GUI, and it works on Windows without WSL or a GPU. The app shows
+live progress and learning curves, per-class test results, earlier runs, a light
+and dark theme, and the `birdnet:` config lines for the new model. To use the
+model, set `birdnet$model_dir` and `birdnet$classifier_name` in your config.
 
 ## Outputs
 
-```         
-MyProject/
-├── data/
-│   ├── raw/                         # Original recorder dumps (never modified)
-│   ├── isolated/                    # Memos, logs, corrupt files (from Stage 00)
-│   ├── master_table.csv
-│   ├── soundscape/run01/
-│   │   ├── soundscape_raw.csv
-│   │   ├── soundscape_hourly.csv
-│   │   ├── soundscape_diel_summary.csv
-│   │   ├── soundscape_site_covariates.csv
-│   │   ├── plots/
-│   │   │   ├── diel_hourly_aci.png
-│   │   │   └── diel_phase_aci.png
-│   │   └── reports/
-│   │       └── Soundscape_Report_run01.html
-│   ├── detections/run01/
-│   │   ├── batches/
-│   │   └── processed/
-│   └── occupancy/run01/
-│       ├── detection_matrices/
-│       ├── effort.csv
-│       └── site_covariates.csv
-├── audio/                           # Standardized audio (from Stage 00)
-│   ├── G0059/
-│   └── G0110/
-├── validation/run01/
-├── reports/
-└── logs/
-```
+    MyProject/
+    ├── data/
+    │   ├── raw/                         # Original recorder dumps (never modified)
+    │   ├── isolated/                    # Memos, logs, corrupt files (from Stage 00)
+    │   ├── master_table.csv
+    │   ├── soundscape/run01/
+    │   │   ├── soundscape_raw.csv
+    │   │   ├── soundscape_hourly.csv
+    │   │   ├── soundscape_diel_summary.csv
+    │   │   ├── soundscape_site_covariates.csv
+    │   │   ├── plots/
+    │   │   │   ├── diel_hourly_aci.png
+    │   │   │   └── diel_phase_aci.png
+    │   │   └── reports/
+    │   │       └── Soundscape_Report_run01.html
+    │   ├── detections/run01/
+    │   │   ├── batches/
+    │   │   └── processed/
+    │   └── occupancy/run01/
+    │       ├── detection_matrices/
+    │       ├── effort.csv
+    │       └── site_covariates.csv
+    ├── audio/                           # Standardized audio (from Stage 00)
+    │   ├── G0059/
+    │   └── G0110/
+    ├── validation/run01/
+    ├── reports/
+    └── logs/
 
 ## Configuration Reference
 
 | Section | Key | Default | Description |
-|------------------|------------------|------------------|-------------------|
+|----|----|----|----|
 | `standardization` | `min_duration_s` | 60 | Files shorter than this are isolated as memos |
 | `standardization` | `timezone` | `"Asia/Kolkata"` | Timezone for filename datetime parsing |
 | `standardization` | `output_format` | `"wav/flac"` | Output audio format (`flac` or `wav`) |
-| `birdnet` | `workers` | 4 | Number of parallel CPU cores |
-| `birdnet` | `min_confidence` | 0.5 | Minimum BirdNET score to keep |
-| `birdnet` | `chunk_length_s` | 3 | Audio chunk length in seconds |
+| `birdnet` | `model_dir` | `"models/custom_classifier"` | Folder with your `.tflite` model and `_Labels.txt` |
+| `birdnet` | `classifier_name` | `"CustomClassifier"` | Model file name without `.tflite` |
+| `birdnet` | `workers` | `null` | Worker processes; `null` = half of the physical cores |
+| `birdnet` | `min_confidence` | 0.3 | Minimum BirdNET score to keep |
+| `birdnet` | `chunk_size` | 100 | Files per batch; progress is saved after each batch |
 | `processing` | `input` | `"standardized"` | Use raw (`"standardized"`) or filtered audio |
 | `processing` | `merge_gap_s` | 3 | Gap (seconds) for merging overlapping detections |
 | `processing` | `drop_outside_deployment` | `true` | Remove detections outside deployment windows |
@@ -345,7 +396,9 @@ MyProject/
 
 ## Resumability
 
-If `pam_detect()` is interrupted (power loss, crash, etc.), simply run it again. It checks for completed batches and picks up where it left off.
+If `pam_detect()` is interrupted (power loss, crash, etc.), simply run
+it again. It checks for completed batches and picks up where it left
+off.
 
 ## License
 

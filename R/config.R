@@ -76,6 +76,26 @@ pam_config_validate <- function(cfg) {
     if (!is.null(cfg$birdnet$overlap_s)) {
       chk(cfg$birdnet$overlap_s >= 0, "birdnet$overlap_s must be >= 0")
     }
+    if (!is.null(cfg$birdnet$backend)) {
+      chk(identical(cfg$birdnet$backend, "birdnet"),
+          "birdnet$backend must be \"birdnet\" (the birdnetR engine was removed); delete the line to use the default")
+    }
+    if (!is.null(cfg$birdnet$top_k)) {
+      chk(is.numeric(cfg$birdnet$top_k) && length(cfg$birdnet$top_k) == 1L &&
+            cfg$birdnet$top_k >= 1 && cfg$birdnet$top_k == round(cfg$birdnet$top_k),
+          "birdnet$top_k must be a whole number >= 1, or null for no limit")
+    }
+    for (key in c("py_batch_size", "n_producers")) {
+      if (!is.null(cfg$birdnet[[key]])) {
+        v <- cfg$birdnet[[key]]
+        chk(is.numeric(v) && length(v) == 1L && v >= 1 && v == round(v),
+            sprintf("birdnet$%s must be a whole number >= 1", key))
+      }
+    }
+    if (!is.null(cfg$birdnet$sigmoid_sensitivity)) {
+      chk(is.numeric(cfg$birdnet$sigmoid_sensitivity) && cfg$birdnet$sigmoid_sensitivity > 0,
+          "birdnet$sigmoid_sensitivity must be > 0")
+    }
   }
 
   if (!is.null(cfg$occupancy$occasion_length_days)) {

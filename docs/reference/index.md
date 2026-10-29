@@ -177,6 +177,40 @@
 - [`pam_report_excel()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report_excel.md)
   : Write summary tables to an Excel workbook
 
+## Standalone tool — BirdNET model training (not a workflow stage)
+
+Train your own BirdNET classifier from R or in a point-and-click app.
+Nothing in the workflow calls these functions; the trained model is used
+by pointing the `birdnet:` section of the config at it.
+
+- [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md)
+  : Launch the BirdNET classifier training app
+
+- [`pam_birdnet_train_prepare()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_prepare.md)
+  : Check a training dataset before training
+
+- [`pam_birdnet_train()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train.md)
+  : Train a custom BirdNET classifier from R
+
+- [`pam_birdnet_train_repeat()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_repeat.md)
+  : Train the same classifier several times and summarise the metrics
+
+- [`pam_birdnet_train_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_metrics.md)
+  :
+
+  Read training metrics from a `birdnet-train` log
+
+## BirdNET environment & benchmark
+
+- [`pam_birdnet_setup()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_setup.md)
+  : Create a private Python environment for BirdNET
+- [`pam_birdnet_doctor()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_doctor.md)
+  : Check the machine and Python environments needed for BirdNET
+- [`pam_birdnet_cleanup()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_cleanup.md)
+  : Stop BirdNET worker processes that were left behind
+- [`pam_birdnet_benchmark()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_benchmark.md)
+  : Benchmark Stage 3 detection speed at several worker counts
+
 ## Utilities
 
 - [`pam_log()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_log.md)

@@ -28,10 +28,14 @@ with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking,
   multi-recorder workflow (SongMeter, AudioMoth, SwiftOne)
 - **Scan & QC** thousands of WAV files automatically
 - **Batch BirdNET detection** with parallel workers and resume support
+  (runs the Python `birdnet` package; no birdnetR needed)
 - **Clean & merge** overlapping detections into events
 - **Interactive validation** via Shiny app with precision metrics
 - **Occupancy detection histories** (daily 1/0 matrices per site per
   species)
+- **Standalone BirdNET training tool** (separate from the workflow):
+  train your own classifier from R or in a point-and-click app, with
+  per-class test results
 - **Ecoacoustic Soundscape Indices** Dynamic computation of ACI, ADI,
   AEve, Bio, H, M, and NDSI.
 - **Soundscape Visualizations & HTML Reports** 24-hour diel profiles,
@@ -40,19 +44,22 @@ with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking,
 
 ## Prerequisites
 
-| Software | Version | Notes                       |
-|----------|---------|-----------------------------|
-| R        | ≥ 4.3   | 64-bit                      |
-| Python   | ≥ 3.9   | Required by BirdNET         |
-| FFmpeg   | any     | Required for audio clipping |
-| birdnetR | latest  | BirdNET model wrapper       |
+| Software | Version | Notes                                                    |
+|----------|---------|----------------------------------------------------------|
+| R        | ≥ 4.3   | 64-bit                                                   |
+| uv       | latest  | Creates pamflow’s private Python environment for BirdNET |
+| FFmpeg   | any     | Required for audio clipping                              |
 
-Verify in R:
+On Windows install uv with `winget install --id astral-sh.uv` (other
+systems: see <https://docs.astral.sh/uv/>). pamflow downloads the Python
+version it needs, so no system Python is required.
+
+Verify in R after installing pamflow:
 
 ``` r
 R.version.string           # ≥ 4.3
-reticulate::py_available() # TRUE
 system("ffmpeg -version")  # prints version
+pamflow::pam_birdnet_doctor()
 ```
 
 ## Installation
@@ -61,11 +68,13 @@ system("ffmpeg -version")  # prints version
 # Install devtools if needed
 install.packages("devtools")
 
-# Install birdnetR
-devtools::install_github("birdnet-team/birdnetR")
-
 # Install pamflow
 devtools::install_github("pradeeshwarrj/pamflow")
+
+# Create the Python environment BirdNET runs in (once; downloads TensorFlow, a few minutes)
+pamflow::pam_birdnet_setup("inference")
+# Optional, only for the standalone model-training tool (see "Training a custom BirdNET classifier"):
+pamflow::pam_birdnet_setup("training")
 ```
 
 ## Quick Start
@@ -119,12 +128,12 @@ standardization:
   output_format: "flac"
 
 birdnet:
-  model: "BirdNET_GLOBAL_6K_V2.4_Model_FP32.tflite"
-  labels: "BirdNet_v2_custom_Labels.txt"
-  chunk_length_s: 3
+  model_dir: "models/custom_classifier"   # folder with your .tflite and _Labels.txt
+  classifier_name: "CustomClassifier"     # files: <name>.tflite and <name>_Labels.txt
   overlap_s: 0
-  min_confidence: 0.5
-  workers: 4
+  min_confidence: 0.3
+  workers: null                           # null = half of the physical cores
+  chunk_size: 100                         # files per batch; progress is saved after each
 
 processing:
   input: "standardized"
@@ -181,11 +190,11 @@ pam_standardization_app()
 
 The GUI provides three tabs:
 
-- \[Inspect\] — Preview files, extract metadata, test filename regex
+- $$Inspect$$ — Preview files, extract metadata, test filename regex
 
-- \[Convert\] — Batch convert and organize into standardized folders
+- $$Convert$$ — Batch convert and organize into standardized folders
 
-- \[Log\] — Live processing log
+- $$Log$$ — Live processing log
 
 ### Headless Standardization R
 
@@ -296,6 +305,33 @@ vis_results <- pam_soundscape_run_vis(cfg)
 > The run_id is read from the config file. Stage 00 can also be run
 > interactively via `pam_standardization_app()`.
 
+## Training a custom BirdNET classifier (standalone tool)
+
+Training your own classifier is **separate from the workflow**: it is
+not a pipeline stage, no stage function calls it, and the workflow runs
+without it. Use it when you need a `.tflite` model to give to Stage 3.
+
+``` r
+# Once: the training environment (downloads BirdNET-Analyzer and TensorFlow)
+pamflow::pam_birdnet_setup("training")
+
+# Point-and-click app, laid out like the BirdNET-Analyzer GUI training tab
+pamflow::pam_train_app()
+
+# Or from code
+pamflow::pam_birdnet_train_prepare("E:/clips")            # check the training folder
+res <- pamflow::pam_birdnet_train("E:/clips", "E:/models/MyModel",
+                                  test_data = "E:/clips_test")
+res$evaluation$classes                                     # precision, recall, F1, AUPRC, AUROC per class
+```
+
+It runs BirdNET-Analyzer’s own `birdnet-train` (version 2.4.0), so
+results match the Analyzer GUI, and it works on Windows without WSL or a
+GPU. The app shows live progress and learning curves, per-class test
+results, earlier runs, a light and dark theme, and the `birdnet:` config
+lines for the new model. To use the model, set `birdnet$model_dir` and
+`birdnet$classifier_name` in your config.
+
 ## Outputs
 
     MyProject/
@@ -334,9 +370,11 @@ vis_results <- pam_soundscape_run_vis(cfg)
 | `standardization` | `min_duration_s` | 60 | Files shorter than this are isolated as memos |
 | `standardization` | `timezone` | `"Asia/Kolkata"` | Timezone for filename datetime parsing |
 | `standardization` | `output_format` | `"wav/flac"` | Output audio format (`flac` or `wav`) |
-| `birdnet` | `workers` | 4 | Number of parallel CPU cores |
-| `birdnet` | `min_confidence` | 0.5 | Minimum BirdNET score to keep |
-| `birdnet` | `chunk_length_s` | 3 | Audio chunk length in seconds |
+| `birdnet` | `model_dir` | `"models/custom_classifier"` | Folder with your `.tflite` model and `_Labels.txt` |
+| `birdnet` | `classifier_name` | `"CustomClassifier"` | Model file name without `.tflite` |
+| `birdnet` | `workers` | `null` | Worker processes; `null` = half of the physical cores |
+| `birdnet` | `min_confidence` | 0.3 | Minimum BirdNET score to keep |
+| `birdnet` | `chunk_size` | 100 | Files per batch; progress is saved after each batch |
 | `processing` | `input` | `"standardized"` | Use raw (`"standardized"`) or filtered audio |
 | `processing` | `merge_gap_s` | 3 | Gap (seconds) for merging overlapping detections |
 | `processing` | `drop_outside_deployment` | `true` | Remove detections outside deployment windows |

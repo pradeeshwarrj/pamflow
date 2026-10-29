@@ -69,9 +69,11 @@ internally).
 - **R** (\>= 4.3) and **RStudio**
 - **FFmpeg** (free audio tool): install via `winget install ffmpeg` on
   Windows, or `brew install ffmpeg` on Mac
-- **birdnetR** (\>= 0.3.2): `install.packages("birdnetR")`
+- **uv** (creates the Python environment BirdNET runs in): `winget install --id astral-sh.uv` on
+  Windows, see <https://docs.astral.sh/uv/> for other systems
 - A **custom BirdNET classifier** (a `.tflite` model file, a
-  `_Labels.txt` file, and optionally `_Params.csv`)
+  `_Labels.txt` file, and optionally `_Params.csv`). If you do not have
+  one, the standalone training tool can make it (see the appendix).
 
 ### Data
 
@@ -94,8 +96,12 @@ install.packages("devtools")
 devtools::install_github("pradeeshwarrj/pamflow")
 
 # Install additional suggested packages as needed
-install.packages(c("birdnetR", "rmarkdown", "openxlsx", "tinytex"))
+install.packages(c("rmarkdown", "openxlsx", "tinytex"))
 tinytex::install_tinytex()  # only if you want PDF reports
+
+# Create the Python environment BirdNET runs in (once; downloads TensorFlow, a few minutes)
+pam_birdnet_setup("inference")
+pam_birdnet_doctor()        # checks everything is in place
 ```
 
 ------------------------------------------------------------------------
@@ -381,3 +387,44 @@ total.
 
 **Q: Can I run this on a Mac or Linux?** Yes. Install FFmpeg via your
 package manager (`brew install ffmpeg` or `apt install ffmpeg`).
+
+------------------------------------------------------------------------
+
+## Appendix: Training a custom BirdNET classifier (standalone, optional)
+
+Training is **not part of the workflow**. No stage calls it and the workflow
+does not need it; it only produces the model files that Stage 3 uses.
+
+``` r
+# Once: create the training environment (downloads BirdNET-Analyzer and TensorFlow)
+pam_birdnet_setup("training")
+
+pam_train_app()                         # point-and-click, like the Analyzer GUI
+
+# or from code
+pam_birdnet_train_prepare("E:/clips")   # checks classes and file counts
+res <- pam_birdnet_train("E:/clips", "E:/models/MyModel", test_data = "E:/clips_test")
+res$evaluation$classes                  # per-class precision, recall, F1, AUPRC, AUROC
+```
+
+The training folder has one sub-folder of audio clips per class (plus a
+background class such as `noise`). With a separate `test_data` folder you get
+per-class results; without one, scores come from clips held out of the training
+folder and are optimistic. `pam_birdnet_train_repeat()` trains the same
+classifier several times to show how much the scores vary.
+
+To use the trained model, point the config at it:
+
+``` yaml
+birdnet:
+  model_dir: "E:/models"
+  classifier_name: "MyModel"
+```
+
+| Function                       | Purpose                                         |
+|--------------------------------|-------------------------------------------------|
+| `pam_train_app()`              | Training app (progress, curves, results, runs)  |
+| `pam_birdnet_train_prepare()`  | Check a training folder before training         |
+| `pam_birdnet_train()`          | Train one classifier                            |
+| `pam_birdnet_train_repeat()`   | Train several times and summarise the scores    |
+| `pam_birdnet_train_metrics()`  | Read the scores from a training log             |

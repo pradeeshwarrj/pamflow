@@ -1,7 +1,43 @@
-#' Resolve and validate BirdNET settings from the config (internal)
+#' Check that the config has what pam_detect() needs (internal)
+#'
+#' Gives one clear message instead of a cryptic error later (an unset path makes
+#' `file.path()` return nothing and `dir.create()` fail with "invalid 'path'").
 #'
 #' @param cfg A `pam_config` object.
-#' @return A plain list passed to the workers.
+#' @param need_master TRUE when the master table must be read from `paths$metadata`.
+#' @return `cfg`, invisibly. Aborts listing the missing entries.
+#' @keywords internal
+#' @noRd
+pam_detect_check_cfg <- function(cfg, need_master = TRUE) {
+  bc <- cfg$birdnet
+  missing <- character()
+  chk <- function(x, name) {
+    if (is.null(x) || length(x) != 1L || is.na(x) || !nzchar(as.character(x))) {
+      missing <<- c(missing, name)
+    }
+  }
+  chk(cfg$paths$detections, "paths$detections")
+  chk(cfg$paths$logs, "paths$logs")
+  chk(cfg$paths$audio_standardized, "paths$audio_standardized")
+  if (need_master) chk(cfg$paths$metadata, "paths$metadata")
+  if (identical(bc$input, "filtered")) chk(cfg$paths$filtered, "paths$filtered")
+  chk(bc$run_id, "birdnet$run_id")
+  chk(bc$chunk_size, "birdnet$chunk_size")
+  if (length(missing)) {
+    rlang::abort(c("The configuration is incomplete for pam_detect(); these entries are missing:",
+                   stats::setNames(missing, rep("x", length(missing))),
+                   i = "Reload it with cfg <- pam_load_config('<full path to your config.yml>')."))
+  }
+  invisible(cfg)
+}
+
+#' Resolve and validate BirdNET settings from the config (internal)
+#'
+#' Resolves the model files and the options passed to the Python runner. It does
+#' not start Python; `pam_birdnet_py_check()` verifies the environment.
+#'
+#' @param cfg A `pam_config` object.
+#' @return A plain list of settings.
 #' @keywords internal
 #' @noRd
 pam_detect_settings <- function(cfg) {
@@ -27,12 +63,28 @@ pam_detect_settings <- function(cfg) {
     rlang::abort(c("Custom classifier files not found:",
                    stats::setNames(need[!file.exists(need)], rep("x", sum(!file.exists(need))))))
   }
-  list(model_dir = model_dir, classifier_name = name,
-       model_file = model_file, labels_file = labels_file,
-       min_confidence = bc$min_confidence, overlap_s = bc$overlap_s,
-       batch_size = bc$batch_size, use_bandpass = bc$use_bandpass,
-       bandpass_fmin = bc$bandpass_fmin, bandpass_fmax = bc$bandpass_fmax,
-       tflite_threads = bc$tflite_threads)
+  # the birdnetR engine was removed; only the Python `birdnet` engine remains
+  backend <- if (is.null(bc$backend)) "birdnet" else bc$backend
+  if (!identical(backend, "birdnet")) {
+    rlang::abort(c(sprintf("birdnet$backend \"%s\" is not supported.", paste(backend, collapse = ",")),
+                   i = "The birdnetR engine was removed. Delete the `backend` line or set it to \"birdnet\"."))
+  }
+  env_dir <- if (is.null(bc$python_env)) pam_birdnet_env_dir("inference") else resolve(bc$python_env)
+  w <- pam_birdnet_resolve_workers(bc$workers)
+  s <- list(model_dir = model_dir, classifier_name = name,
+            model_file = model_file, labels_file = labels_file,
+            min_confidence = bc$min_confidence, overlap_s = bc$overlap_s,
+            use_bandpass = bc$use_bandpass,
+            bandpass_fmin = bc$bandpass_fmin, bandpass_fmax = bc$bandpass_fmax,
+            python = pam_birdnet_python_path(env_dir), script = pam_birdnet_py_script(),
+            workers = w$workers, worker_notes = w$notes,
+            py_batch_size = if (is.null(bc$py_batch_size)) 1L else bc$py_batch_size,
+            n_producers = if (is.null(bc$n_producers)) 1L else bc$n_producers,
+            sigmoid_sensitivity = if (is.null(bc$sigmoid_sensitivity)) 1 else bc$sigmoid_sensitivity,
+            device = if (is.null(bc$device)) "CPU" else bc$device,
+            model_version = if (is.null(bc$model_version)) "2.4" else bc$model_version)
+  s$top_k <- bc$top_k                                   # NULL = every species above the threshold
+  s
 }
 
 #' Stage 3: run the custom BirdNET classifier on all QC-passed recordings
@@ -50,19 +102,25 @@ pam_detect_settings <- function(cfg) {
 #' @param force If TRUE, delete this run's earlier results and start over.
 #' @return Invisibly, a list: `n_pending`, `n_done`, `n_failed`,
 #'   `n_detections`, `run_dir`.
-#' @details Resumable. A file is marked done (`<run_dir>/done.txt`) only after
+#' @details BirdNET runs in pamflow's Python inference environment (see
+#'   `pam_birdnet_setup()`) using the `birdnet` Python package, which does its
+#'   own multiprocessing: `birdnet$workers` worker processes each load the
+#'   model (an unset value means half of the physical cores). `top_k` limits
+#'   the species kept per 3 s segment (NULL = all above `min_confidence`).
+#'   Resumable. A file is marked done (`<run_dir>/done.txt`) only after
 #'   its batch file is on disk, and files with no detections count as done.
 #'   If a crash happens between writing a batch and updating the checkpoint,
 #'   those files are re-run, and `pam_assemble_detections()` removes the
 #'   duplicates. Per-file outcomes (seconds, errors) go to `file_results.csv`;
-#'   settings and the `birdnetR` version go to `run_settings_*.yml`.
+#'   settings and the `birdnet` package version go to `run_settings_*.yml`.
 #'   Run with `pam_run_stage("03_detect", pam_detect, cfg)`.
 #' @export
 pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = FALSE) {
   stage <- "03_detect"; log_dir <- cfg$paths$logs
   bc <- cfg$birdnet
+  pam_detect_check_cfg(cfg, need_master = is.null(master))
   s <- pam_detect_settings(cfg)
-  workers <- max(1L, as.integer(bc$workers))
+  workers <- s$workers
   run_dir <- file.path(cfg$paths$detections, bc$run_id)
   batch_dir <- file.path(run_dir, "batches")
   dir.create(batch_dir, recursive = TRUE, showWarnings = FALSE)
@@ -98,31 +156,27 @@ pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = F
                           n_detections = 0L, run_dir = run_dir)))
   }
 
-  fn <- pam_portable(pam_birdnet_run_batch, pam_birdnet_normalise = pam_birdnet_normalise)
-  info <- fn(list(), s)       # warm-up in the main process: installs Python deps, loads model
-  ver <- as.character(utils::packageVersion("birdnetR"))
-  pam_log("INFO", sprintf("birdnetR %s (API: %s); %d files pending; input=%s; %d workers",
-                          ver, attr(info, "api"), nrow(pending), bc$input, workers), stage, log_dir)
-  if (length(attr(info, "dropped"))) {
-    pam_log("WARN", paste("this birdnetR version does not accept these settings; they are IGNORED:",
-                          paste(attr(info, "dropped"), collapse = ", ")), stage, log_dir)
+  # stop worker processes left behind by an earlier interrupted run, so they do not
+  # compete for memory and CPU with this one
+  orphans <- tryCatch(pam_birdnet_cleanup(quiet = TRUE), error = function(e) NULL)
+  if (!is.null(orphans) && any(orphans$killed)) {
+    pam_log("WARN", sprintf("stopped %d leftover BirdNET worker process(es) from an earlier interrupted run",
+                            sum(orphans$killed)), stage, log_dir)
   }
-  yaml::write_yaml(
-    list(started = format(Sys.time(), "%Y-%m-%d %H:%M:%S"), birdnetR_version = ver,
-         api = attr(info, "api"), input_dir = input_dir, n_files = nrow(todo),
-         settings = s),
-    file.path(run_dir, sprintf("run_settings_%s.yml", format(Sys.time(), "%Y%m%d_%H%M%S"))))
 
-  make_cluster <- function() {
-    cl <- parallel::makeCluster(workers)
-    parallel::clusterCall(cl, fn, list(), s)        # each worker loads the model once
-    cl
+  chk <- pam_birdnet_py_check(s)       # loads the model once; also checks the labels against it
+  if (!chk$ok) {
+    rlang::abort(c("BirdNET could not load the model.", i = chk$message))
   }
-  cl <- NULL
-  if (workers > 1L) {
-    cl <- make_cluster()
-    on.exit(try(parallel::stopCluster(cl), silent = TRUE), add = TRUE)
-  }
+  ver <- chk$birdnet_version
+  for (note in s$worker_notes) pam_log("WARN", note, stage, log_dir)
+  pam_log("INFO", sprintf("birdnet %s; %d files pending; input=%s; %d workers; top_k=%s",
+                          ver, nrow(pending), bc$input, workers,
+                          if (is.null(s$top_k)) "all" else s$top_k), stage, log_dir)
+  yaml::write_yaml(
+    list(started = format(Sys.time(), "%Y-%m-%d %H:%M:%S"), backend = "birdnet",
+         birdnet_version = ver, input_dir = input_dir, n_files = nrow(todo), settings = s),
+    file.path(run_dir, sprintf("run_settings_%s.yml", format(Sys.time(), "%Y%m%d_%H%M%S"))))
 
   batches <- split(seq_len(nrow(pending)), ceiling(seq_len(nrow(pending)) / bc$chunk_size))
   t_start <- Sys.time()
@@ -132,24 +186,15 @@ pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = F
   for (b in seq_along(batches)) {
     idx <- batches[[b]]
     items <- lapply(idx, function(i) list(rel = pending$rel[i], path = pending$path[i]))
-    task_size <- max(1L, ceiling(length(items) / (workers * 4L)))
-    tasks <- split(items, ceiling(seq_along(items) / task_size))
 
-    res <- tryCatch({
-      out <- if (is.null(cl)) lapply(tasks, fn, s) else parallel::parLapplyLB(cl, tasks, fn, s)
-      unlist(out, recursive = FALSE)
-    }, error = function(e) {
-      pam_log("ERROR", paste("batch", b, "failed:", conditionMessage(e)), stage, log_dir)
-      NULL
-    })
-    if (is.null(res)) {                    # files stay pending; try a fresh cluster
+    res <- tryCatch(
+      pam_birdnet_run_batch_py(items, s),        # parallelism happens inside the Python process
+      error = function(e) {
+        pam_log("ERROR", paste("batch", b, "failed:", conditionMessage(e)), stage, log_dir)
+        NULL
+      })
+    if (is.null(res)) {                    # the files stay pending for the next run
       cli::cli_progress_update(inc = length(idx))
-      if (!is.null(cl)) {
-        try(parallel::stopCluster(cl), silent = TRUE)
-        cl <- tryCatch(make_cluster(), error = function(e) {
-          rlang::abort(paste("Could not restart workers:", conditionMessage(e)))
-        })
-      }
       next
     }
 

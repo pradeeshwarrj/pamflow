@@ -1,0 +1,197 @@
+# English interface texts for pam_train_app().
+# To add a language, copy this file to <code>.yml (for example es.yml) and translate the
+# values; keys must stay the same. Texts you leave out fall back to English.
+# %s and %d are filled in by the app; keep them (and their order) in your translation.
+app_title: BirdNET classifier training
+env_missing: 'The training environment was not found. In R, run: pamflow::pam_birdnet_setup("training"), then restart this app.'
+picker_unavailable: No folder picker is available on this computer. Please type the path in the box.
+btn_browse: Browse...
+btn_check_data: Check data
+btn_start: Start training
+btn_stop: Stop
+btn_open_folder: Open output folder
+sec_data: 1. Data and output
+sec_cache: 2. Cache
+sec_freq: 3. Frequency and speed
+sec_crop: 4. Cropping
+sec_autotune: 5. Automatic tuning (autotune)
+sec_training: 6. Training settings
+sec_save: 7. Model save mode
+sec_advanced: Advanced
+lbl_train_dir: Training data folder (one sub-folder per class)
+lbl_test_dir: Test data folder (optional)
+help_test_dir: Clips in a test folder are used only to measure the model, never to train it.
+lbl_out_dir: Output folder
+lbl_clf_name: Classifier name
+lbl_out_format: Output format
+fmt_tflite: TFLite
+fmt_raven: Raven
+fmt_both: Both
+tbl_class: Class
+tbl_clips: Audio files
+issues_title: Things to check
+no_issues: No problems found in the training data.
+lbl_cache_mode: Cache mode
+cache_none: None
+cache_save: Save
+cache_load: Load
+lbl_cache_file: Cache file (.npz)
+help_cache: 'Saving a cache keeps the processed clips so a later training can load them and skip that step.'
+lbl_fmin: Minimum frequency (Hz)
+lbl_fmax: Maximum frequency (Hz)
+lbl_audio_speed: Audio speed (1 = normal, below 1 = slower)
+lbl_crop_mode: Crop mode
+crop_center: Center
+crop_first: First
+crop_segments: Segments
+crop_smart: Smart
+lbl_crop_overlap: Segment overlap (seconds)
+lbl_autotune: Use autotune
+lbl_at_trials: Number of trials
+lbl_at_exec: Runs per trial
+help_autotune: Autotune tries many settings and needs the 'train' extra of BirdNET-Analyzer. It can take a long time.
+lbl_epochs: Epochs
+lbl_batch_size: Batch size
+lbl_learning_rate: Learning rate
+lbl_hidden_units: Hidden units
+lbl_dropout: Dropout
+lbl_val_split: Validation split
+lbl_label_smoothing: Use label smoothing
+lbl_ups_mode: Upsampling mode
+ups_repeat: Repeat
+ups_mean: Mean
+ups_linear: Linear
+ups_smote: SMOTE
+lbl_ups_ratio: Upsampling ratio
+lbl_mixup: Use mixup
+lbl_focal: Use focal loss
+lbl_f_gamma: Focal loss gamma
+lbl_f_alpha: Focal loss alpha
+lbl_save_mode: Model save mode
+save_replace: Replace
+save_append: Append
+help_save_mode: 'Replace: the new classifier replaces the original BirdNET species. Append: the new classes are added to the original species.'
+lbl_threads: CPU threads (leave empty for automatic)
+lbl_n_runs: Number of runs
+help_n_runs: More than one run trains the same classifier several times, so you can see how much the scores vary.
+lbl_overwrite: Overwrite an existing model with the same name
+status_idle: Ready. Choose your data and press Start training.
+status_stopping: Stopping...
+status_stopped: Training was stopped.
+status_finished: Training finished.
+status_failed: Training failed. See the log below.
+run_of: Run %d of %d
+phase_starting: Starting. The first start can take a minute.
+phase_downloading: 'Downloading the base BirdNET model (first run only, about 224 MB): %s'
+phase_loading: 'Loading training clips: class %d of %d'
+phase_loading_unknown: Loading training clips...
+phase_building: Building the classifier...
+phase_training: 'Training: epoch %d of %d'
+phase_training_start: Training...
+phase_saving: Saving the model...
+notif_done: Training finished.
+notif_failed: Training failed. See the log.
+notif_stopped: Training was stopped.
+tab_progress: Progress
+tab_results: Results
+tab_runs: Earlier runs
+log_title: Log
+plot_title: Validation scores by epoch
+plot_x: Epoch
+plot_y: Score
+plot_waiting: Waiting for the first epoch...
+series_auprc: AUPRC
+series_auroc: AUROC
+results_empty: Results appear here when a training has finished.
+res_ok: Training finished
+res_failed: Training failed
+res_best: 'Best validation scores: AUPRC %s, AUROC %s (epoch %d of %d).'
+res_split: '%d clips were used for training and %d for validation.'
+res_early: Training stopped before the set number of epochs.
+res_note_validation: These scores come from clips held out of the training folder, so they are optimistic. Give a separate test folder for a more honest estimate.
+res_files: Files written
+tbl_file: File
+tbl_present: Present
+'yes': 'Yes'
+'no': 'No'
+res_snippet_title: Use this model in pamflow
+res_snippet_help: Copy these lines into the birdnet section of your config file.
+res_session: Runs in this session
+tbl_mean: Mean
+tbl_sd: Standard deviation
+runs_help: Runs found in the output folder, newest first.
+runs_empty: No earlier runs found in this folder.
+runs_plot_title: Runs compared
+tbl_run: Run
+tbl_finished: Finished
+tbl_status: Status
+tbl_epochs: Epochs
+tbl_loss: Loss
+tbl_hidden: Hidden units
+tbl_dropout: Dropout
+tbl_lr: Learning rate
+tbl_minutes: Minutes
+err_no_data: Choose an existing training data folder.
+err_cache_file: Choose an existing cache file.
+err_test_dir: The test data folder does not exist.
+err_no_output: Choose an output folder.
+err_name: 'Enter a classifier name without any of these characters: / \ : * ? " < > |'
+err_epochs: Epochs must be a whole number of 1 or more.
+err_batch: Batch size must be a whole number of 1 or more.
+err_lr: Learning rate must be greater than 0.
+err_hidden: Hidden units must be a whole number of 0 or more.
+err_dropout: Dropout must be between 0 and 0.9.
+err_val_split: Validation split must be between 0 and 1.
+err_freq: Frequencies must be between 0 and 15000 Hz, and the minimum must be below the maximum.
+err_speed: Audio speed must be greater than 0.
+err_overlap: Segment overlap must be between 0 and 2.9 seconds.
+err_ups_ratio: Upsampling ratio must be between 0 and 1.
+err_focal: 'Focal loss: gamma must be 0 or more and alpha between 0 and 1.'
+err_autotune: Autotune needs at least 1 trial and 1 run per trial.
+err_runs: Number of runs must be a whole number of 1 or more.
+err_threads: CPU threads must be a whole number of 1 or more, or empty.
+tab_train: Train
+lbl_on: Enable
+desc_train_dir: Folder with one sub-folder of audio clips for each class.
+desc_out_dir: Folder where the trained classifier is saved.
+desc_out_format: File format of the trained classifier.
+desc_fmin: Lowest frequency kept. Use the same limits when you analyse recordings.
+desc_fmax: Highest frequency kept. Use the same limits when you analyse recordings.
+desc_audio_speed: Below 1 slows the audio down, above 1 speeds it up. 1 means no change.
+desc_crop_mode: How to cut clips that are longer than the 3-second model input.
+desc_epochs: Number of passes over the training data.
+desc_batch_size: Number of clips processed together in one step.
+desc_learning_rate: Step size of the optimizer.
+desc_hidden_units: Size of an extra hidden layer. 0 means none.
+desc_dropout: Share of connections dropped at random to reduce overfitting.
+desc_val_split: Share of the clips held out to measure the model.
+desc_ups_mode: Balance the classes by upsampling the smaller ones.
+desc_ups_ratio: Minimum size of a small class compared with the largest, after upsampling.
+desc_label_smoothing: Softens the labels so the model is less overconfident.
+desc_mixup: Mixes pairs of clips to help the model generalise.
+desc_focal: Gives more weight to hard examples and helps when classes are unbalanced.
+lbl_dark_mode: Dark mode
+logo_alt: pamflow logo
+res_test_title: Results on the test folder
+res_test_help: One row per class, scored on clips that were never used for training. The first row averages over all classes.
+lbl_eval_threshold: Threshold for precision, recall and F1
+thr_opt: Best per class
+thr_default: '0.5'
+res_test_note: The best threshold is chosen on the test clips themselves, so precision, recall and F1 at that threshold are a little optimistic. AUPRC and AUROC do not depend on a threshold.
+res_overall: All classes (average)
+res_counts: Counts per class at the best threshold
+tbl_test_clips: Test clips
+tbl_precision: Precision
+tbl_recall: Recall
+tbl_f1: F1
+tbl_threshold: Threshold
+tbl_tp: TP
+tbl_fp: FP
+tbl_fn: FN
+tbl_tn: TN
+help_cache_save: The cache holds the training and test clips as processed with the frequency, speed and cropping settings below. The name gets the ending .npz if it has none.
+help_cache_load: The clips, test clips, frequency range, speed and cropping come from the cache, so those settings and the test folder in this form are not used. The training folder is not read.
+phase_cache: Loading the saved cache...
+res_cache_mismatch: The cache was made with different frequency, speed or cropping settings than the form shows. Training used the clips as saved in the cache, with the settings listed here.
+res_cache_missing: The cache file was not found, so the clips were read from the training folder instead.
+res_split_test: '%d clips were used for training. The %d test clips were not trained on; they were used to score each epoch and the final model.'
