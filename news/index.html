@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,34 @@
       <small>Source: <a href="https://github.com/pradeeshwarrj/pamflow/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="pamflow-050">pamflow 0.5.0<a class="anchor" aria-label="anchor" href="#pamflow-050"></a></h2>
+<div class="section level3">
+<h3 id="standalone-birdnet-model-training-not-a-workflow-stage-0-5-0">Standalone BirdNET model training (not a workflow stage)<a class="anchor" aria-label="anchor" href="#standalone-birdnet-model-training-not-a-workflow-stage-0-5-0"></a></h3>
+<p>Training your own classifier is a separate tool. No workflow stage calls it and the workflow runs without it; the trained model is used by pointing the <code>birdnet:</code> config section at it. <code>pam_birdnet_setup("training")</code> creates the training environment.</p>
+<ul><li>
+<strong>Training app.</strong> <code><a href="../reference/pam_train_app.html">pam_train_app()</a></code> is a Shiny app laid out like the Analyzer GUI’s training tab: choose the data, set the options, watch live progress and learning curves, repeat a training to see how much the scores vary, compare earlier runs, and copy the config lines for the new model. The interface text lives in <code>inst/i18n/</code> (English included; other languages can be added by translating one file).</li>
+<li>
+<code><a href="../reference/pam_birdnet_train_prepare.html">pam_birdnet_train_prepare()</a></code>, <code><a href="../reference/pam_birdnet_train.html">pam_birdnet_train()</a></code>, <code><a href="../reference/pam_birdnet_train_metrics.html">pam_birdnet_train_metrics()</a></code> and <code><a href="../reference/pam_birdnet_train_repeat.html">pam_birdnet_train_repeat()</a></code> run BirdNET-Analyzer’s own <code>birdnet-train</code> command, with the same defaults and results as the Analyzer GUI (version 2.4.0). Every run keeps a log and a record of what was run.</li>
+<li>
+<strong>Per-class test results.</strong> With a separate test folder, <code><a href="../reference/pam_birdnet_train.html">pam_birdnet_train()</a></code> returns <code>evaluation</code>: precision, recall, F1, AUPRC and AUROC for every class plus the macro average, read from the Analyzer’s <code>&lt;output&gt;_evaluation.csv</code>. The training app shows them on the Results tab (best threshold per class or 0.5) with the confusion counts.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="birdnet-without-birdnetr-0-5-0">BirdNET without birdnetR<a class="anchor" aria-label="anchor" href="#birdnet-without-birdnetr-0-5-0"></a></h3>
+<ul><li>
+<strong>birdnetR is no longer used.</strong> Stage 3 runs the Python <code>birdnet</code> package (0.2.x) directly through a small batch script shipped with pamflow (<code>inst/python/pam_birdnet_predict.py</code>). Detections are identical to birdnetR’s on the pilot data and the run is faster.</li>
+<li>
+<strong>Own Python environment.</strong> <code><a href="../reference/pam_birdnet_setup.html">pam_birdnet_setup()</a></code> creates private virtual environments (inference and training) with <code>uv</code>; <code><a href="../reference/pam_birdnet_doctor.html">pam_birdnet_doctor()</a></code> checks the machine and the environments.</li>
+<li>
+<strong>Worker control.</strong> <code>birdnet$workers</code> sets the number of worker processes; if unset, half of the physical cores are used. New options: <code>top_k</code>, <code>py_batch_size</code>, <code>n_producers</code>, <code>sigmoid_sensitivity</code>, <code>device</code>, <code>python_env</code>. <code>batch_size</code> and <code>tflite_threads</code> were birdnetR settings and are ignored.</li>
+<li>
+<strong>Benchmark.</strong> <code><a href="../reference/pam_birdnet_benchmark.html">pam_birdnet_benchmark()</a></code> measures throughput for several worker counts and estimates the time for the whole archive.</li>
+<li>
+<strong>Clearer errors.</strong> <code><a href="../reference/pam_detect.html">pam_detect()</a></code> now names missing configuration entries.</li>
+<li>
+<strong>No leftover processes.</strong> Interrupting a run (Esc) stops BirdNET and all its worker processes; <code><a href="../reference/pam_birdnet_cleanup.html">pam_birdnet_cleanup()</a></code> stops workers left behind by an earlier crash.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="pamflow-040">pamflow 0.4.0<a class="anchor" aria-label="anchor" href="#pamflow-040"></a></h2>
 <div class="section level3">

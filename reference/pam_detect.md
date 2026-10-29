@@ -41,12 +41,17 @@ Invisibly, a list: `n_pending`, `n_done`, `n_failed`, `n_detections`,
 
 ## Details
 
-Resumable. A file is marked done (`<run_dir>/done.txt`) only after its
-batch file is on disk, and files with no detections count as done. If a
-crash happens between writing a batch and updating the checkpoint, those
-files are re-run, and
+BirdNET runs in pamflow's Python inference environment (see
+[`pam_birdnet_setup()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_setup.md))
+using the `birdnet` Python package, which does its own multiprocessing:
+`birdnet$workers` worker processes each load the model (an unset value
+means half of the physical cores). `top_k` limits the species kept per 3
+s segment (NULL = all above `min_confidence`). Resumable. A file is
+marked done (`<run_dir>/done.txt`) only after its batch file is on disk,
+and files with no detections count as done. If a crash happens between
+writing a batch and updating the checkpoint, those files are re-run, and
 [`pam_assemble_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_assemble_detections.md)
 removes the duplicates. Per-file outcomes (seconds, errors) go to
-`file_results.csv`; settings and the `birdnetR` version go to
+`file_results.csv`; settings and the `birdnet` package version go to
 `run_settings_*.yml`. Run with
 `pam_run_stage("03_detect", pam_detect, cfg)`.

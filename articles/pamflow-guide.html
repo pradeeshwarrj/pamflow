@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -132,12 +132,12 @@ filtering)</li>
 <code>winget install ffmpeg</code> on Windows, or
 <code>brew install ffmpeg</code> on Mac</li>
 <li>
-<strong>birdnetR</strong> (&gt;= 0.3.2):
-<code>install.packages("birdnetR")</code>
-</li>
+<strong>uv</strong> (creates the Python environment BirdNET runs
+in): <code>winget install --id astral-sh.uv</code> on Windows, see <a href="https://docs.astral.sh/uv/" class="external-link uri">https://docs.astral.sh/uv/</a> for other systems</li>
 <li>A <strong>custom BirdNET classifier</strong> (a <code>.tflite</code>
 model file, a <code>_Labels.txt</code> file, and optionally
-<code>_Params.csv</code>)</li>
+<code>_Params.csv</code>). If you do not have one, the standalone
+training tool can make it (see the appendix).</li>
 </ul>
 </div>
 <div class="section level3">
@@ -168,8 +168,12 @@ coordinates and habitat.</li>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"pradeeshwarrj/pamflow"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Install additional suggested packages as needed</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"birdnetR"</span>, <span class="st">"rmarkdown"</span>, <span class="st">"openxlsx"</span>, <span class="st">"tinytex"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">tinytex</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tinytex/man/install_tinytex.html" class="external-link">install_tinytex</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># only if you want PDF reports</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rmarkdown"</span>, <span class="st">"openxlsx"</span>, <span class="st">"tinytex"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">tinytex</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tinytex/man/install_tinytex.html" class="external-link">install_tinytex</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># only if you want PDF reports</span></span>
+<span></span>
+<span><span class="co"># Create the Python environment BirdNET runs in (once; downloads TensorFlow, a few minutes)</span></span>
+<span><span class="fu"><a href="../reference/pam_birdnet_setup.html">pam_birdnet_setup</a></span><span class="op">(</span><span class="st">"inference"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/pam_birdnet_doctor.html">pam_birdnet_doctor</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># checks everything is in place</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -542,6 +546,67 @@ budget ~2.1 TB total.</p>
 <p><strong>Q: Can I run this on a Mac or Linux?</strong> Yes. Install
 FFmpeg via your package manager (<code>brew install ffmpeg</code> or
 <code>apt install ffmpeg</code>).</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="appendix-training-a-custom-birdnet-classifier-standalone-optional">Appendix: Training a custom BirdNET classifier (standalone,
+optional)<a class="anchor" aria-label="anchor" href="#appendix-training-a-custom-birdnet-classifier-standalone-optional"></a>
+</h2>
+<p>Training is <strong>not part of the workflow</strong>. No stage calls
+it and the workflow does not need it; it only produces the model files
+that Stage 3 uses.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Once: create the training environment (downloads BirdNET-Analyzer and TensorFlow)</span></span>
+<span><span class="fu"><a href="../reference/pam_birdnet_setup.html">pam_birdnet_setup</a></span><span class="op">(</span><span class="st">"training"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/pam_train_app.html">pam_train_app</a></span><span class="op">(</span><span class="op">)</span>                         <span class="co"># point-and-click, like the Analyzer GUI</span></span>
+<span></span>
+<span><span class="co"># or from code</span></span>
+<span><span class="fu"><a href="../reference/pam_birdnet_train_prepare.html">pam_birdnet_train_prepare</a></span><span class="op">(</span><span class="st">"E:/clips"</span><span class="op">)</span>   <span class="co"># checks classes and file counts</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pam_birdnet_train.html">pam_birdnet_train</a></span><span class="op">(</span><span class="st">"E:/clips"</span>, <span class="st">"E:/models/MyModel"</span>, test_data <span class="op">=</span> <span class="st">"E:/clips_test"</span><span class="op">)</span></span>
+<span><span class="va">res</span><span class="op">$</span><span class="va">evaluation</span><span class="op">$</span><span class="va">classes</span>                  <span class="co"># per-class precision, recall, F1, AUPRC, AUROC</span></span></code></pre></div>
+<p>The training folder has one sub-folder of audio clips per class (plus
+a background class such as <code>noise</code>). With a separate
+<code>test_data</code> folder you get per-class results; without one,
+scores come from clips held out of the training folder and are
+optimistic. <code><a href="../reference/pam_birdnet_train_repeat.html">pam_birdnet_train_repeat()</a></code> trains the same
+classifier several times to show how much the scores vary.</p>
+<p>To use the trained model, point the config at it:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">birdnet</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="at">  </span><span class="fu">model_dir</span><span class="kw">:</span><span class="at"> </span><span class="st">"E:/models"</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="at">  </span><span class="fu">classifier_name</span><span class="kw">:</span><span class="at"> </span><span class="st">"MyModel"</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="39%">
+<col width="60%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/pam_train_app.html">pam_train_app()</a></code></td>
+<td>Training app (progress, curves, results, runs)</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/pam_birdnet_train_prepare.html">pam_birdnet_train_prepare()</a></code></td>
+<td>Check a training folder before training</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/pam_birdnet_train.html">pam_birdnet_train()</a></code></td>
+<td>Train one classifier</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/pam_birdnet_train_repeat.html">pam_birdnet_train_repeat()</a></code></td>
+<td>Train several times and summarise the scores</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/pam_birdnet_train_metrics.html">pam_birdnet_train_metrics()</a></code></td>
+<td>Read the scores from a training log</td>
+</tr>
+</tbody>
+</table>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -11,7 +11,7 @@ raw detections in batches to &amp;lt;detections&amp;gt;/&amp;lt;run_id&amp;gt;/b
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,12 +81,17 @@ pilots). The same <code>seed</code> gives the same sample.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Resumable. A file is marked done (<code>&lt;run_dir&gt;/done.txt</code>) only after
+    <p>BirdNET runs in pamflow's Python inference environment (see
+<code><a href="pam_birdnet_setup.html">pam_birdnet_setup()</a></code>) using the <code>birdnet</code> Python package, which does its
+own multiprocessing: <code>birdnet$workers</code> worker processes each load the
+model (an unset value means half of the physical cores). <code>top_k</code> limits
+the species kept per 3 s segment (NULL = all above <code>min_confidence</code>).
+Resumable. A file is marked done (<code>&lt;run_dir&gt;/done.txt</code>) only after
 its batch file is on disk, and files with no detections count as done.
 If a crash happens between writing a batch and updating the checkpoint,
 those files are re-run, and <code><a href="pam_assemble_detections.html">pam_assemble_detections()</a></code> removes the
 duplicates. Per-file outcomes (seconds, errors) go to <code>file_results.csv</code>;
-settings and the <code>birdnetR</code> version go to <code>run_settings_*.yml</code>.
+settings and the <code>birdnet</code> package version go to <code>run_settings_*.yml</code>.
 Run with <code>pam_run_stage("03_detect", pam_detect, cfg)</code>.</p>
     </div>
 

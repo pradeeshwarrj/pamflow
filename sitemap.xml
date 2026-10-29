@@ -16,6 +16,14 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_pattern.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_summary.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_benchmark.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_cleanup.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_doctor.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_setup.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_metrics.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_prepare.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_repeat.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_check_deployments.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_check_ffmpeg.html</loc></url>
@@ -70,6 +78,7 @@
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_summarise.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.html</loc></url>
+<url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validate.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.html</loc></url>
 <url><loc>https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.html</loc></url>
