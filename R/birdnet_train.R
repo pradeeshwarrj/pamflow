@@ -238,6 +238,24 @@ pam_job_alive <- function(job) {
   !isTRUE(job$closed) && !is.null(job$p) && job$p$is_alive()
 }
 
+#' Run an expression, but treat a closed output pipe as "nothing to read" (internal)
+#'
+#' When a process is killed, processx closes its pipes and reading them raises
+#' an "invalid connection" error. Only that error is tolerated: anything else,
+#' including a time limit or another interruption signalled as an error, must
+#' reach the caller, otherwise an aborted run would carry on to the end.
+#'
+#' @param expr Expression that reads from the process.
+#' @param default Value returned when the pipe is closed.
+#' @return The value of `expr`, or `default`.
+#' @keywords internal
+#' @noRd
+pam_tolerate_closed_pipe <- function(expr, default) {
+  tryCatch(expr, error = function(e) {
+    if (grepl("connection", conditionMessage(e), ignore.case = TRUE)) default else stop(e)
+  })
+}
+
 #' Collect the output a job has produced so far (internal)
 #'
 #' @param job A job from `pam_job_start()`.
@@ -250,7 +268,7 @@ pam_job_poll <- function(job, wait_ms = 0L) {
   if (isTRUE(job$closed) || is.null(job$p)) return("")
   if (wait_ms > 0L) job$p$poll_io(wait_ms)
   # A killed process closes its pipes; treat that as "no more output"
-  txt <- tryCatch(job$p$read_output(), error = function(e) "")
+  txt <- pam_tolerate_closed_pipe(job$p$read_output(), "")
   pam_job_write(job, txt)
   txt
 }
@@ -260,7 +278,7 @@ pam_job_poll <- function(job, wait_ms = 0L) {
 #' @noRd
 pam_job_drain <- function(job) {
   if (isTRUE(job$closed) || is.null(job$p) || job$p$is_alive()) return("")
-  txt <- tryCatch(job$p$read_all_output(), error = function(e) "")
+  txt <- pam_tolerate_closed_pipe(job$p$read_all_output(), "")
   pam_job_write(job, txt)
   txt
 }
@@ -293,7 +311,7 @@ pam_job_close <- function(job) {
   job$status <- if (is.null(job$p)) {
     127L
   } else {
-    tryCatch(as.integer(job$p$get_exit_status()), error = function(e) NA_integer_)
+    pam_tolerate_closed_pipe(as.integer(job$p$get_exit_status()), NA_integer_)
   }
   job$closed <- TRUE
   job$status

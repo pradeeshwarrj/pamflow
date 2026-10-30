@@ -55,6 +55,23 @@ test_that("stopping a job ends its process", {
   expect_false(identical(pam_job_close(job), 0L))
 })
 
+test_that("only a closed-pipe error is tolerated when reading a job's output", {
+  fake_job <- function(read) {
+    job <- new.env()
+    job$closed <- FALSE
+    job$log_con <- NULL
+    job$p <- list(read_output = read, read_all_output = read)
+    job
+  }
+  closed <- fake_job(function() stop("Invalid (uninitialized or closed?) connection object"))
+  expect_equal(pam_job_poll(closed), "")
+  limit <- fake_job(function() stop("reached elapsed time limit"))
+  expect_error(pam_job_poll(limit), "elapsed time limit")      # an abort must not be swallowed
+  expect_equal(pam_tolerate_closed_pipe(stop("closed connection"), "x"), "x")
+  expect_error(pam_tolerate_closed_pipe(stop("something else"), "x"), "something else")
+  expect_equal(pam_tolerate_closed_pipe("fine", "x"), "fine")
+})
+
 # --- plan: checks before anything starts -----------------------------------------------------
 
 test_that("a plan checks the inputs and builds the command", {
