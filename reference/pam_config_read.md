@@ -32,5 +32,5 @@ cfg <- pam_config_read(ex$config)
 cfg$birdnet$run_id
 #> [1] "run01"
 cfg$paths$audio_standardized
-#> [1] "/tmp/RtmpHnR5u6/pamflow_example_1c85548613db/data/standardized"
+#> [1] "/tmp/Rtmpefifs1/pamflow_example_1c577c81f718/data/standardized"
 ```
