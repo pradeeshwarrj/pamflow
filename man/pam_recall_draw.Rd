@@ -24,3 +24,11 @@ same segment twice. The ground truth belongs to the audio, not to a
 detection run, so it can be reused to compare runs (for example filtered
 against unfiltered audio).
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+# run_id = NULL: sample all recordings (a real run would restrict to the files it processed)
+new <- suppressMessages(pam_recall_draw(ex$cfg, n = 4, run_id = NULL))
+as.data.frame(new)[, c("segment_id", "rel", "seg_start", "seg_end")]
+}

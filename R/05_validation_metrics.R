@@ -23,6 +23,20 @@ pam_wilson_ci <- function(x, n, conf = 0.95) {
 #' @return A data.table: one row per reviewed sample, with `verdict`
 #'   ("correct", "incorrect", "unsure"), `true_species`, `note`, `reviewer`,
 #'   `reviewed_at` added to the sample columns.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 8))
+#' val_dir <- file.path(ex$cfg$paths$detections, "run01", "validation")
+#' # normally the review app writes this file; here the verdicts are made up
+#' results <- data.frame(sample_id = new$sample_id,
+#'                       verdict = rep_len(c("correct", "correct", "incorrect"), nrow(new)),
+#'                       true_species = NA_character_, note = "", reviewer = "example",
+#'                       reviewed_at = format(Sys.time()), stringsAsFactors = FALSE)
+#' utils::write.csv(results, file.path(val_dir, "validation_results.csv"), row.names = FALSE)
+#' val <- pam_validation_import(ex$cfg)
+#' as.data.frame(val)[, c("sample_id", "species", "confidence", "verdict")]
 #' @export
 pam_validation_import <- function(cfg, run_id = cfg$birdnet$run_id) {
   val_dir <- file.path(cfg$paths$detections, run_id, "validation")
@@ -60,6 +74,22 @@ pam_validation_import <- function(cfg, run_id = cfg$birdnet$run_id) {
 #' @details Recall, false negatives and F1 cannot be estimated from reviewing
 #'   detections alone: they need a set of recordings in which every call has
 #'   been annotated independently of the detector.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 8))
+#' val_dir <- file.path(ex$cfg$paths$detections, "run01", "validation")
+#' # normally the review app writes this file; here the verdicts are made up
+#' results <- data.frame(sample_id = new$sample_id,
+#'                       verdict = rep_len(c("correct", "correct", "incorrect"), nrow(new)),
+#'                       true_species = NA_character_, note = "", reviewer = "example",
+#'                       reviewed_at = format(Sys.time()), stringsAsFactors = FALSE)
+#' utils::write.csv(results, file.path(val_dir, "validation_results.csv"), row.names = FALSE)
+#' val <- pam_validation_import(ex$cfg)
+#' pool <- suppressMessages(pam_validation_pool(ex$cfg))
+#' metrics <- pam_validation_metrics(val, pool, bands = unlist(ex$cfg$validation$bands))
+#' as.data.frame(metrics$cells)[, c("scientific_name", "band", "n_pool", "n_reviewed", "precision")]
 #' @export
 pam_validation_metrics <- function(val, pool, bands) {
   v <- data.table::copy(val)
@@ -116,6 +146,21 @@ pam_validation_metrics <- function(val, pool, bands) {
 #' @param run_id Detection run.
 #' @param pool Optional pool from `pam_validation_pool()`.
 #' @return The metrics list (see `pam_validation_metrics()`).
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' proc <- suppressMessages(pam_process_detections(ex$cfg))
+#' new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 8))
+#' val_dir <- file.path(ex$cfg$paths$detections, "run01", "validation")
+#' # normally the review app writes this file; here the verdicts are made up
+#' results <- data.frame(sample_id = new$sample_id,
+#'                       verdict = rep_len(c("correct", "correct", "incorrect"), nrow(new)),
+#'                       true_species = NA_character_, note = "", reviewer = "example",
+#'                       reviewed_at = format(Sys.time()), stringsAsFactors = FALSE)
+#' utils::write.csv(results, file.path(val_dir, "validation_results.csv"), row.names = FALSE)
+#' metrics <- suppressMessages(pam_validation_report(ex$cfg))
+#' list.files(val_dir, pattern = "^precision")
 #' @export
 pam_validation_report <- function(cfg, run_id = cfg$birdnet$run_id, pool = NULL) {
   val <- pam_validation_import(cfg, run_id)

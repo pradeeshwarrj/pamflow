@@ -75,6 +75,32 @@ pamflow::pam_birdnet_setup("inference")
 pamflow::pam_birdnet_setup("training")
 ```
 
+## Try it without any data
+
+`pam_example_project()` builds a tiny synthetic project in a temporary folder: six
+short recordings, a deployment sheet, a config and a small detections file. You can
+see how the stages work before using your own recordings. It needs no FFmpeg,
+Python or internet connection.
+
+``` r
+library(pamflow)
+
+ex <- pam_example_project()             # created in a temporary folder
+res <- pam_scan_audio(ex$cfg)           # Stage 1: scan the recordings
+res$summary$overall                     # files, grids, hours, QC results
+
+out <- pam_process_detections(ex$cfg)   # Stage 4: clean the example detections
+out$steps                               # what each cleaning rule removed
+
+occ <- pam_build_occupancy(ex$cfg)      # Stage 6: detection histories
+occ$histories[[1]]
+```
+
+Open `ex$root` in your file browser to see what each stage wrote. Every help page
+has an example built on this project, for instance `?pam_validation_draw` or
+`example("pam_scan_audio")`. To keep the sandbox, give it a folder:
+`pam_example_project("C:/pamflow_sandbox")`.
+
 ## Quick Start
 
 ### 1. Set up your project folder
@@ -100,12 +126,12 @@ pamflow creates the other folders (`data/standardized/`, `data/detections/`,
 ### 2. Create `metadata/deployments.csv`
 
 One row per deployment. Columns are read by position, so keep this order
-(dates as `dd-mm-yyyy`, times as `hh:mm`; the grid can be written `59` or `G0059`):
+(dates as `dd-mm-yyyy`, times as `hh:mm`; give the grid as a number, for example `59` for `G0059`):
 
 ``` csv
 deployment_id,recorder,grid,habitat,deployer,latitude,longitude,deploy_date,deploy_time,retrieve_date,retrieve_time
-13,SW010,G0059,Forest,Asha,7.01,93.82,05-04-2026,18:30,08-04-2026,16:00
-7,SW012,G0110,Plantation,Ravi,7.05,93.85,01-04-2026,06:00,10-04-2026,18:00
+13,SW010,59,Forest,Asha,7.01,93.82,05-04-2026,18:30,08-04-2026,16:00
+7,SW012,110,Plantation,Ravi,7.05,93.85,01-04-2026,06:00,10-04-2026,18:00
 ```
 
 ### 3. Create `config/config.yml`

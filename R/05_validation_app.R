@@ -186,6 +186,15 @@ pam_validation_app <- function(cfg, run_id = cfg$birdnet$run_id, reviewer = "",
 #' @param show_confidence Show the model's confidence while reviewing. Hidden
 #'   by default (`validation$show_confidence`) to avoid biasing the reviewer.
 #' @return Nothing; runs until the app is closed.
+#' @examples
+#' if (interactive() && nzchar(Sys.which("ffmpeg"))) {
+#'   ex <- pam_example_project()
+#'   res <- suppressMessages(pam_scan_audio(ex$cfg))
+#'   proc <- suppressMessages(pam_process_detections(ex$cfg))
+#'   new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 5))
+#'   out <- suppressMessages(pam_validation_export(ex$cfg))   # clips and spectrograms to review
+#'   pam_validate(ex$cfg)
+#' }
 #' @export
 pam_validate <- function(cfg, run_id = cfg$birdnet$run_id,
                          reviewer = pam_or(cfg$validation$reviewer, ""),

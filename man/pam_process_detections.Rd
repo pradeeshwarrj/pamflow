@@ -26,3 +26,12 @@ reason for each removal) and \code{processing_steps.csv}. Times are written as
 local-time text. Run with
 \code{pam_run_stage("04_process", pam_process_detections, cfg, run_id = "...")}.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+out <- suppressMessages(pam_process_detections(ex$cfg))
+out$steps
+# the results are also written to the run folder
+list.files(file.path(ex$cfg$paths$detections, "run01", "processed"))
+}

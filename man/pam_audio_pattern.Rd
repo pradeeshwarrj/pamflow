@@ -12,3 +12,6 @@ Character scalar regex pattern (case-insensitive).
 \description{
 Regex Pattern Matching Supported Audio Files
 }
+\examples{
+grepl(pam_audio_pattern(), c("a.wav", "b.FLAC", "c.mp3"))
+}

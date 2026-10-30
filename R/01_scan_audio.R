@@ -7,6 +7,12 @@
 #' @return A data.table with `file_path`, `file_name`, `grid`, `start_time`
 #'   (POSIXct) and `valid_name`. Files that don't match get NA and
 #'   `valid_name = FALSE`; they are never dropped.
+#' @examples
+#' ex <- pam_example_project()
+#' # the second name does not match the pattern, so it is flagged, not dropped
+#' pam_parse_filenames(c(ex$files[1], "not_a_recording.wav"),
+#'                     pattern = ex$cfg$filenames$pattern,
+#'                     timezone = "Asia/Kolkata")
 #' @export
 pam_parse_filenames <- function(files, pattern, timezone) {
   file_name <- basename(files)
@@ -47,6 +53,10 @@ pam_parse_filenames <- function(files, pattern, timezone) {
 #'   `deployments$default_recovery_time`, and a recovery year before 2000
 #'   (e.g. 15-04-0206) is replaced by the deployment year. Rows that still
 #'   can't be parsed get NA and are listed by `pam_check_deployments()`.
+#' @examples
+#' ex <- pam_example_project()
+#' dep <- pam_read_deployments(ex$cfg)
+#' as.data.frame(dep)[, c("deployment_id", "grid", "deploy_start", "retrieve_end")]
 #' @export
 pam_read_deployments <- function(cfg) {
   path <- cfg$paths$deployment_sheet
@@ -107,6 +117,10 @@ pam_read_deployments <- function(cfg) {
 #'   Issues: unparseable start, missing/unparseable recovery, recovery before
 #'   deployment, assumed recovery time, and overlap with another deployment of
 #'   the same grid.
+#' @examples
+#' ex <- pam_example_project()
+#' dep <- pam_read_deployments(ex$cfg)
+#' pam_check_deployments(dep)   # no rows: the example deployments are consistent
 #' @export
 pam_check_deployments <- function(dep) {
   d <- data.table::copy(dep)
@@ -137,6 +151,13 @@ pam_check_deployments <- function(dep) {
 #'   untruncated file, and no duplicate; `short` files and gaps are reported but
 #'   do not fail QC. Truncation checks apply to PCM WAV files (where bit depth
 #'   is non-NA).
+#' @examples
+#' ex <- pam_example_project()
+#' cfg <- ex$cfg
+#' master <- pam_parse_filenames(ex$files, cfg$filenames$pattern, cfg$filenames$timezone)
+#' master <- merge(master, pam_audio_info(ex$files), by = "file_path")
+#' master <- pam_add_qc(master, cfg)
+#' as.data.frame(master)[, c("file_name", "gap_s", "qc_pass")]
 #' @export
 pam_add_qc <- function(master, cfg) {
   tol <- cfg$qc$gap_tolerance_s
@@ -177,6 +198,12 @@ pam_add_qc <- function(master, cfg) {
 #' @return `master` with `deployment_id`, `recorder`, `latitude`, `longitude`
 #'   and `in_deployment`. Recordings outside every deployment window of their
 #'   grid get NA and `in_deployment = FALSE` (not dropped).
+#' @examples
+#' ex <- pam_example_project()
+#' cfg <- ex$cfg
+#' master <- pam_parse_filenames(ex$files, cfg$filenames$pattern, cfg$filenames$timezone)
+#' master <- pam_match_deployments(master, pam_read_deployments(cfg))
+#' as.data.frame(master)[, c("file_name", "deployment_id", "recorder", "in_deployment")]
 #' @export
 pam_match_deployments <- function(master, dep) {
   key <- master[, .(file_path, grid, start_time)]
@@ -197,6 +224,12 @@ pam_match_deployments <- function(master, dep) {
 #'   match.
 #' @return A list: `overall` (one-row data.table), `per_grid` (data.table),
 #'   `grids_without_deployment`, `deployments_without_audio`.
+#' @examples
+#' ex <- pam_example_project()
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' summ <- pam_audio_summary(res$master, res$deployments)
+#' summ$overall
+#' summ$per_grid
 #' @export
 pam_audio_summary <- function(master, dep = NULL) {
   overall <- master[, .(
@@ -238,6 +271,12 @@ pam_audio_summary <- function(master, dep = NULL) {
 #'
 #'   Audio discovery uses [pam_list_audio()] (WAV + FLAC). Header reading uses
 #'   [pam_audio_info()].
+#' @examples
+#' ex <- pam_example_project()
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' res$summary$overall
+#' # the master table and summaries are also written to the project
+#' list.files(ex$cfg$paths$metadata)
 #' @export
 pam_scan_audio <- function(cfg, force = FALSE) {
   stage <- "01_scan"; log_dir <- cfg$paths$logs

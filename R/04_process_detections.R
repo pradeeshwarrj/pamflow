@@ -62,6 +62,16 @@ pam_fwrite_local <- function(dt, path) {
 #' @return A list: `clean` (one row per event, with `confidence` = maximum,
 #'   `mean_confidence`, `n_windows`), `removed` (rows with `reason`), `steps`
 #'   (rule, n_before, n_removed).
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' det <- suppressMessages(pam_assemble_detections(ex$cfg))
+#' det$file_duration_s <- 2    # length of the example recordings, in seconds
+#' cleaned <- pam_clean_detections(det, ex$cfg$processing)
+#' cleaned$steps
+#' cleaned$removed$reason
+#' as.data.frame(cleaned$clean)[, c("species", "confidence", "n_windows", "start_time", "end_time")]
 #' @export
 pam_clean_detections <- function(det, pc, thresholds = NULL, seasons = NULL) {
   det <- data.table::copy(det)
@@ -177,6 +187,14 @@ pam_clean_detections <- function(det, pc, thresholds = NULL, seasons = NULL) {
 #'   reason for each removal) and `processing_steps.csv`. Times are written as
 #'   local-time text. Run with
 #'   `pam_run_stage("04_process", pam_process_detections, cfg, run_id = "...")`.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' out <- suppressMessages(pam_process_detections(ex$cfg))
+#' out$steps
+#' # the results are also written to the run folder
+#' list.files(file.path(ex$cfg$paths$detections, "run01", "processed"))
 #' @export
 pam_process_detections <- function(cfg, run_id = cfg$birdnet$run_id) {
   stage <- "04_process"; log_dir <- cfg$paths$logs

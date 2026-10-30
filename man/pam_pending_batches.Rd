@@ -19,3 +19,11 @@ A list of character vectors (empty list if nothing is pending).
 \description{
 Split pending work into batches, skipping completed items
 }
+\examples{
+ckpt <- tempfile(fileext = ".txt")
+ids <- c("a.wav", "b.wav", "c.wav")
+pam_pending_batches(ids, ckpt, batch_size = 2)   # all three are pending
+pam_checkpoint_add("a.wav", ckpt)
+pam_pending_batches(ids, ckpt, batch_size = 2)   # only b and c are left
+unlink(ckpt)
+}

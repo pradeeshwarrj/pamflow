@@ -31,3 +31,15 @@ error text, are appended to \verb{metadata/02_filter_results.csv}. Only files
 with \code{qc_pass == TRUE} are filtered. Format (WAV vs FLAC) is preserved from
 source files. Run with \code{pam_run_stage("02_filter", pam_filter_audio, cfg)}.
 }
+\examples{
+\donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  # the later stages read the master table that the scan builds
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  out <- suppressMessages(pam_filter_audio(ex$cfg))
+  out$n_ok
+  basename(list.files(ex$cfg$paths$filtered, recursive = TRUE))
+}
+}
+}

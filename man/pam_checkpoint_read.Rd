@@ -15,3 +15,10 @@ Character vector of completed IDs (empty if the file doesn't exist).
 \description{
 Read the set of already-processed item IDs
 }
+\examples{
+ckpt <- tempfile(fileext = ".txt")
+pam_checkpoint_read(ckpt)            # no file yet: nothing is done
+pam_checkpoint_add(c("a.wav", "b.wav"), ckpt)
+pam_checkpoint_read(ckpt)
+unlink(ckpt)
+}

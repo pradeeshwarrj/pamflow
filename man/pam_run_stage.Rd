@@ -23,3 +23,13 @@ A list: \code{status} ("ok" or "failed"), \code{result}, \code{duration} (diffti
 Logs start time, end time, duration and every warning, and converts errors
 into a logged failure instead of terminating the whole workflow.
 }
+\examples{
+ex <- pam_example_project()
+res <- suppressMessages(pam_run_stage("demo", function(cfg, x) x * 2, ex$cfg, x = 21))
+res$status
+res$result
+
+# an error is logged and returned as a failed status; it does not stop your script
+bad <- suppressMessages(pam_run_stage("demo_fail", function(cfg) stop("boom"), ex$cfg))
+bad$status
+}

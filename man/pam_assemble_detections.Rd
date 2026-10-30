@@ -24,3 +24,11 @@ Reads all batch files of a run, removes duplicates (from interrupted runs),
 joins recording metadata from the Stage 1 master table, and writes
 \verb{<detections>/<run_id>/detections.csv}.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+det <- suppressMessages(pam_assemble_detections(ex$cfg))
+nrow(det)   # the batch file had one duplicate row, which is dropped
+as.data.frame(det)[, c("filename", "species", "confidence", "start_time", "end_time")]
+}

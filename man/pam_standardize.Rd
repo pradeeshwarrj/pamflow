@@ -60,3 +60,25 @@ data.table containing audit log of standardization operations.
 Standardizes raw audio datasets by organizing folders, parsing timestamps, converting formats
 (WAV/FLAC), resampling, mixing channels to mono, isolating non-audio/memos, and logging results.
 }
+\examples{
+ex <- pam_example_project()
+demo <- tempfile("pamflow_std_")
+
+# dry_run = TRUE only plans what would happen; nothing is written
+plan <- suppressMessages(pam_standardize(
+  ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo, "standardized"),
+  isolated_dir = file.path(demo, "isolated"), dry_run = TRUE,
+  target_format = "wav", min_duration_s = 1))
+table(plan$action)
+
+\donttest{
+if (requireNamespace("av", quietly = TRUE)) {
+  # convert for real: the example WAV files become FLAC
+  done <- suppressMessages(pam_standardize(
+    ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo, "standardized"),
+    isolated_dir = file.path(demo, "isolated"), target_format = "flac", min_duration_s = 1))
+  table(done$action)
+}
+}
+unlink(demo, recursive = TRUE)
+}

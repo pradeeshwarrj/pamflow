@@ -20,7 +20,8 @@ Read and validate a pamflow configuration file
 Missing keys fall back to the template defaults.
 }
 \examples{
-\dontrun{
-cfg <- pam_config_read("config/config.yml")
-}
+ex <- pam_example_project()
+cfg <- pam_config_read(ex$config)
+cfg$birdnet$run_id
+cfg$paths$audio_standardized
 }

@@ -18,3 +18,10 @@ pam_checkpoint_add(ids, path)
 Call this \emph{after} the corresponding batch output has been written to disk,
 so an interruption never marks unwritten work as done.
 }
+\examples{
+ckpt <- tempfile(fileext = ".txt")
+pam_checkpoint_add("a.wav", ckpt)
+pam_checkpoint_add("b.wav", ckpt)
+pam_checkpoint_read(ckpt)
+unlink(ckpt)
+}

@@ -33,6 +33,17 @@ pam_gt_dir <- function(cfg) file.path(cfg$paths$validation, "ground_truth")
 #' @return A data.table with one row per segment: `rel`, `grid`,
 #'   `recording_start`, `seg_start`, `seg_end` (seconds into the file),
 #'   `slot_time`, `hour`, `seg_key`.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' master <- res$master
+#' master$rel <- file.path(master$grid, master$file_name)   # path relative to the audio folder
+#' master$recording_start <- master$start_time
+#' # the example recordings are 2 s long, so use 1 s segments (the default is 60 s)
+#' frame <- pam_recall_frame(master, segment_s = 1)
+#' nrow(frame)
+#' as.data.frame(frame)[1:3, c("rel", "seg_start", "seg_end")]
 #' @export
 pam_recall_frame <- function(master, segment_s = 60, hours = NULL) {
   m <- data.table::copy(master)[qc_pass == TRUE & in_deployment == TRUE & !is.na(duration_s)]
@@ -55,6 +66,16 @@ pam_recall_frame <- function(master, segment_s = 60, hours = NULL) {
 #' @param seed Random seed.
 #' @param exclude_keys `seg_key`s already drawn; never drawn again.
 #' @return A data.table of `min(n, available)` segments.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' master <- res$master
+#' master$rel <- file.path(master$grid, master$file_name)   # path relative to the audio folder
+#' master$recording_start <- master$start_time
+#' frame <- pam_recall_frame(master, segment_s = 1)
+#' pick <- pam_recall_sample(frame, n = 3, seed = 1)
+#' as.data.frame(pick)[, c("rel", "seg_start", "seg_end")]
 #' @export
 pam_recall_sample <- function(frame, n, seed = 1L, exclude_keys = character()) {
   f <- frame[!seg_key %in% exclude_keys]
@@ -75,6 +96,13 @@ pam_recall_sample <- function(frame, n, seed = 1L, exclude_keys = character()) {
 #' @param run_id Detection run. Only recordings that run processed are sampled,
 #'   because recall is measured against that run. NULL samples all recordings.
 #' @return Invisibly, the newly added rows.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' # run_id = NULL: sample all recordings (a real run would restrict to the files it processed)
+#' new <- suppressMessages(pam_recall_draw(ex$cfg, n = 4, run_id = NULL))
+#' as.data.frame(new)[, c("segment_id", "rel", "seg_start", "seg_end")]
 #' @export
 pam_recall_draw <- function(cfg, n = cfg$recall$n_segments, run_id = cfg$birdnet$run_id) {
   rc <- cfg$recall; tz <- cfg$filenames$timezone
@@ -135,6 +163,17 @@ pam_recall_draw <- function(cfg, n = cfg$recall$n_segments, run_id = cfg$birdnet
 #' @param cfg A `pam_config` object.
 #' @param force Recreate all files.
 #' @return Invisibly, list(n_ok, n_failed, failed_ids).
+#' @examples
+#' \donttest{
+#' if (nzchar(Sys.which("ffmpeg"))) {
+#'   ex <- pam_example_project()
+#'   # the later stages read the master table that the scan builds
+#'   res <- suppressMessages(pam_scan_audio(ex$cfg))
+#'   new <- suppressMessages(pam_recall_draw(ex$cfg, n = 3, run_id = NULL))
+#'   out <- suppressMessages(pam_recall_export(ex$cfg))
+#'   out$n_ok
+#' }
+#' }
 #' @export
 pam_recall_export <- function(cfg, force = FALSE) {
   stage <- "05b_export"; log_dir <- cfg$paths$logs

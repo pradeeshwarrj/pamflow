@@ -25,3 +25,15 @@ Cuts every QC-passed, in-deployment recording into consecutive,
 non-overlapping segments of \code{segment_s} seconds (a final piece shorter than
 a segment is dropped).
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+master <- res$master
+master$rel <- file.path(master$grid, master$file_name)   # path relative to the audio folder
+master$recording_start <- master$start_time
+# the example recordings are 2 s long, so use 1 s segments (the default is 60 s)
+frame <- pam_recall_frame(master, segment_s = 1)
+nrow(frame)
+as.data.frame(frame)[1:3, c("rel", "seg_start", "seg_end")]
+}

@@ -18,3 +18,7 @@ Character string identifier or "unassigned".
 Helper function to parse site/grid/recorder identifier from filename using
 pattern capture groups or leading token prior to first underscore.
 }
+\examples{
+pam_extract_grid("G0059_20260405_183000.wav")
+pam_extract_grid("recording.wav")   # no recognisable identifier
+}

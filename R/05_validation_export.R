@@ -66,6 +66,18 @@ pam_ffmpeg_to_file <- function(args, out, ffmpeg = "ffmpeg") {
 #' @param run_id Detection run.
 #' @param force Recreate all files.
 #' @return Invisibly, list(n_ok, n_failed, failed_ids).
+#' @examples
+#' \donttest{
+#' if (nzchar(Sys.which("ffmpeg"))) {
+#'   ex <- pam_example_project()
+#'   # the later stages read the master table that the scan builds
+#'   res <- suppressMessages(pam_scan_audio(ex$cfg))
+#'   proc <- suppressMessages(pam_process_detections(ex$cfg))
+#'   new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 3))
+#'   out <- suppressMessages(pam_validation_export(ex$cfg))
+#'   out$n_ok
+#' }
+#' }
 #' @export
 pam_validation_export <- function(cfg, run_id = cfg$birdnet$run_id, force = FALSE) {
   stage <- "05_export"; log_dir <- cfg$paths$logs

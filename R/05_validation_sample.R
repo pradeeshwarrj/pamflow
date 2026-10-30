@@ -64,6 +64,12 @@ pam_band_label <- function(idx, bands) {
 #' @param cfg A `pam_config` object.
 #' @param run_id Detection run (sub-folder of paths$detections).
 #' @return A data.table of events with `event_id` (rel|species|start).
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' pool <- suppressMessages(pam_validation_pool(ex$cfg))
+#' as.data.frame(pool)[, c("species", "confidence", "n_windows", "start_time")]
 #' @export
 pam_validation_pool <- function(cfg, run_id = cfg$birdnet$run_id) {
   det <- pam_load_detections(cfg, run_id)
@@ -92,6 +98,19 @@ pam_validation_pool <- function(cfg, run_id = cfg$birdnet$run_id) {
 #' @param seed Random seed.
 #' @param exclude_ids `event_id`s already sampled; never drawn again.
 #' @return A data.table: the sampled rows with `band_idx` and `band`.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' pool <- suppressMessages(pam_validation_pool(ex$cfg))
+#' bands <- unlist(ex$cfg$validation$bands)
+#' # at most one event per species and confidence band
+#' smp <- pam_validation_sample(pool, "stratified", bands = bands, n_per_cell = 1)
+#' as.data.frame(smp)[, c("species", "confidence", "band")]
+#'
+#' # five events at random from the whole pool
+#' rnd <- pam_validation_sample(pool, "random", bands = bands, n = 5, seed = 42)
+#' nrow(rnd)
 #' @export
 pam_validation_sample <- function(pool, strategy = c("stratified", "random", "rare"),
                                   bands, n_per_cell = 25L, n = 100L, species = NULL,
@@ -136,6 +155,14 @@ pam_validation_sample <- function(pool, strategy = c("stratified", "random", "ra
 #'   `validation$n_per_cell`.
 #' @param pool Optional pool from `pam_validation_pool()` (computed if NULL).
 #' @return Invisibly, the newly added rows.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 5))
+#' as.data.frame(new)[, c("sample_id", "species", "confidence", "clip_file")]
+#' # the sample file is written to the run folder
+#' file.exists(file.path(ex$cfg$paths$detections, "run01", "validation", "validation_samples.csv"))
 #' @export
 pam_validation_draw <- function(cfg, run_id = cfg$birdnet$run_id,
                                 strategy = c("stratified", "random", "rare"),

@@ -23,3 +23,7 @@ for one or more WAV/FLAC files without loading sample data into memory.
 Returns a data.table with readable status; errors for individual unreadable
 files are caught gracefully and flagged with \code{readable = FALSE}.
 }
+\examples{
+ex <- pam_example_project()
+pam_audio_info(ex$files)
+}

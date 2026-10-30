@@ -21,3 +21,19 @@ Imports the reviewed verdicts, computes \code{pam_validation_metrics()} and
 writes \code{precision_by_cell.csv}, \code{precision_by_threshold.csv} and
 \code{confusion_incorrect.csv} to \verb{<detections>/<run_id>/validation/}.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+proc <- suppressMessages(pam_process_detections(ex$cfg))
+new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 8))
+val_dir <- file.path(ex$cfg$paths$detections, "run01", "validation")
+# normally the review app writes this file; here the verdicts are made up
+results <- data.frame(sample_id = new$sample_id,
+                      verdict = rep_len(c("correct", "correct", "incorrect"), nrow(new)),
+                      true_species = NA_character_, note = "", reviewer = "example",
+                      reviewed_at = format(Sys.time()), stringsAsFactors = FALSE)
+utils::write.csv(results, file.path(val_dir, "validation_results.csv"), row.names = FALSE)
+metrics <- suppressMessages(pam_validation_report(ex$cfg))
+list.files(val_dir, pattern = "^precision")
+}

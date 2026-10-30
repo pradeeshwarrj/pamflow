@@ -114,6 +114,12 @@ pam_detect_settings <- function(cfg) {
 #'   duplicates. Per-file outcomes (seconds, errors) go to `file_results.csv`;
 #'   settings and the `birdnet` package version go to `run_settings_*.yml`.
 #'   Run with `pam_run_stage("03_detect", pam_detect, cfg)`.
+#' @examples
+#' \dontrun{
+#' # needs the BirdNET Python environment (pam_birdnet_setup("inference")) and your model
+#' cfg <- pam_config_read("config/config.yml")
+#' res <- pam_run_stage("03_detect", pam_detect, cfg)
+#' }
 #' @export
 pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = FALSE) {
   stage <- "03_detect"; log_dir <- cfg$paths$logs
@@ -249,6 +255,13 @@ pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = F
 #'   recording), `site` (= grid), `grid`, `recorder`, `deployment_id`,
 #'   `in_deployment`, `recording_date`, `recording_start` and
 #'   `detection_datetime` (local time), `rel`.
+#' @examples
+#' ex <- pam_example_project()
+#' # the later stages read the master table that the scan builds
+#' res <- suppressMessages(pam_scan_audio(ex$cfg))
+#' det <- suppressMessages(pam_assemble_detections(ex$cfg))
+#' nrow(det)   # the batch file had one duplicate row, which is dropped
+#' as.data.frame(det)[, c("filename", "species", "confidence", "start_time", "end_time")]
 #' @export
 pam_assemble_detections <- function(cfg, run_id = cfg$birdnet$run_id) {
   tz <- cfg$filenames$timezone

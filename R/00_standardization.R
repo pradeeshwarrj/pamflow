@@ -8,6 +8,9 @@
 #' @param filename Character, filename or base name.
 #' @param pattern Optional regular expression pattern (e.g., cfg$filenames$pattern).
 #' @return Character string identifier or "unassigned".
+#' @examples
+#' pam_extract_grid("G0059_20260405_183000.wav")
+#' pam_extract_grid("recording.wav")   # no recognisable identifier
 #' @export
 pam_extract_grid <- function(filename, pattern = NULL) {
   base_name <- basename(filename)
@@ -48,6 +51,9 @@ pam_extract_grid <- function(filename, pattern = NULL) {
 #' @param file_path Optional character path to file for metadata fallback.
 #' @param timezone Character string timezone (e.g. "Asia/Kolkata").
 #' @return Character string timestamp in "YYYYMMDD_HHMMSS" format.
+#' @examples
+#' pam_parse_datetime("G0059_20260405_183000.wav")
+#' pam_parse_datetime("SM4_260405183000.wav")   # 12-digit stamp: yymmddhhmmss
 #' @export
 pam_parse_datetime <- function(filename, file_path = NULL, timezone = "Asia/Kolkata") {
   base_name <- basename(filename)
@@ -99,6 +105,11 @@ pam_parse_datetime <- function(filename, file_path = NULL, timezone = "Asia/Kolk
 #' @param timezone Timezone string for timestamp parsing.
 #' @param pattern Optional filename regex pattern.
 #' @return data.table containing detailed file metadata and triage categorization.
+#' @examples
+#' ex <- pam_example_project()
+#' # the example audio stands in for a raw dump; recordings under 1 s would count as memos
+#' insp <- suppressMessages(pam_inspect_raw(ex$audio_dir, min_duration_s = 1))
+#' as.data.frame(insp)[, c("filename", "duration_s", "grid", "category")]
 #' @export
 pam_inspect_raw <- function(raw_dir, recursive = TRUE, min_duration_s = 60, timezone = "Asia/Kolkata", pattern = NULL) {
   if (!dir.exists(raw_dir)) {
@@ -231,6 +242,27 @@ pam_inspect_raw <- function(raw_dir, recursive = TRUE, min_duration_s = 60, time
 #' @param isolate_short Logical, isolate short audio clips?
 #' @param timezone Timezone string (default "Asia/Kolkata").
 #' @return data.table containing audit log of standardization operations.
+#' @examples
+#' ex <- pam_example_project()
+#' demo <- tempfile("pamflow_std_")
+#'
+#' # dry_run = TRUE only plans what would happen; nothing is written
+#' plan <- suppressMessages(pam_standardize(
+#'   ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo, "standardized"),
+#'   isolated_dir = file.path(demo, "isolated"), dry_run = TRUE,
+#'   target_format = "wav", min_duration_s = 1))
+#' table(plan$action)
+#'
+#' \donttest{
+#' if (requireNamespace("av", quietly = TRUE)) {
+#'   # convert for real: the example WAV files become FLAC
+#'   done <- suppressMessages(pam_standardize(
+#'     ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo, "standardized"),
+#'     isolated_dir = file.path(demo, "isolated"), target_format = "flac", min_duration_s = 1))
+#'   table(done$action)
+#' }
+#' }
+#' unlink(demo, recursive = TRUE)
 #' @export
 pam_standardize <- function(cfg = NULL,
                             raw_dir = NULL,

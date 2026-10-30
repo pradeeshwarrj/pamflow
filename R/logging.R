@@ -6,6 +6,11 @@
 #' @param log_dir Directory for log files (created if missing). If NULL, file logging is skipped.
 #' @param echo Also print to the console.
 #' @return The log line, invisibly.
+#' @examples
+#' log_dir <- tempfile("pamflow_logs_")
+#' pam_log("INFO", "scan started", stage = "01_scan", log_dir = log_dir)
+#' readLines(file.path(log_dir, "01_scan.log"))
+#' unlink(log_dir, recursive = TRUE)
 #' @export
 pam_log <- function(level = c("INFO", "WARN", "ERROR"), msg, stage = "pamflow", log_dir = NULL, echo = TRUE) {
   level <- match.arg(level)
@@ -31,6 +36,15 @@ pam_log <- function(level = c("INFO", "WARN", "ERROR"), msg, stage = "pamflow", 
 #' @param ... Passed on to `fn`.
 #' @return A list: `status` ("ok" or "failed"), `result`, `duration` (difftime),
 #'   `warnings` (character).
+#' @examples
+#' ex <- pam_example_project()
+#' res <- suppressMessages(pam_run_stage("demo", function(cfg, x) x * 2, ex$cfg, x = 21))
+#' res$status
+#' res$result
+#'
+#' # an error is logged and returned as a failed status; it does not stop your script
+#' bad <- suppressMessages(pam_run_stage("demo_fail", function(cfg) stop("boom"), ex$cfg))
+#' bad$status
 #' @export
 pam_run_stage <- function(stage, fn, cfg, ...) {
   log_dir <- cfg$paths$logs

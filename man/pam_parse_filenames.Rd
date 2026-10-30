@@ -22,3 +22,10 @@ A data.table with \code{file_path}, \code{file_name}, \code{grid}, \code{start_t
 \description{
 Parse grid and start time from recording filenames
 }
+\examples{
+ex <- pam_example_project()
+# the second name does not match the pattern, so it is flagged, not dropped
+pam_parse_filenames(c(ex$files[1], "not_a_recording.wav"),
+                    pattern = ex$cfg$filenames$pattern,
+                    timezone = "Asia/Kolkata")
+}

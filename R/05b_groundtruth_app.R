@@ -149,6 +149,14 @@ pam_annotation_app <- function(cfg, reviewer = "") {
 #' @param cfg A `pam_config` object.
 #' @param reviewer Annotator name pre-filled in the app.
 #' @return Nothing; runs until the app is closed.
+#' @examples
+#' if (interactive() && nzchar(Sys.which("ffmpeg"))) {
+#'   ex <- pam_example_project()
+#'   res <- suppressMessages(pam_scan_audio(ex$cfg))
+#'   new <- suppressMessages(pam_recall_draw(ex$cfg, n = 5, run_id = NULL))
+#'   out <- suppressMessages(pam_recall_export(ex$cfg))
+#'   pam_annotate(ex$cfg)
+#' }
 #' @export
 pam_annotate <- function(cfg, reviewer = pam_or(cfg$recall$reviewer, "")) {
   shiny::runApp(pam_annotation_app(cfg, reviewer), launch.browser = TRUE)

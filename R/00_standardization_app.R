@@ -10,6 +10,11 @@
 #' @return Runs Shiny application.
 #' @importFrom shiny req
 #' @importFrom utils head
+#' @examples
+#' if (interactive()) {
+#'   ex <- pam_example_project()
+#'   pam_standardization_app(ex$cfg, raw_dir = ex$audio_dir)
+#' }
 #' @export
 pam_standardization_app <- function(cfg = NULL, raw_dir = NULL) {
   if (is.null(cfg)) {

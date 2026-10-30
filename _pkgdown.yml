@@ -26,6 +26,13 @@ reference:
       - pam_config_validate
       - pam_load_config
 
+  - title: "Example project"
+    desc: >
+      A small synthetic project (audio, deployment sheet, config) used by the
+      examples in this reference.
+    contents:
+      - pam_example_project
+
   - title: "Audio Utilities (WAV + FLAC)"
     contents:
       - utils_audio
@@ -146,6 +153,7 @@ reference:
 
   - title: "Utilities"
     contents:
+      - pam_audio_history
       - pam_log
       - pam_run_stage
       - pam_checkpoint_read

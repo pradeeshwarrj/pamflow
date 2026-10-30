@@ -19,3 +19,10 @@ A list: \code{overall} (one-row data.table), \code{per_grid} (data.table),
 \description{
 Summarise the audio master table
 }
+\examples{
+ex <- pam_example_project()
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+summ <- pam_audio_summary(res$master, res$deployments)
+summ$overall
+summ$per_grid
+}

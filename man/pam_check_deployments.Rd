@@ -18,3 +18,8 @@ the same grid.
 \description{
 List problems in the deployment table
 }
+\examples{
+ex <- pam_example_project()
+dep <- pam_read_deployments(ex$cfg)
+pam_check_deployments(dep)   # no rows: the example deployments are consistent
+}

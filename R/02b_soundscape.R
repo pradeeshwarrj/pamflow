@@ -89,6 +89,14 @@ pam_soundscape_export_env <- function(funs) {
 #' @param window_sec Numeric. Optional window duration in seconds.
 #'
 #' @return A \code{data.table} with file/window metadata and index values.
+#' @examples
+#' \donttest{
+#' if (requireNamespace("soundecology", quietly = TRUE)) {
+#'   ex <- pam_example_project()
+#'   # the example tones are only 2 s long and 8 kHz, so some indices come out as NA
+#'   pam_soundscape_one(ex$files[1], cfg = ex$cfg)
+#' }
+#' }
 #' @export
 pam_soundscape_one <- function(audio_path, low_stop_hz = NULL, cfg = NULL, window_sec = NULL) {
   stage <- "02b_soundscape"

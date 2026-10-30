@@ -27,3 +27,8 @@ seconds are dropped, a blank recovery time becomes
 (e.g. 15-04-0206) is replaced by the deployment year. Rows that still
 can't be parsed get NA and are listed by \code{pam_check_deployments()}.
 }
+\examples{
+ex <- pam_example_project()
+dep <- pam_read_deployments(ex$cfg)
+as.data.frame(dep)[, c("deployment_id", "grid", "deploy_start", "retrieve_end")]
+}

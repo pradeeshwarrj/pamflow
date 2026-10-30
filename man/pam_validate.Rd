@@ -30,3 +30,13 @@ order and records "correct", "incorrect" (plus the true species) or
 "unsure". Every save is written immediately to \code{validation_results.csv}, so
 you can stop at any time and continue later.
 }
+\examples{
+if (interactive() && nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  proc <- suppressMessages(pam_process_detections(ex$cfg))
+  new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 5))
+  out <- suppressMessages(pam_validation_export(ex$cfg))   # clips and spectrograms to review
+  pam_validate(ex$cfg)
+}
+}

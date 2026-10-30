@@ -22,3 +22,10 @@ Invisibly returns \code{out_path}.
 Extracts a sub-section of an audio file and writes it to disk, preserving
 the source file extension when possible.
 }
+\examples{
+ex <- pam_example_project()
+out <- tempfile(fileext = ".wav")
+pam_cut_audio(ex$files[1], out, from = 0.5, to = 1.5)
+pam_audio_info(out)$duration_s
+unlink(out)
+}

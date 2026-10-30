@@ -41,3 +41,18 @@ With simple random sampling of segments the estimates apply to the
 sampled recordings and hours. A species that is rarely present in random
 segments has few \code{n_present} and an uncertain recall.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+segments <- suppressMessages(pam_recall_draw(ex$cfg, n = 12, run_id = NULL))
+events <- suppressMessages(pam_validation_pool(ex$cfg))
+# normally the annotation app records what an expert hears; here we pretend the
+# parakeet is present in every segment
+truth <- data.table::data.table(segment_id = segments$segment_id,
+                                present = "Psittacula longicauda_Long-tailed Parakeet",
+                                possible = NA_character_)
+m <- pam_recall_metrics(truth, segments, events, thresholds = c(0.3, 0.5))
+m <- as.data.frame(m)
+m[m$scientific_name == "ALL", c("threshold", "n_present", "tp", "fn", "fp", "recall", "precision")]
+}

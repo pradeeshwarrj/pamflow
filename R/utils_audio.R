@@ -10,6 +10,8 @@ NULL
 #' Supported Audio File Extensions
 #'
 #' @return Character vector of supported audio extensions (lowercase).
+#' @examples
+#' pam_audio_exts()
 #' @export
 pam_audio_exts <- function() {
   c("wav", "flac")
@@ -18,6 +20,8 @@ pam_audio_exts <- function() {
 #' Regex Pattern Matching Supported Audio Files
 #'
 #' @return Character scalar regex pattern (case-insensitive).
+#' @examples
+#' grepl(pam_audio_pattern(), c("a.wav", "b.FLAC", "c.mp3"))
 #' @export
 pam_audio_pattern <- function() {
   "\\.(wav|flac|WAV|FLAC)$"
@@ -27,6 +31,8 @@ pam_audio_pattern <- function() {
 #'
 #' @param path Character. File path or vector of paths.
 #' @return Logical scalar or vector.
+#' @examples
+#' pam_is_flac(c("a.flac", "b.wav"))
 #' @export
 pam_is_flac <- function(path) {
   tolower(tools::file_ext(path)) == "flac"
@@ -43,6 +49,9 @@ pam_is_flac <- function(path) {
 #' @return A \code{data.table} with columns \code{file_path}, \code{file_size_b},
 #'   \code{sample_rate}, \code{channels}, \code{bits}, \code{duration_s},
 #'   \code{readable}.
+#' @examples
+#' ex <- pam_example_project()
+#' pam_audio_info(ex$files)
 #' @export
 pam_audio_info <- function(paths) {
   if (length(paths) == 0) {
@@ -123,6 +132,10 @@ pam_audio_info_dt <- pam_audio_info
 #' @param from Numeric. Optional start time in seconds.
 #' @param to Numeric. Optional end time in seconds.
 #' @return A \code{tuneR::Wave} S4 object.
+#' @examples
+#' ex <- pam_example_project()
+#' w <- pam_read_audio(ex$files[1], from = 0.5, to = 1.5)
+#' length(w@left) / w@samp.rate   # seconds read
 #' @export
 pam_read_audio <- function(path, from = NULL, to = NULL) {
   if (!file.exists(path)) stop(glue::glue("Audio file not found: {path}"))
@@ -155,6 +168,12 @@ pam_read_audio <- function(path, from = NULL, to = NULL) {
 #' @param from Numeric. Start time in seconds.
 #' @param to Numeric. End time in seconds.
 #' @return Invisibly returns \code{out_path}.
+#' @examples
+#' ex <- pam_example_project()
+#' out <- tempfile(fileext = ".wav")
+#' pam_cut_audio(ex$files[1], out, from = 0.5, to = 1.5)
+#' pam_audio_info(out)$duration_s
+#' unlink(out)
 #' @export
 pam_cut_audio <- function(in_path, out_path, from, to) {
   if (!file.exists(in_path)) stop(glue::glue("Source audio file not found: {in_path}"))
@@ -184,6 +203,9 @@ pam_cut_audio <- function(in_path, out_path, from, to) {
 #' @param dir Character. Directory to scan.
 #' @param recursive Logical. Recurse into subdirectories.
 #' @return Character vector of file paths.
+#' @examples
+#' ex <- pam_example_project()
+#' basename(pam_list_audio(ex$audio_dir))
 #' @export
 pam_list_audio <- function(dir, recursive = TRUE) {
   list.files(dir, pattern = pam_audio_pattern(), full.names = TRUE, recursive = recursive)
