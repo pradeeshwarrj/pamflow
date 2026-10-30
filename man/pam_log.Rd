@@ -29,3 +29,9 @@ The log line, invisibly.
 \description{
 Write a timestamped log line to a per-stage log file
 }
+\examples{
+log_dir <- tempfile("pamflow_logs_")
+pam_log("INFO", "scan started", stage = "01_scan", log_dir = log_dir)
+readLines(file.path(log_dir, "01_scan.log"))
+unlink(log_dir, recursive = TRUE)
+}

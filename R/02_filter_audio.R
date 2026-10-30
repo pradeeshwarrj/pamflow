@@ -41,6 +41,12 @@ pam_highpass_filter_string <- function(cutoff_hz = 250, order = 8L) {
 #' @param filter Filter string to test on 0.1 s of silence.
 #' @return The first line of FFmpeg's version output. Aborts with install
 #'   advice if FFmpeg is missing or too old for the filter.
+#' @examples
+#' \donttest{
+#' if (nzchar(Sys.which("ffmpeg"))) {
+#'   pam_check_ffmpeg("ffmpeg", filter = pam_highpass_filter_string(250, 8))
+#' }
+#' }
 #' @export
 pam_check_ffmpeg <- function(ffmpeg = "ffmpeg", filter = NULL) {
   run <- function(args) {
@@ -78,6 +84,16 @@ pam_check_ffmpeg <- function(ffmpeg = "ffmpeg", filter = NULL) {
 #' @param filter Filter string from `pam_highpass_filter_string()`.
 #' @param ffmpeg Executable name or path.
 #' @return A list: `ok` (logical) and `message` (last FFmpeg error lines, or "").
+#' @examples
+#' \donttest{
+#' if (nzchar(Sys.which("ffmpeg"))) {
+#'   ex <- pam_example_project()
+#'   item <- list(input = ex$files[1], output = tempfile(fileext = ".wav"), bits = 16)
+#'   res <- pam_filter_one(item, pam_highpass_filter_string(250, 8))
+#'   res$ok
+#'   unlink(item$output)
+#' }
+#' }
 #' @export
 pam_filter_one <- function(item, filter, ffmpeg = "ffmpeg") {
   out_ext <- tolower(tools::file_ext(item$output))
@@ -166,6 +182,17 @@ pam_filter_batch <- function(batch, fn, filter, fc, cl = NULL) {
 #'   error text, are appended to `metadata/02_filter_results.csv`. Only files
 #'   with `qc_pass == TRUE` are filtered. Format (WAV vs FLAC) is preserved from
 #'   source files. Run with `pam_run_stage("02_filter", pam_filter_audio, cfg)`.
+#' @examples
+#' \donttest{
+#' if (nzchar(Sys.which("ffmpeg"))) {
+#'   ex <- pam_example_project()
+#'   # the later stages read the master table that the scan builds
+#'   res <- suppressMessages(pam_scan_audio(ex$cfg))
+#'   out <- suppressMessages(pam_filter_audio(ex$cfg))
+#'   out$n_ok
+#'   basename(list.files(ex$cfg$paths$filtered, recursive = TRUE))
+#' }
+#' }
 #' @export
 pam_filter_audio <- function(cfg, master = NULL, force = FALSE) {
   stage <- "02_filter"; log_dir <- cfg$paths$logs

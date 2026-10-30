@@ -19,3 +19,10 @@ grid get NA and \code{in_deployment = FALSE} (not dropped).
 \description{
 Attach recorder and coordinates by matching grid and time window
 }
+\examples{
+ex <- pam_example_project()
+cfg <- ex$cfg
+master <- pam_parse_filenames(ex$files, cfg$filenames$pattern, cfg$filenames$timezone)
+master <- pam_match_deployments(master, pam_read_deployments(cfg))
+as.data.frame(master)[, c("file_name", "deployment_id", "recorder", "in_deployment")]
+}

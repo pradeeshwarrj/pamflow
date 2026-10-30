@@ -15,3 +15,6 @@ Logical scalar or vector.
 \description{
 Check if a File is a FLAC File
 }
+\examples{
+pam_is_flac(c("a.flac", "b.wav"))
+}

@@ -21,3 +21,8 @@ Decodes FLAC to a temporary WAV internally when needed. Returned object is
 always a standard \code{tuneR::Wave} S4 object usable by \code{seewave} and
 \code{soundecology}.
 }
+\examples{
+ex <- pam_example_project()
+w <- pam_read_audio(ex$files[1], from = 0.5, to = 1.5)
+length(w@left) / w@samp.rate   # seconds read
+}

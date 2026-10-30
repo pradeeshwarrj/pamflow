@@ -52,3 +52,14 @@ Only species with at least \code{occupancy.min_detections} total
 detections (after the confidence cut) get a history matrix.
 }
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+proc <- suppressMessages(pam_process_detections(ex$cfg))   # occupancy builds on cleaned detections
+occ <- suppressMessages(pam_build_occupancy(ex$cfg))
+names(occ$histories)
+occ$summary
+# detection history of the first species: rows = sites, columns = days, NA = not surveyed
+occ$histories[[1]]
+}

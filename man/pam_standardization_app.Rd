@@ -18,3 +18,9 @@ Runs Shiny application.
 Interactive GUI for inspecting raw acoustic data, parsing timestamps, previewing
 conversions, isolating non-audio/memo files, and performing standardized audio transcoding.
 }
+\examples{
+if (interactive()) {
+  ex <- pam_example_project()
+  pam_standardization_app(ex$cfg, raw_dir = ex$audio_dir)
+}
+}

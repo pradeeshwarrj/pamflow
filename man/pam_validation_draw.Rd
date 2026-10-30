@@ -37,3 +37,12 @@ Invisibly, the newly added rows.
 Each call adds a new round to \verb{<detections>/<run_id>/validation/ validation_samples.csv}. Events drawn in earlier rounds are never drawn
 again, so you can start small and add more later.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 5))
+as.data.frame(new)[, c("sample_id", "species", "confidence", "clip_file")]
+# the sample file is written to the run folder
+file.exists(file.path(ex$cfg$paths$detections, "run01", "validation", "validation_samples.csv"))
+}

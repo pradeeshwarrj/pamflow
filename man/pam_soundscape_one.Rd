@@ -28,3 +28,12 @@ Reads WAV or FLAC via \code{\link{pam_read_audio}}, optionally downsamples
 to 24 kHz, applies a high-pass filter at sub-window level, and computes
 configured acoustic indices (ACI, ADI, AEve, Bio, H, M, NDSI).
 }
+\examples{
+\donttest{
+if (requireNamespace("soundecology", quietly = TRUE)) {
+  ex <- pam_example_project()
+  # the example tones are only 2 s long and 8 kHz, so some indices come out as NA
+  pam_soundscape_one(ex$files[1], cfg = ex$cfg)
+}
+}
+}

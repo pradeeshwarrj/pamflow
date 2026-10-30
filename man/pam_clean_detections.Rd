@@ -29,3 +29,14 @@ A list: \code{clean} (one row per event, with \code{confidence} = maximum,
 Pure function (no file access), so it can be tested directly. Rules run in a
 fixed order and each removed detection is kept with its reason.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+det <- suppressMessages(pam_assemble_detections(ex$cfg))
+det$file_duration_s <- 2    # length of the example recordings, in seconds
+cleaned <- pam_clean_detections(det, ex$cfg$processing)
+cleaned$steps
+cleaned$removed$reason
+as.data.frame(cleaned$clean)[, c("species", "confidence", "n_windows", "start_time", "end_time")]
+}

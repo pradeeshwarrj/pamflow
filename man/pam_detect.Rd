@@ -42,3 +42,10 @@ duplicates. Per-file outcomes (seconds, errors) go to \code{file_results.csv};
 settings and the \code{birdnet} package version go to \code{run_settings_*.yml}.
 Run with \code{pam_run_stage("03_detect", pam_detect, cfg)}.
 }
+\examples{
+\dontrun{
+# needs the BirdNET Python environment (pam_birdnet_setup("inference")) and your model
+cfg <- pam_config_read("config/config.yml")
+res <- pam_run_stage("03_detect", pam_detect, cfg)
+}
+}

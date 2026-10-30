@@ -4,3 +4,5 @@
 README.html
 pkgdown/
 *.npz
+/doc/
+/Meta/

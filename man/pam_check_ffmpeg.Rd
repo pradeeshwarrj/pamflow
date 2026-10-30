@@ -18,3 +18,10 @@ advice if FFmpeg is missing or too old for the filter.
 \description{
 Check that FFmpeg is installed and supports the filter chain
 }
+\examples{
+\donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  pam_check_ffmpeg("ffmpeg", filter = pam_highpass_filter_string(250, 8))
+}
+}
+}

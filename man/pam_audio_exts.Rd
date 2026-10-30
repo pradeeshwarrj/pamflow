@@ -12,3 +12,6 @@ Character vector of supported audio extensions (lowercase).
 \description{
 Supported Audio File Extensions
 }
+\examples{
+pam_audio_exts()
+}

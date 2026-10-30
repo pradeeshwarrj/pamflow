@@ -21,3 +21,12 @@ annotation is independent of the detector. Record every species you hear;
 mark doubtful ones as "possibly present". Each save is written immediately to
 \code{recall_annotations.csv}, so you can stop and resume.
 }
+\examples{
+if (interactive() && nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  new <- suppressMessages(pam_recall_draw(ex$cfg, n = 5, run_id = NULL))
+  out <- suppressMessages(pam_recall_export(ex$cfg))
+  pam_annotate(ex$cfg)
+}
+}

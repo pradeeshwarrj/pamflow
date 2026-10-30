@@ -28,3 +28,11 @@ untruncated file, and no duplicate; \code{short} files and gaps are reported but
 do not fail QC. Truncation checks apply to PCM WAV files (where bit depth
 is non-NA).
 }
+\examples{
+ex <- pam_example_project()
+cfg <- ex$cfg
+master <- pam_parse_filenames(ex$files, cfg$filenames$pattern, cfg$filenames$timezone)
+master <- merge(master, pam_audio_info(ex$files), by = "file_path")
+master <- pam_add_qc(master, cfg)
+as.data.frame(master)[, c("file_name", "gap_s", "qc_pass")]
+}

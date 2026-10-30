@@ -15,3 +15,8 @@ pam_config object.
 \description{
 Alias for pam_config_read
 }
+\examples{
+ex <- pam_example_project()
+cfg <- pam_load_config(ex$config)
+cfg$filenames$timezone
+}

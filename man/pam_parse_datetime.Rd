@@ -21,3 +21,7 @@ Automatically detects and extracts recording timestamp from filename (ISO format
 14-digit, 12-digit) or falls back to file modification time.
 Timestamps are returned as local time strings.
 }
+\examples{
+pam_parse_datetime("G0059_20260405_183000.wav")
+pam_parse_datetime("SM4_260405183000.wav")   # 12-digit stamp: yymmddhhmmss
+}

@@ -46,3 +46,17 @@ restrict to some species with \code{species}.
 up to \code{rare_n} events of each.
 }
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+pool <- suppressMessages(pam_validation_pool(ex$cfg))
+bands <- unlist(ex$cfg$validation$bands)
+# at most one event per species and confidence band
+smp <- pam_validation_sample(pool, "stratified", bands = bands, n_per_cell = 1)
+as.data.frame(smp)[, c("species", "confidence", "band")]
+
+# five events at random from the whole pool
+rnd <- pam_validation_sample(pool, "random", bands = bands, n = 5, seed = 42)
+nrow(rnd)
+}

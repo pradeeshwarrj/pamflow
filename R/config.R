@@ -6,9 +6,10 @@
 #' @details Missing keys fall back to the template defaults.
 #' @export
 #' @examples
-#' \dontrun{
-#' cfg <- pam_config_read("config/config.yml")
-#' }
+#' ex <- pam_example_project()
+#' cfg <- pam_config_read(ex$config)
+#' cfg$birdnet$run_id
+#' cfg$paths$audio_standardized
 pam_config_read <- function(path = NULL) {
   default_template <- system.file("extdata", "config_template.yml", package = "pamflow", mustWork = FALSE)
   if (!nzchar(default_template)) {
@@ -52,6 +53,10 @@ pam_config_read <- function(path = NULL) {
 #'
 #' @param path Path to config file.
 #' @return pam_config object.
+#' @examples
+#' ex <- pam_example_project()
+#' cfg <- pam_load_config(ex$config)
+#' cfg$filenames$timezone
 #' @export
 pam_load_config <- function(path = NULL) {
   pam_config_read(path = path)
@@ -61,6 +66,14 @@ pam_load_config <- function(path = NULL) {
 #'
 #' @param cfg A config list.
 #' @return `cfg`, invisibly. Aborts with a clear message on invalid values.
+#' @examples
+#' ex <- pam_example_project()
+#' pam_config_validate(ex$cfg)          # fine: returns the config invisibly
+#'
+#' bad <- ex$cfg
+#' bad$birdnet$min_confidence <- 2      # must be between 0 and 1
+#' res <- try(pam_config_validate(bad), silent = TRUE)
+#' inherits(res, "try-error")
 #' @export
 pam_config_validate <- function(cfg) {
   problems <- character()

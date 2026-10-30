@@ -30,3 +30,19 @@ Compares a run's detections with the ground-truth annotations and writes
 \code{recall_by_species_threshold.csv} to \verb{<detections>/<run_id>/validation/}.
 Only annotated segments from recordings the run processed are used.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+segments <- suppressMessages(pam_recall_draw(ex$cfg, n = 12, run_id = NULL))
+gt_dir <- file.path(ex$cfg$paths$validation, "ground_truth")
+# normally the annotation app writes this file; here the parakeet is "heard" everywhere
+truth <- data.frame(segment_id = segments$segment_id,
+                    present = "Psittacula longicauda_Long-tailed Parakeet",
+                    possible = "", other = "", none_audible = FALSE, note = "",
+                    reviewer = "example", reviewed_at = format(Sys.time()),
+                    stringsAsFactors = FALSE)
+utils::write.csv(truth, file.path(gt_dir, "recall_annotations.csv"), row.names = FALSE)
+rep <- suppressMessages(pam_recall_report(ex$cfg))
+rep$n_segments
+}

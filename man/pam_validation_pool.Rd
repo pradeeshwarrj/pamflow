@@ -21,3 +21,10 @@ confidence cutoff set to the lowest stored confidence and no species
 thresholds or seasons, so that events below your intended cutoff can also be
 reviewed.
 }
+\examples{
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+pool <- suppressMessages(pam_validation_pool(ex$cfg))
+as.data.frame(pool)[, c("species", "confidence", "n_windows", "start_time")]
+}

@@ -28,3 +28,10 @@ Run with \code{pam_run_stage("01_scan", pam_scan_audio, cfg)} for logging.
 Audio discovery uses \code{\link[=pam_list_audio]{pam_list_audio()}} (WAV + FLAC). Header reading uses
 \code{\link[=pam_audio_info]{pam_audio_info()}}.
 }
+\examples{
+ex <- pam_example_project()
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+res$summary$overall
+# the master table and summaries are also written to the project
+list.files(ex$cfg$paths$metadata)
+}

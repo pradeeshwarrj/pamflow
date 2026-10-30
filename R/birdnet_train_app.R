@@ -36,8 +36,10 @@
 #'   therefore optimistic; give a separate test folder for a more honest
 #'   estimate.
 #' @examples
+#' if (interactive()) {
+#'   pam_train_app()
+#' }
 #' \dontrun{
-#' pam_train_app()
 #' pam_train_app(data_dir = "E:/clips", output_dir = "E:/models", lang = "en")
 #' }
 #' @export

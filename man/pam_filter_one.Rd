@@ -23,3 +23,14 @@ installed. Writes to \verb{<output>.part} and renames on success, so an
 interrupted run never leaves a half-written file that looks finished.
 Preserves the file format (WAV or FLAC) based on output extension.
 }
+\examples{
+\donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  item <- list(input = ex$files[1], output = tempfile(fileext = ".wav"), bits = 16)
+  res <- pam_filter_one(item, pam_highpass_filter_string(250, 8))
+  res$ok
+  unlink(item$output)
+}
+}
+}

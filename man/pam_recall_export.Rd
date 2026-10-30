@@ -19,3 +19,15 @@ Cuts each segment from the audio chosen by \code{recall$audio} ("standardized"
 by default, so the truth does not depend on the high-pass filter) and draws
 a wide spectrogram. Existing files are kept.
 }
+\examples{
+\donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  # the later stages read the master table that the scan builds
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  new <- suppressMessages(pam_recall_draw(ex$cfg, n = 3, run_id = NULL))
+  out <- suppressMessages(pam_recall_export(ex$cfg))
+  out$n_ok
+}
+}
+}

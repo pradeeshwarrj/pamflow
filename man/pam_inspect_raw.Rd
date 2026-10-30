@@ -30,3 +30,9 @@ data.table containing detailed file metadata and triage categorization.
 Recursively scans a raw data directory, classifies files (audio, short clips/memos,
 non-audio, corrupt), extracts audio properties, and parses recording datetimes.
 }
+\examples{
+ex <- pam_example_project()
+# the example audio stands in for a raw dump; recordings under 1 s would count as memos
+insp <- suppressMessages(pam_inspect_raw(ex$audio_dir, min_duration_s = 1))
+as.data.frame(insp)[, c("filename", "duration_s", "grid", "category")]
+}

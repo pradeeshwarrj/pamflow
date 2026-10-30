@@ -17,3 +17,7 @@ Character vector of file paths.
 \description{
 List Audio Files in a Directory (WAV + FLAC)
 }
+\examples{
+ex <- pam_example_project()
+basename(pam_list_audio(ex$audio_dir))
+}
