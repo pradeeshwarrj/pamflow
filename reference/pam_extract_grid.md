@@ -22,3 +22,12 @@ pam_extract_grid(filename, pattern = NULL)
 ## Value
 
 Character string identifier or "unassigned".
+
+## Examples
+
+``` r
+pam_extract_grid("G0059_20260405_183000.wav")
+#> [1] "G0059"
+pam_extract_grid("recording.wav")   # no recognisable identifier
+#> [1] "unassigned"
+```

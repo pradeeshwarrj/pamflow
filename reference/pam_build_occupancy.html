@@ -113,6 +113,37 @@ detections (after the confidence cut) get a history matrix.</p>
 
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_example_project.html">pam_example_project</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># the later stages read the master table that the scan builds</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="pam_scan_audio.html">pam_scan_audio</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">proc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="pam_process_detections.html">pam_process_detections</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span>   <span class="co"># occupancy builds on cleaned detections</span></span></span>
+<span class="r-in"><span><span class="va">occ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu">pam_build_occupancy</span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">occ</span><span class="op">$</span><span class="va">histories</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Ducula nicobarica_Nicobar Imperial-Pigeon" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "Psittacula longicauda_Long-tailed Parakeet"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "Gracula religiosa_Common Hill Myna"        </span>
+<span class="r-in"><span><span class="va">occ</span><span class="op">$</span><span class="va">summary</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                       species threshold_used n_sites</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                        &lt;char&gt;          &lt;num&gt;   &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  Ducula nicobarica_Nicobar Imperial-Pigeon            0.5       2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: Psittacula longicauda_Long-tailed Parakeet            0.5       2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         Gracula religiosa_Common Hill Myna            0.5       2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    n_occasions n_sites_detected naive_occupancy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;int&gt;            &lt;int&gt;           &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           2                2             1.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:           2                2             1.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           2                1             0.5</span>
+<span class="r-in"><span><span class="co"># detection history of the first species: rows = sites, columns = days, NA = not surveyed</span></span></span>
+<span class="r-in"><span><span class="va">occ</span><span class="op">$</span><span class="va">histories</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;site_id&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    site_id 2026-04-05 2026-04-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt;      &lt;int&gt;      &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:   G0059          1         NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   G0110         NA          1</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

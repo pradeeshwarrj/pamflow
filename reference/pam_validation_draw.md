@@ -56,3 +56,22 @@ pam_validation_draw(
 ## Value
 
 Invisibly, the newly added rows.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 5))
+as.data.frame(new)[, c("sample_id", "species", "confidence", "clip_file")]
+#>   sample_id                                    species confidence   clip_file
+#> 1         1 Psittacula longicauda_Long-tailed Parakeet       0.81 s000001.wav
+#> 2         2 Psittacula longicauda_Long-tailed Parakeet       0.66 s000002.wav
+#> 3         3 Psittacula longicauda_Long-tailed Parakeet       0.58 s000003.wav
+#> 4         4         Gracula religiosa_Common Hill Myna       0.95 s000004.wav
+#> 5         5  Ducula nicobarica_Nicobar Imperial-Pigeon       0.71 s000005.wav
+# the sample file is written to the run folder
+file.exists(file.path(ex$cfg$paths$detections, "run01", "validation", "validation_samples.csv"))
+#> [1] TRUE
+```

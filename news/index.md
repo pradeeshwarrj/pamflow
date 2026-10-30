@@ -2,6 +2,38 @@
 
 ## pamflow 0.5.0
 
+### Audio history
+
+- **[`pam_audio_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_history.md)**
+  shows what happened to each audio file across the workflow:
+  standardization, scan and QC flags, filtering, detection, cleaning,
+  validation, recall annotation and whether it went into the occupancy
+  histories. It is built from the files the stages already write, so it
+  works on existing projects and writes nothing unless you pass
+  `write = TRUE` (which saves `metadata/audio_history.csv`). Use
+  `file =` to look at one file and `wide = TRUE` for one row per file
+  with a status column per stage.
+
+### Examples
+
+- **[`pam_example_project()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_example_project.md)**
+  builds a tiny synthetic project (six short WAV files from two grids, a
+  deployment sheet and a config) in a temporary folder. It needs no
+  FFmpeg, Python or internet, so help-page examples and tests can run
+  anywhere.
+- Runnable examples were added to the config, audio, filename-parsing,
+  deployment, QC, scan, checkpoint and logging functions, and to the
+  detection cleaning, validation, recall and occupancy functions (the
+  example project includes a small BirdNET-style detections file for
+  them).
+- Examples that need FFmpeg, `rmarkdown` or `soundecology` run only when
+  those are available (`\donttest` plus a check), the Shiny apps have
+  `if (interactive())` examples, and functions that need the BirdNET
+  Python environment keep `\dontrun`. Functions that need FFmpeg, Python
+  or an interactive session get guarded examples in later batches.
+- README: the deployment-sheet example gave the grid as `G0059`; the
+  sheet expects a number (`59`).
+
 ### Standalone BirdNET model training (not a workflow stage)
 
 Training your own classifier is a separate tool. No workflow stage calls

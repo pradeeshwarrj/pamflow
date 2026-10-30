@@ -28,3 +28,12 @@ pam_read_audio(path, from = NULL, to = NULL)
 ## Value
 
 A [`tuneR::Wave`](https://rdrr.io/pkg/tuneR/man/Wave.html) S4 object.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+w <- pam_read_audio(ex$files[1], from = 0.5, to = 1.5)
+length(w@left) / w@samp.rate   # seconds read
+#> [1] 1
+```

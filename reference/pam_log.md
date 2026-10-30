@@ -40,3 +40,14 @@ pam_log(
 ## Value
 
 The log line, invisibly.
+
+## Examples
+
+``` r
+log_dir <- tempfile("pamflow_logs_")
+pam_log("INFO", "scan started", stage = "01_scan", log_dir = log_dir)
+#> 2026-10-30 11:47:40 [INFO] [01_scan] scan started
+readLines(file.path(log_dir, "01_scan.log"))
+#> [1] "2026-10-30 11:47:40 [INFO] [01_scan] scan started"
+unlink(log_dir, recursive = TRUE)
+```

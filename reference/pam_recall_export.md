@@ -23,3 +23,18 @@ pam_recall_export(cfg, force = FALSE)
 ## Value
 
 Invisibly, list(n_ok, n_failed, failed_ids).
+
+## Examples
+
+``` r
+# \donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  # the later stages read the master table that the scan builds
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  new <- suppressMessages(pam_recall_draw(ex$cfg, n = 3, run_id = NULL))
+  out <- suppressMessages(pam_recall_export(ex$cfg))
+  out$n_ok
+}
+# }
+```

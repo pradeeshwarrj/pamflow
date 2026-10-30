@@ -35,6 +35,19 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="pamflow-050">pamflow 0.5.0<a class="anchor" aria-label="anchor" href="#pamflow-050"></a></h2>
 <div class="section level3">
+<h3 id="audio-history-0-5-0">Audio history<a class="anchor" aria-label="anchor" href="#audio-history-0-5-0"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/pam_audio_history.html">pam_audio_history()</a></code></strong> shows what happened to each audio file across the workflow: standardization, scan and QC flags, filtering, detection, cleaning, validation, recall annotation and whether it went into the occupancy histories. It is built from the files the stages already write, so it works on existing projects and writes nothing unless you pass <code>write = TRUE</code> (which saves <code>metadata/audio_history.csv</code>). Use <code>file =</code> to look at one file and <code>wide = TRUE</code> for one row per file with a status column per stage.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="examples-0-5-0">Examples<a class="anchor" aria-label="anchor" href="#examples-0-5-0"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/pam_example_project.html">pam_example_project()</a></code></strong> builds a tiny synthetic project (six short WAV files from two grids, a deployment sheet and a config) in a temporary folder. It needs no FFmpeg, Python or internet, so help-page examples and tests can run anywhere.</li>
+<li>Runnable examples were added to the config, audio, filename-parsing, deployment, QC, scan, checkpoint and logging functions, and to the detection cleaning, validation, recall and occupancy functions (the example project includes a small BirdNET-style detections file for them).</li>
+<li>Examples that need FFmpeg, <code>rmarkdown</code> or <code>soundecology</code> run only when those are available (<code>\donttest</code> plus a check), the Shiny apps have <code>if (interactive())</code> examples, and functions that need the BirdNET Python environment keep <code>\dontrun</code>. Functions that need FFmpeg, Python or an interactive session get guarded examples in later batches.</li>
+<li>README: the deployment-sheet example gave the grid as <code>G0059</code>; the sheet expects a number (<code>59</code>).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="standalone-birdnet-model-training-not-a-workflow-stage-0-5-0">Standalone BirdNET model training (not a workflow stage)<a class="anchor" aria-label="anchor" href="#standalone-birdnet-model-training-not-a-workflow-stage-0-5-0"></a></h3>
 <p>Training your own classifier is a separate tool. No workflow stage calls it and the workflow runs without it; the trained model is used by pointing the <code>birdnet:</code> config section at it. <code>pam_birdnet_setup("training")</code> creates the training environment.</p>
 <ul><li>

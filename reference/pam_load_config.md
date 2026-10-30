@@ -17,3 +17,12 @@ pam_load_config(path = NULL)
 ## Value
 
 pam_config object.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+cfg <- pam_load_config(ex$config)
+cfg$filenames$timezone
+#> [1] "Asia/Kolkata"
+```

@@ -11,3 +11,10 @@ pam_audio_exts()
 ## Value
 
 Character vector of supported audio extensions (lowercase).
+
+## Examples
+
+``` r
+pam_audio_exts()
+#> [1] "wav"  "flac"
+```

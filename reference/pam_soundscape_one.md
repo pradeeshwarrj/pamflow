@@ -39,3 +39,21 @@ pam_soundscape_one(
 ## Value
 
 A `data.table` with file/window metadata and index values.
+
+## Examples
+
+``` r
+# \donttest{
+if (requireNamespace("soundecology", quietly = TRUE)) {
+  ex <- pam_example_project()
+  # the example tones are only 2 s long and 8 kHz, so some indices come out as NA
+  pam_soundscape_one(ex$files[1], cfg = ex$cfg)
+}
+#>                  file_id window_index window_start_sec window_end_sec   aci
+#>                   <char>        <int>            <num>          <num> <num>
+#> 1: G0059_20260405_183000            1                0              2   NaN
+#>      adi  aeve   bio     h         m  ndsi
+#>    <num> <num> <num> <num>     <num> <num>
+#> 1:     0  0.75   NaN   NaN 0.3051757   NaN
+# }
+```

@@ -47,3 +47,31 @@ A list:
 Recall, false negatives and F1 cannot be estimated from reviewing
 detections alone: they need a set of recordings in which every call has
 been annotated independently of the detector.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 8))
+val_dir <- file.path(ex$cfg$paths$detections, "run01", "validation")
+# normally the review app writes this file; here the verdicts are made up
+results <- data.frame(sample_id = new$sample_id,
+                      verdict = rep_len(c("correct", "correct", "incorrect"), nrow(new)),
+                      true_species = NA_character_, note = "", reviewer = "example",
+                      reviewed_at = format(Sys.time()), stringsAsFactors = FALSE)
+utils::write.csv(results, file.path(val_dir, "validation_results.csv"), row.names = FALSE)
+val <- pam_validation_import(ex$cfg)
+pool <- suppressMessages(pam_validation_pool(ex$cfg))
+metrics <- pam_validation_metrics(val, pool, bands = unlist(ex$cfg$validation$bands))
+as.data.frame(metrics$cells)[, c("scientific_name", "band", "n_pool", "n_reviewed", "precision")]
+#>         scientific_name      band n_pool n_reviewed precision
+#> 1     Ducula nicobarica 0.50-0.70      2          0        NA
+#> 2     Ducula nicobarica 0.70-1.00      2          1       1.0
+#> 3     Gracula religiosa 0.30-0.40      1          1       1.0
+#> 4     Gracula religiosa 0.70-1.00      1          1       1.0
+#> 5 Psittacula longicauda 0.40-0.50      1          1       0.0
+#> 6 Psittacula longicauda 0.50-0.70      2          2       0.5
+#> 7 Psittacula longicauda 0.70-1.00      3          2       1.0
+```

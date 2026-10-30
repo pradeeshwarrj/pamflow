@@ -25,3 +25,15 @@ pam_annotate(cfg, reviewer = pam_or(cfg$recall$reviewer, ""))
 ## Value
 
 Nothing; runs until the app is closed.
+
+## Examples
+
+``` r
+if (interactive() && nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  new <- suppressMessages(pam_recall_draw(ex$cfg, n = 5, run_id = NULL))
+  out <- suppressMessages(pam_recall_export(ex$cfg))
+  pam_annotate(ex$cfg)
+}
+```

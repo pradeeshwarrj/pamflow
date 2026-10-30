@@ -38,3 +38,16 @@ pam_validate(
 ## Value
 
 Nothing; runs until the app is closed.
+
+## Examples
+
+``` r
+if (interactive() && nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  proc <- suppressMessages(pam_process_detections(ex$cfg))
+  new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 5))
+  out <- suppressMessages(pam_validation_export(ex$cfg))   # clips and spectrograms to review
+  pam_validate(ex$cfg)
+}
+```

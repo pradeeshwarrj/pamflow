@@ -30,3 +30,17 @@ pam_filter_one(item, filter, ffmpeg = "ffmpeg")
 ## Value
 
 A list: `ok` (logical) and `message` (last FFmpeg error lines, or "").
+
+## Examples
+
+``` r
+# \donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  item <- list(input = ex$files[1], output = tempfile(fileext = ".wav"), bits = 16)
+  res <- pam_filter_one(item, pam_highpass_filter_string(250, 8))
+  res$ok
+  unlink(item$output)
+}
+# }
+```

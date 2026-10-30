@@ -24,3 +24,12 @@ pam_standardization_app(cfg = NULL, raw_dir = NULL)
 ## Value
 
 Runs Shiny application.
+
+## Examples
+
+``` r
+if (interactive()) {
+  ex <- pam_example_project()
+  pam_standardization_app(ex$cfg, raw_dir = ex$audio_dir)
+}
+```

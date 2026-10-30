@@ -9,6 +9,14 @@
 - [`pam_load_config()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_load_config.md)
   : Alias for pam_config_read
 
+## Example project
+
+A small synthetic project (audio, deployment sheet, config) used by the
+examples in this reference.
+
+- [`pam_example_project()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_example_project.md)
+  : Create a small example project to try pamflow on
+
 ## Audio Utilities (WAV + FLAC)
 
 - [`utils_audio`](https://pradeeshwarrj.github.io/pamflow/reference/utils_audio.md)
@@ -213,6 +221,8 @@ by pointing the `birdnet:` section of the config at it.
 
 ## Utilities
 
+- [`pam_audio_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_history.md)
+  : Follow audio files through the workflow
 - [`pam_log()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_log.md)
   : Write a timestamped log line to a per-stage log file
 - [`pam_run_stage()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_run_stage.md)

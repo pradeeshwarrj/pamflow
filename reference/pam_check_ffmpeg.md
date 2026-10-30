@@ -22,3 +22,13 @@ pam_check_ffmpeg(ffmpeg = "ffmpeg", filter = NULL)
 
 The first line of FFmpeg's version output. Aborts with install advice if
 FFmpeg is missing or too old for the filter.
+
+## Examples
+
+``` r
+# \donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  pam_check_ffmpeg("ffmpeg", filter = pam_highpass_filter_string(250, 8))
+}
+# }
+```

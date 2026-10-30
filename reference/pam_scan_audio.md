@@ -37,3 +37,20 @@ Audio discovery uses
 [`pam_list_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.md)
 (WAV + FLAC). Header reading uses
 [`pam_audio_info()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.md).
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+res$summary$overall
+#>    n_files n_grids total_hours n_invalid_name n_unreadable n_truncated n_short
+#>      <int>   <int>       <num>          <int>        <int>       <int>   <int>
+#> 1:       6       2 0.003333333              0            0           0       0
+#>    n_duplicate n_gaps n_outside_deployment n_qc_pass
+#>          <int>  <int>                <int>     <int>
+#> 1:           0      0                    0         6
+# the master table and summaries are also written to the project
+list.files(ex$cfg$paths$metadata)
+#> [1] "audio_headers.csv" "audio_master.csv"  "deployments.csv"  
+```

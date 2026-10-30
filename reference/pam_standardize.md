@@ -94,3 +94,34 @@ pam_standardize(
 ## Value
 
 data.table containing audit log of standardization operations.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+demo <- tempfile("pamflow_std_")
+
+# dry_run = TRUE only plans what would happen; nothing is written
+plan <- suppressMessages(pam_standardize(
+  ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo, "standardized"),
+  isolated_dir = file.path(demo, "isolated"), dry_run = TRUE,
+  target_format = "wav", min_duration_s = 1))
+table(plan$action)
+#> 
+#> PLANNED_COPY_COMPLIANT 
+#>                      6 
+
+# \donttest{
+if (requireNamespace("av", quietly = TRUE)) {
+  # convert for real: the example WAV files become FLAC
+  done <- suppressMessages(pam_standardize(
+    ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo, "standardized"),
+    isolated_dir = file.path(demo, "isolated"), target_format = "flac", min_duration_s = 1))
+  table(done$action)
+}
+#> 
+#> TRANSCODED 
+#>          6 
+# }
+unlink(demo, recursive = TRUE)
+```

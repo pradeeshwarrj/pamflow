@@ -30,3 +30,14 @@ pam_cut_audio(in_path, out_path, from, to)
 ## Value
 
 Invisibly returns `out_path`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+out <- tempfile(fileext = ".wav")
+pam_cut_audio(ex$files[1], out, from = 0.5, to = 1.5)
+pam_audio_info(out)$duration_s
+#> [1] 1
+unlink(out)
+```

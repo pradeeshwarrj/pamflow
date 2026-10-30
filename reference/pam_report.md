@@ -55,3 +55,19 @@ still produced.
 
 Excel output is a multi-sheet workbook with one sheet per report
 section, created with `openxlsx`.
+
+## Examples
+
+``` r
+# \donttest{
+if (requireNamespace("rmarkdown", quietly = TRUE) && rmarkdown::pandoc_available()) {
+  ex <- pam_example_project()
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  proc <- suppressMessages(pam_process_detections(ex$cfg))
+  occ <- suppressMessages(pam_build_occupancy(ex$cfg))
+  files <- suppressMessages(pam_report(ex$cfg, formats = "html"))
+  basename(files)
+}
+#> [1] "report_run01.html"
+# }
+```

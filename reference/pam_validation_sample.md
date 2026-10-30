@@ -62,3 +62,29 @@ pam_validation_sample(
 ## Value
 
 A data.table: the sampled rows with `band_idx` and `band`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+pool <- suppressMessages(pam_validation_pool(ex$cfg))
+bands <- unlist(ex$cfg$validation$bands)
+# at most one event per species and confidence band
+smp <- pam_validation_sample(pool, "stratified", bands = bands, n_per_cell = 1)
+as.data.frame(smp)[, c("species", "confidence", "band")]
+#>                                      species confidence      band
+#> 1  Ducula nicobarica_Nicobar Imperial-Pigeon       0.71 0.70-1.00
+#> 2 Psittacula longicauda_Long-tailed Parakeet       0.74 0.70-1.00
+#> 3  Ducula nicobarica_Nicobar Imperial-Pigeon       0.64 0.50-0.70
+#> 4         Gracula religiosa_Common Hill Myna       0.31 0.30-0.40
+#> 5 Psittacula longicauda_Long-tailed Parakeet       0.66 0.50-0.70
+#> 6         Gracula religiosa_Common Hill Myna       0.95 0.70-1.00
+#> 7 Psittacula longicauda_Long-tailed Parakeet       0.45 0.40-0.50
+
+# five events at random from the whole pool
+rnd <- pam_validation_sample(pool, "random", bands = bands, n = 5, seed = 42)
+nrow(rnd)
+#> [1] 5
+```
