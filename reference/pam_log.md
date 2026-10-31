@@ -46,8 +46,8 @@ The log line, invisibly.
 ``` r
 log_dir <- tempfile("pamflow_logs_")
 pam_log("INFO", "scan started", stage = "01_scan", log_dir = log_dir)
-#> 2026-10-31 06:59:02 [INFO] [01_scan] scan started
+#> 2026-10-31 08:11:54 [INFO] [01_scan] scan started
 readLines(file.path(log_dir, "01_scan.log"))
-#> [1] "2026-10-31 06:59:02 [INFO] [01_scan] scan started"
+#> [1] "2026-10-31 08:11:54 [INFO] [01_scan] scan started"
 unlink(log_dir, recursive = TRUE)
 ```

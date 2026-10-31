@@ -198,6 +198,12 @@ The GUI provides three tabs:
 
 - **Log** — Live processing log
 
+The validation
+([`pam_validate()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validate.md))
+and annotation
+([`pam_annotate()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_annotate.md))
+apps share this look, with a light and dark mode.
+
 ### Headless Standardization R
 
 ``` r

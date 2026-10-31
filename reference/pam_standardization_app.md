@@ -7,7 +7,7 @@ standardized audio transcoding.
 ## Usage
 
 ``` r
-pam_standardization_app(cfg = NULL, raw_dir = NULL)
+pam_standardization_app(cfg = NULL, raw_dir = NULL, lang = NULL)
 ```
 
 ## Arguments
@@ -20,6 +20,12 @@ pam_standardization_app(cfg = NULL, raw_dir = NULL)
 - raw_dir:
 
   Optional path override for raw audio directory.
+
+- lang:
+
+  Interface language code (for example `"en"`); `NULL` chooses it as
+  [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md)
+  does. Translations live in `inst/i18n/<code>.yml`.
 
 ## Value
 

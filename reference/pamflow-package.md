@@ -1,14 +1,20 @@
 # pamflow: End-to-End Passive Acoustic Monitoring Workflow
 
-Standardising passive acoustic recordings, running BirdNET acoustic
-scanning, validating detections, calculating soundscape diversity
-indices, and preparing occupancy-ready detection histories and reports.
+Tools for passive acoustic monitoring projects, from raw recordings to
+data ready for ecological analysis. Standardizes and checks field
+recordings, runs 'BirdNET' through its Python package, cleans and
+validates detections, and computes soundscape indices. Builds detection
+histories, count histories and input for occupancy and abundance models,
+summarizes activity patterns and species richness, and writes HTML, PDF
+and Excel reports. Optional Shiny apps support standardization,
+validation and annotation, and the training of custom 'BirdNET'
+classifiers.
 
 ## See also
 
 Useful links:
 
-- <https://pradeeshwarrj.github.io/pamflow>
+- <https://pradeeshwarrj.github.io/pamflow/>
 
 - <https://github.com/pradeeshwarrj/pamflow>
 
@@ -16,9 +22,10 @@ Useful links:
 
 ## Author
 
-**Maintainer**: RJ Pradeeshwar <pradeeshwarrj@gmail.com> \[copyright
-holder\]
+**Maintainer**: Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com>
+([ORCID](https://orcid.org/0000-0003-1246-442X)) \[copyright holder\]
 
 Authors:
 
-- RJ Pradeeshwar <pradeeshwarrj@gmail.com> \[copyright holder\]
+- Pradeeshwar Rajagopal James <pradeeshwarrj@gmail.com>
+  ([ORCID](https://orcid.org/0000-0003-1246-442X)) \[copyright holder\]

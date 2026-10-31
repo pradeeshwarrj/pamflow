@@ -12,7 +12,8 @@ pam_validate(
   cfg,
   run_id = cfg$birdnet$run_id,
   reviewer = pam_or(cfg$validation$reviewer, ""),
-  show_confidence = isTRUE(cfg$validation$show_confidence)
+  show_confidence = isTRUE(cfg$validation$show_confidence),
+  lang = NULL
 )
 ```
 
@@ -34,6 +35,12 @@ pam_validate(
 
   Show the model's confidence while reviewing. Hidden by default
   (`validation$show_confidence`) to avoid biasing the reviewer.
+
+- lang:
+
+  Interface language code (for example `"en"`); `NULL` chooses it as
+  [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md)
+  does. Translations live in `inst/i18n/<code>.yml`.
 
 ## Value
 

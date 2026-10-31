@@ -9,7 +9,7 @@ immediately to `recall_annotations.csv`, so you can stop and resume.
 ## Usage
 
 ``` r
-pam_annotate(cfg, reviewer = pam_or(cfg$recall$reviewer, ""))
+pam_annotate(cfg, reviewer = pam_or(cfg$recall$reviewer, ""), lang = NULL)
 ```
 
 ## Arguments
@@ -21,6 +21,12 @@ pam_annotate(cfg, reviewer = pam_or(cfg$recall$reviewer, ""))
 - reviewer:
 
   Annotator name pre-filled in the app.
+
+- lang:
+
+  Interface language code (for example `"en"`); `NULL` chooses it as
+  [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md)
+  does. Translations live in `inst/i18n/<code>.yml`.
 
 ## Value
 

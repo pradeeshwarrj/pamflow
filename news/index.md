@@ -1,6 +1,6 @@
 # Changelog
 
-## pamflow (development version)
+## pamflow 0.6.0
 
 ### Occupancy occasions
 
@@ -80,6 +80,24 @@ depend on any modelling package.
 - **[`pam_check_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_check_model_input.md)**
   checks dimensions, site and occasion matching, response values and
   missing values before the input goes to a modelling package.
+
+### Shiny apps
+
+- **The standardization, validation and annotation apps now look like
+  the training app**: a centered page with the pamflow logo, a light and
+  dark mode switch, one card per setting, pill-style choices and the
+  same pastel colours. The standardization app has folder buttons and
+  number cards for the scan; the validation and annotation apps show a
+  progress bar, the spectrogram and the audio above the controls. What
+  the apps save and how they work is unchanged.
+- **All app texts are translatable.**
+  [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md),
+  [`pam_validate()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validate.md)
+  and
+  [`pam_annotate()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_annotate.md)
+  take a `lang` argument, and their texts live in `inst/i18n/<code>.yml`
+  with the training app’s. Values saved in your result files (such as
+  the “none” choice for the true species) stay in English.
 
 ### Reports and guide
 
