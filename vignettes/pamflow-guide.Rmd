@@ -135,6 +135,10 @@ res$summary$overall
 
 out <- pam_process_detections(ex$cfg)   # Stage 4: clean the example detections
 out$steps
+
+act <- pam_activity(ex$cfg)             # activity by hour of day
+rich <- pam_richness(ex$cfg)            # richness and diversity per site
+rich$sites
 ```
 
 `ex$root` is the project folder, so you can see what each stage writes. Every help
@@ -207,6 +211,7 @@ processing:
 
 occupancy:
   run_id: "run01"
+  occasion_length_days: 1
   min_effort_hours: 2
   min_detections: 10
 ```
@@ -231,7 +236,9 @@ file.copy(system.file("extdata", "config_template.yml", package = "pamflow"),
 | `birdnet.workers`            | Worker processes for BirdNET; `null` = half the physical cores |
 | `birdnet.min_confidence`     | Lowest BirdNET score kept (0.3 by default)                  |
 | `processing.min_confidence`  | Confidence cut applied when cleaning (0.5 by default)       |
-| `occupancy.min_effort_hours` | Min recording hours per day for occupancy                   |
+| `processing.species_thresholds_file` | CSV of per-species thresholds (see `pam_species_thresholds()`) |
+| `occupancy.occasion_length_days` | Days per occasion; also the default time bin of the Stage 7 and ecological functions |
+| `occupancy.min_effort_hours` | Min recording hours in an occasion for it to count as surveyed |
 | `occupancy.min_detections`   | Min detections for a species to get a history               |
 
 ------------------------------------------------------------------------
@@ -405,10 +412,12 @@ pam_recall_report(cfg)
 ### Stage 6: Occupancy Detection Histories
 
 Converts cleaned detections into wide-format matrices (sites x
-occasions) with 1, 0 and NA values, one matrix per species. An occasion is
-one calendar day; days with less recording than `occupancy.min_effort_hours`
-are coded NA (not surveyed). Species with fewer than
-`occupancy.min_detections` detections get no history.
+occasions) with 1, 0 and NA values, one matrix per species. An occasion is a
+block of `occupancy.occasion_length_days` days (default 1, one calendar day),
+starting on the first recorded day and the same for every site; occasions with
+less recording than `occupancy.min_effort_hours` in total are coded NA (not
+surveyed). Species with fewer than `occupancy.min_detections` detections get no
+history.
 
 ``` r
 occ <- pam_build_occupancy(cfg)
@@ -420,9 +429,9 @@ names(occ$histories)
 `occasion_covariates.csv`, `site_covariates.csv`,
 `occupancy_summary.csv`.
 
-Fitting occupancy models is not part of pamflow yet (it is planned as
-Stage 7). In the meantime the histories can go straight into
-`unmarked`:
+pamflow does not fit occupancy models. The histories can go straight into
+`unmarked`, or you can use Stage 7 below, which also handles covariates,
+several species and several seasons:
 
 ``` r
 hist <- occ$histories[[1]]              # the first species
@@ -436,11 +445,199 @@ summary(fm)
 
 ------------------------------------------------------------------------
 
+### Stage 7: Input for Occupancy and Abundance Models
+
+pamflow does **not** fit occupancy or abundance models. Stage 7 prepares the
+input for the packages that do (`unmarked`, `ubms`, `spOccupancy` or any other)
+and checks that it is consistent, so you can fit the models yourself.
+
+**1. A count history for one species.** Counts the detections of a species in
+every site and occasion (a block of `occupancy.occasion_length_days` days). The
+result has the counts, with `NA` where a site was not surveyed, and matching
+matrices of recording effort and days.
+
+``` r
+hist <- pam_count_history(cfg, species = "Gracula religiosa")
+hist$y                                  # sites x occasions
+hist$effort                             # recorded hours, same shape
+
+# count recordings with a detection instead of detected events
+hist_files <- pam_count_history(cfg, species = "Gracula religiosa", count = "files")
+```
+
+`species` can be a scientific name, a common name or the species label, and must
+identify one species. Use `thresholds =` to apply per-species thresholds (see
+the next section) and `min_effort_hours` to set how much recording makes an
+occasion count as surveyed.
+
+**2. Site covariates.** Attach habitat, elevation or any other site covariate,
+either when you build the history (`site_covariates =`) or later. Rows are
+matched by `site_id`, so the order of your table does not matter, and every
+site needs a row.
+
+``` r
+covs <- read.csv("metadata/site_covariates_habitat.csv")   # needs a site_id column
+hist <- pam_add_site_covariates(hist, covs)
+```
+
+**3. Model input.** `pam_model_input()` turns the history into the three pieces
+that the modelling packages use: the response `y`, the site covariates
+`siteCovs` and the observation covariates `obsCovs` (`effort` and `day`).
+
+``` r
+x <- pam_model_input(hist)                          # counts, for abundance models
+x <- pam_model_input(hist, binary = TRUE)           # detection / non-detection, for occupancy
+x <- pam_model_input(hist, binary = TRUE, standardize = TRUE)   # covariates centred and scaled
+pam_check_model_input(x)                            # dimensions, sites, values, missing data
+```
+
+Standardising keeps the centre and scale in `x$scaling`. Sites that were never
+surveyed are left out (with a message). `dir = "path"` also writes the pieces as
+CSV files for use outside R.
+
+**4. Several species.** `pam_count_histories()` builds the histories of all
+species (or those you name) in one pass, on the same sites and occasions.
+`pam_model_input()` then gives `y` as a species x site x occasion array, the
+layout of multi-species models.
+
+``` r
+hists <- pam_count_histories(cfg)                   # or species = c("...", "...")
+x <- pam_model_input(hists, binary = TRUE)
+dim(x$y)
+```
+
+**5. Several seasons.** For multi-season models, group the occasions into
+seasons (primary periods). `pam_define_seasons()` makes one season per year or
+month; or give your own table with `season`, `start` and `end` (dates). An
+occasion belongs to the season that contains its first day. Seasonal covariates
+(for example rainfall) go in `season_covariates`.
+
+``` r
+seasons <- pam_define_seasons(hist, by = "year")
+x <- pam_model_input(hist, binary = TRUE, seasons = seasons,
+                     season_covariates = data.frame(season = c("2025", "2026"),
+                                                    rain = c(1210, 980)))
+x$y                # sites x (seasons * occasions), for unmarked and ubms
+x$y_array          # sites x seasons x occasions, for spOccupancy
+x$num_primary      # number of seasons
+```
+
+Seasons with fewer occasions than the longest are padded with `NA`, and
+seasons without any occasion are kept as `NA` so that the spacing is right.
+
+**6. Fit the model with your package.**
+
+``` r
+# unmarked: occupancy
+x <- pam_model_input(hist, binary = TRUE)
+umf <- unmarked::unmarkedFrameOccu(y = x$y, siteCovs = x$siteCovs, obsCovs = x$obsCovs)
+fit <- unmarked::occu(~ effort ~ canopy, data = umf)
+
+# unmarked: N-mixture abundance index
+x <- pam_model_input(hist)
+umf <- unmarked::unmarkedFramePCount(y = x$y, siteCovs = x$siteCovs, obsCovs = x$obsCovs)
+fit <- unmarked::pcount(~ effort ~ canopy, data = umf, K = 100)
+
+# spOccupancy: the same pieces under other names
+data <- list(y = x$y, occ.covs = x$siteCovs, det.covs = x$obsCovs, coords = coords)
+```
+
+`ubms` uses the same `unmarkedFrame*` objects as `unmarked`. Check the argument
+names in each package's documentation.
+
+**Counts are not animals.** The counts are numbers of detected events or
+recordings. A model fitted to them gives a *relative abundance index* for
+comparing sites, habitats and years for one species; it is not a population
+size, and indices of different species cannot be compared. N-mixture models
+also become slow and unstable when counts are large (the upper bound `K` must
+exceed the highest count), so `count = "files"` or shorter occasions are often
+better than raw event counts.
+
+------------------------------------------------------------------------
+
+### Beyond Occupancy: Thresholds, Activity and Richness
+
+The cleaned detections can answer more questions than occupancy. These
+functions work on the Stage 4 output and use the recording effort, so sites and
+periods that were recorded for different lengths of time can be compared.
+
+**Species thresholds.** BirdNET is more reliable for some species than for
+others, so one confidence cut-off for all species is rarely right.
+`pam_species_thresholds()` reads the Stage 5 validation and gives each species
+its own threshold: the lowest confidence whose estimated precision is within a
+tolerance (0.05) of that species' own best, so no precision target is needed.
+Species with too little validation get the global threshold (the `reason`
+column says why), and you can override any species.
+
+``` r
+thr <- pam_species_thresholds(cfg)                       # one row per species
+thr <- pam_species_thresholds(cfg, manual = data.frame(
+  scientific_name = "Gracula religiosa", threshold = 0.8))
+pam_species_thresholds(cfg, write = TRUE)                # saves species_thresholds.csv
+```
+
+Set `processing.species_thresholds_file` in the config to that file to make
+Stages 4 and 6 use it, or pass `thresholds = thr` to the functions below.
+
+**Detections and effort per site, time bin and species.**
+`pam_detection_table()` is the base table for these products: detections,
+recordings with a detection, recording hours and detections per hour, with zeros
+where a species was not detected. The bin length defaults to
+`occupancy.occasion_length_days`; use `bin_days = 7` for weeks.
+
+``` r
+tab <- pam_detection_table(cfg, bin_days = 7)
+```
+
+**Activity patterns.** `pam_activity()` gives detections per recorded hour by
+hour of the day, day, week or month, pooled over sites or per site, for daily
+(diel) and seasonal patterns. A recording that starts part way through an hour
+or crosses midnight is split over the hours it covers.
+
+``` r
+act <- pam_activity(cfg, by = "hour")                    # diel pattern
+act_week <- pam_activity(cfg, by = "week", by_site = TRUE)
+pam_plot_activity(act)
+pam_plot_activity(act, species = "Gracula religiosa", relative = TRUE)
+```
+
+The rate is an activity index: it depends on how often animals call, not only
+on how many there are, so compare it between periods and sites for the same
+species rather than between species.
+
+**Richness and diversity.** `pam_richness()` gives species richness and Hill
+numbers for every site and time bin and for every site over the whole survey,
+the expected species accumulation over sites, and the Chao2 estimate of how many
+species were missed. The site table can be joined to habitat covariates by
+`site_id`.
+
+``` r
+rich <- pam_richness(cfg)
+rich$sites                  # richness and Hill numbers per site
+rich$estimates              # observed richness, Chao2 estimate, completeness
+pam_plot_richness(rich)     # accumulation curve
+pam_plot_richness(rich, "sites")
+
+# count a species only with at least 3 events in a bin; weight species equally
+rich3 <- pam_richness(cfg, min_events = 3, abundance = "presence")
+```
+
+`min_events` removes species known only from a lone, possibly false, detection,
+at the cost of missing rare species. With `abundance = "counts"` (the default)
+the Hill numbers weight species by their event counts, so they describe the
+acoustic community; use `"presence"` when only occurrence matters. Species
+that are false positives count as present in all of these numbers, so validated
+thresholds matter.
+
+------------------------------------------------------------------------
+
 ### Stage 8: Reports
 
-Generates HTML, PDF and Excel reports with effort, detections,
-validation and occupancy summaries. The formats come from `report.formats`
-in the config (PDF needs a LaTeX installation).
+Generates HTML, PDF and Excel reports with effort, detections, species
+richness and diversity, activity patterns, validation (with the species
+thresholds, when saved) and occupancy summaries. A section is left out when
+its inputs are not there. The formats come from `report.formats` in the
+config (PDF needs a LaTeX installation).
 
 ``` r
 files <- pam_report(cfg)
@@ -501,7 +698,21 @@ frequency ranges, and the day and night hours. This needs the
 | `pam_annotate(cfg)`                     | 5b    | Open the annotation app                        |
 | `pam_recall_report(cfg)`                | 5b    | Recall, precision and F1                       |
 | `pam_build_occupancy(cfg)`              | 6     | Detection histories                            |
+| `pam_count_history(cfg, species)`       | 7     | Counts of one species by site and occasion     |
+| `pam_count_histories(cfg)`              | 7     | Counts of many species on a shared grid        |
+| `pam_as_count_history(y)`               | 7     | Use your own counts                            |
+| `pam_add_site_covariates(x, covs)`      | 7     | Attach site covariates by site                 |
+| `pam_define_seasons(x)`                 | 7     | Seasons by year or month                       |
+| `pam_model_input(x)`                    | 7     | Input for unmarked, ubms or spOccupancy        |
+| `pam_check_model_input(x)`              | 7     | Check the input before fitting                 |
+| `pam_species_thresholds(cfg)`           | Eco   | One confidence threshold per species           |
+| `pam_detection_table(cfg)`              | Eco   | Detections and effort per site, bin, species   |
+| `pam_activity(cfg)`                     | Eco   | Detections per recorded hour, by period        |
+| `pam_plot_activity(act)`                | Eco   | Plot activity patterns                         |
+| `pam_richness(cfg)`                     | Eco   | Richness, Hill numbers, accumulation, Chao2    |
+| `pam_plot_richness(rich)`               | Eco   | Plot richness                                  |
 | `pam_report(cfg)`                       | 8     | HTML, PDF and Excel reports                    |
+| `pam_audio_history(cfg)`                | Any   | Follow audio files across the stages           |
 
 Every function has a help page with an example you can run on
 `pam_example_project()`.
@@ -527,6 +738,12 @@ pam_validation_report(cfg)
 occ <- pam_build_occupancy(cfg)    # Stage 6
 occ$summary
 
+hist <- pam_count_history(cfg, species = "Gracula religiosa")   # Stage 7
+x <- pam_model_input(hist, binary = TRUE)   # input for unmarked, ubms, spOccupancy
+
+act <- pam_activity(cfg)           # activity patterns
+rich <- pam_richness(cfg)          # richness and diversity
+
 pam_report(cfg)                    # Stage 8
 ```
 
@@ -543,6 +760,21 @@ running, call `pam_birdnet_cleanup()` first.
 `processing.min_confidence` in your config (or give per-species thresholds
 in a CSV, see `processing.species_thresholds_file`) and rerun Stage 4. No
 need to rerun Stage 3.
+
+**Q: Does pamflow fit occupancy or abundance models?** No. It prepares the
+input (Stage 7) and checks it; you fit the models with `unmarked`, `ubms`,
+`spOccupancy` or another package. This keeps pamflow free of modelling
+dependencies and lets you choose the model.
+
+**Q: How do I use per-species confidence thresholds?** Run
+`pam_species_thresholds(cfg, write = TRUE)` after validation, then set
+`processing.species_thresholds_file` to the saved file and rerun Stage 4, or
+pass `thresholds =` to `pam_activity()`, `pam_richness()` or
+`pam_count_history()`.
+
+**Q: How do I see what happened to one recording?**
+`pam_audio_history(cfg, file = "G0059_20260405_183000.wav")` lists what each
+stage recorded about it.
 
 **Q: Can I add more species to the model later?** Yes. Replace the model
 files (or train a new classifier, see the appendix), set a new

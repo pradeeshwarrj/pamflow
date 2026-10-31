@@ -11,7 +11,10 @@
 #' @param run_id Character. The detection run to report on.
 #' @return A named list with elements \code{effort}, \code{detections},
 #'   \code{species_counts}, \code{hourly_pattern}, \code{precision},
-#'   \code{recall}, \code{occupancy}.
+#'   \code{recall}, \code{occupancy}, and the ecological products
+#'   \code{activity_hour}, \code{activity_week}, \code{richness_sites},
+#'   \code{richness_estimates}, \code{richness_accumulation} and
+#'   \code{thresholds} (see \code{pam_report_ecology}).
 #' @keywords internal
 pam_report_data <- function(cfg, run_id) {
   out <- list(
@@ -21,7 +24,13 @@ pam_report_data <- function(cfg, run_id) {
     hourly_pattern = NULL,
     precision = NULL,
     recall = NULL,
-    occupancy = NULL
+    occupancy = NULL,
+    activity_hour = NULL,
+    activity_week = NULL,
+    richness_sites = NULL,
+    richness_estimates = NULL,
+    richness_accumulation = NULL,
+    thresholds = NULL
   )
 
   # ---- Effort (Stage 1) ----
@@ -101,7 +110,66 @@ pam_report_data <- function(cfg, run_id) {
     out$occupancy <- data.table::fread(occ_path)
   }
 
+  # ---- Activity, richness and thresholds ----
+  ecology <- pam_report_ecology(cfg, run_id, out)
+  out[names(ecology)] <- ecology
+
   return(out)
+}
+
+
+#' Activity, richness and threshold tables for the report
+#'
+#' Computes the tables of the ecological products from the cleaned detections
+#' and the recording effort. Anything that cannot be computed (for example when
+#' a stage has not been run) is left \code{NULL} and noted in the log; it never
+#' stops the report.
+#'
+#' @param cfg A list from \code{pam_config_read}.
+#' @param run_id Character. The detection run.
+#' @param data The list built so far by \code{pam_report_data}.
+#' @return A named list: \code{activity_hour} and \code{activity_week}
+#'   (detections per recorded hour by hour of day and by week),
+#'   \code{richness_sites}, \code{richness_estimates},
+#'   \code{richness_accumulation} (see \code{pam_richness}) and
+#'   \code{thresholds} (the species thresholds saved by
+#'   \code{pam_species_thresholds}, when present).
+#' @keywords internal
+pam_report_ecology <- function(cfg, run_id, data) {
+  out <- list(activity_hour = NULL, activity_week = NULL, richness_sites = NULL,
+              richness_estimates = NULL, richness_accumulation = NULL, thresholds = NULL)
+  skipped <- function(what, e) {
+    pam_log("INFO", sprintf("%s not added to the report: %s", what, conditionMessage(e)),
+            stage = "08_report", log_dir = cfg$paths$logs)
+  }
+  usable <- function(x) !is.null(x) && nrow(x) > 0L
+  activity_columns <- c("period", "species", "scientific_name", "n_detections",
+                        "effort_hours", "detections_per_hour", "relative_activity")
+
+  if (usable(data$detections) && usable(data$effort)) {
+    tryCatch({
+      activity <- suppressMessages(pam_activity(cfg, run_id, by = "hour"))
+      out$activity_hour <- activity[, activity_columns, with = FALSE]
+    }, error = function(e) skipped("Hourly activity", e))
+    tryCatch({
+      activity <- suppressMessages(pam_activity(cfg, run_id, by = "week"))
+      out$activity_week <- activity[, activity_columns, with = FALSE]
+    }, error = function(e) skipped("Weekly activity", e))
+    tryCatch({
+      richness <- suppressWarnings(suppressMessages(pam_richness(cfg, run_id)))
+      if (nrow(richness$sites) > 0L) {
+        out$richness_sites <- richness$sites
+        out$richness_estimates <- richness$estimates
+        out$richness_accumulation <- richness$accumulation
+      }
+    }, error = function(e) skipped("Richness", e))
+  }
+
+  thresholds_path <- file.path(cfg$paths$detections, run_id, "validation", "species_thresholds.csv")
+  if (file.exists(thresholds_path)) {
+    out$thresholds <- tryCatch(data.table::fread(thresholds_path), error = function(e) NULL)
+  }
+  out
 }
 
 
@@ -153,6 +221,22 @@ pam_report_excel <- function(data, output_path) {
     openxlsx::writeData(wb, "Occupancy", data$occupancy)
   }
 
+  ecological_sheets <- list(
+    Richness_Sites = data$richness_sites,
+    Richness_Estimates = data$richness_estimates,
+    Species_Accumulation = data$richness_accumulation,
+    Activity_Hour = data$activity_hour,
+    Activity_Week = data$activity_week,
+    Species_Thresholds = data$thresholds
+  )
+  for (sheet in names(ecological_sheets)) {
+    table <- ecological_sheets[[sheet]]
+    if (!is.null(table) && nrow(table) > 0) {
+      openxlsx::addWorksheet(wb, sheet)
+      openxlsx::writeData(wb, sheet, table)
+    }
+  }
+
   openxlsx::saveWorkbook(wb, output_path, overwrite = TRUE)
   invisible(output_path)
 }
@@ -181,6 +265,13 @@ pam_report_excel <- function(data, output_path) {
 #'
 #' Excel output is a multi-sheet workbook with one sheet per report
 #' section, created with \code{openxlsx}.
+#'
+#' Besides recording effort, detections, validation and occupancy, the report
+#' includes species richness and diversity per site (with the species
+#' accumulation curve and the Chao2 estimate), activity patterns (detections
+#' per recorded hour by hour of the day and by week) and the per-species
+#' thresholds saved by \code{pam_species_thresholds()}. A section is left out
+#' when its inputs are not available.
 #'
 #' @examples
 #' \donttest{
@@ -240,7 +331,13 @@ pam_report <- function(cfg,
     hourly_pattern = data$hourly_pattern,
     precision = data$precision,
     recall = data$recall,
-    occupancy = data$occupancy
+    occupancy = data$occupancy,
+    activity_hour = data$activity_hour,
+    activity_week = data$activity_week,
+    richness_sites = data$richness_sites,
+    richness_estimates = data$richness_estimates,
+    richness_accumulation = data$richness_accumulation,
+    thresholds = data$thresholds
   )
 
   generated <- character()

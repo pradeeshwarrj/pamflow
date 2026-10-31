@@ -484,3 +484,106 @@ test_that("pam_report: excel failure is logged and not listed", {
   log_txt <- paste(readLines(file.path(tmp, "logs", "08_report.log")), collapse = "\n")
   expect_match(log_txt, "Excel writing failed")
 })
+
+
+# ---- ecological sections: activity, richness, thresholds ---------------------------------------
+
+make_report_example <- function(env = parent.frame()) {
+  ex <- pam_example_project()
+  withr::defer(unlink(ex$root, recursive = TRUE), envir = env)
+  suppressMessages(pam_scan_audio(ex$cfg))
+  proc <- suppressMessages(pam_process_detections(ex$cfg))
+  list(ex = ex, proc = proc)
+}
+
+test_that("pam_report_data adds activity and richness tables when stages 1 and 4 are done", {
+  r <- make_report_example()
+  data <- suppressMessages(pam_report_data(r$ex$cfg, "run01"))
+  expect_named(data$activity_hour, c("period", "species", "scientific_name", "n_detections",
+                                     "effort_hours", "detections_per_hour", "relative_activity"))
+  expect_equal(sort(unique(data$activity_hour$period)), c(6L, 18L))
+  expect_equal(sum(data$activity_hour$n_detections), nrow(r$proc$clean))
+  expect_false(is.null(data$activity_week))
+  expect_equal(sum(data$activity_week$n_detections), nrow(r$proc$clean))
+  expect_equal(sort(data$richness_sites$site_id), c("G0059", "G0110"))
+  expect_equal(data$richness_estimates$n_sites, 2L)
+  expect_equal(data$richness_accumulation$n_sites, 1:2)
+  expect_null(data$thresholds)
+})
+
+test_that("pam_report_data leaves the ecological sections empty when inputs are missing", {
+  cfg <- list(paths = list(metadata = withr::local_tempdir(), detections = withr::local_tempdir(),
+                           validation = withr::local_tempdir(), occupancy = withr::local_tempdir(),
+                           logs = withr::local_tempdir()))
+  result <- suppressWarnings(pamflow:::pam_report_data(cfg, "none"))
+  for (field in c("activity_hour", "activity_week", "richness_sites", "richness_estimates",
+                  "richness_accumulation", "thresholds")) {
+    expect_true(field %in% names(result))
+    expect_null(result[[field]])
+  }
+})
+
+test_that("a failure in an ecological section is logged and does not stop the report data", {
+  r <- make_report_example()
+  testthat::local_mocked_bindings(
+    pam_richness = function(...) stop("richness broke"),
+    .package = "pamflow"
+  )
+  data <- suppressMessages(pam_report_data(r$ex$cfg, "run01"))
+  expect_null(data$richness_sites)
+  expect_false(is.null(data$activity_hour))
+  log_txt <- paste(readLines(file.path(r$ex$cfg$paths$logs, "08_report.log")), collapse = "\n")
+  expect_match(log_txt, "Richness not added to the report: richness broke")
+})
+
+test_that("saved species thresholds are picked up by the report data", {
+  r <- make_report_example()
+  dir <- file.path(r$ex$cfg$paths$detections, "run01", "validation")
+  dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+  utils::write.csv(data.frame(scientific_name = c("A a", "B b"), threshold = c(0.4, 0.7),
+                              method = "plateau"), file.path(dir, "species_thresholds.csv"),
+                   row.names = FALSE)
+  data <- suppressMessages(pam_report_data(r$ex$cfg, "run01"))
+  expect_equal(data$thresholds$threshold, c(0.4, 0.7))
+})
+
+test_that("the Excel report has a sheet for each ecological table that exists", {
+  skip_if_not_installed("openxlsx")
+  r <- make_report_example()
+  dir <- file.path(r$ex$cfg$paths$detections, "run01", "validation")
+  dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+  utils::write.csv(data.frame(scientific_name = "A a", threshold = 0.4),
+                   file.path(dir, "species_thresholds.csv"), row.names = FALSE)
+  data <- suppressMessages(pam_report_data(r$ex$cfg, "run01"))
+  path <- withr::local_tempfile(fileext = ".xlsx")
+  pamflow:::pam_report_excel(data, path)
+  sheets <- openxlsx::getSheetNames(path)
+  expect_true(all(c("Richness_Sites", "Richness_Estimates", "Species_Accumulation",
+                    "Activity_Hour", "Activity_Week", "Species_Thresholds") %in% sheets))
+  without <- data
+  without$richness_sites <- NULL
+  without$thresholds <- data.table::data.table()
+  path2 <- withr::local_tempfile(fileext = ".xlsx")
+  pamflow:::pam_report_excel(without, path2)
+  sheets2 <- openxlsx::getSheetNames(path2)
+  expect_false("Richness_Sites" %in% sheets2)
+  expect_false("Species_Thresholds" %in% sheets2)
+  expect_true("Activity_Hour" %in% sheets2)
+})
+
+test_that("the HTML report renders the richness and activity sections", {
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+  skip_if_not(rmarkdown::pandoc_available(), "pandoc is not available")
+  skip_if(!nzchar(system.file("rmd", "pam_report.Rmd", package = "pamflow")),
+          "report template not available")
+  r <- make_report_example()
+  files <- suppressWarnings(suppressMessages(pam_report(r$ex$cfg, formats = "html")))
+  expect_length(files, 1L)
+  expect_true(file.exists(files))
+  # pandoc wraps long headings and captions over several lines, so ignore line breaks
+  html <- gsub("\\s+", " ", paste(readLines(files, warn = FALSE), collapse = " "))
+  expect_match(html, "Species Richness and Diversity", fixed = TRUE)
+  expect_match(html, "Activity Patterns", fixed = TRUE)
+  expect_match(html, "Chao2 estimate", fixed = TRUE)
+})

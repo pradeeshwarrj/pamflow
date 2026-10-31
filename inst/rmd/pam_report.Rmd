@@ -22,6 +22,12 @@ params:
   precision: NULL
   recall: NULL
   occupancy: NULL
+  activity_hour: NULL
+  activity_week: NULL
+  richness_sites: NULL
+  richness_estimates: NULL
+  richness_accumulation: NULL
+  thresholds: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -111,6 +117,98 @@ axis(1, at = seq(0, 23, by = 2))
 
 ---
 
+# Species Richness and Diversity
+
+```{r rich-check}
+has_rich <- !is.null(params$richness_sites) && nrow(params$richness_sites) > 0
+if (!has_rich) {
+  cat("*No richness data available. Run Stages 1 and 4 first.*\n")
+}
+```
+
+```{r rich-intro, eval=has_rich, results="asis"}
+cat("Richness is the number of species detected. The Hill numbers describe",
+    "diversity as an effective number of species: order 1 weights species by",
+    "how often they were detected (the exponential of Shannon diversity) and",
+    "order 2 gives more weight to the commonest species (inverse Simpson).",
+    "Only occasions with enough recording effort are used.\n\n")
+```
+
+```{r rich-table, eval=has_rich}
+rich_display <- data.table::copy(params$richness_sites)
+num_cols_rich <- names(rich_display)[vapply(rich_display, is.numeric, logical(1))]
+rich_display[, (num_cols_rich) := lapply(.SD, round, 2), .SDcols = num_cols_rich]
+knitr::kable(rich_display, caption = "Species richness and Hill numbers per site")
+```
+
+```{r rich-estimate, eval=has_rich}
+est_display <- data.table::copy(params$richness_estimates)
+num_cols_est <- names(est_display)[vapply(est_display, is.numeric, logical(1))]
+est_display[, (num_cols_est) := lapply(.SD, round, 2), .SDcols = num_cols_est]
+knitr::kable(est_display, caption = "Observed richness and the Chao2 estimate across sites")
+```
+
+```{r rich-accumulation, eval=has_rich, fig.width=6, fig.height=4}
+acc <- params$richness_accumulation
+plot(acc$n_sites, acc$richness, type = "b", pch = 16, col = "steelblue",
+     xlab = "Sites sampled", ylab = "Expected number of species",
+     main = "Species accumulation over sites")
+est <- params$richness_estimates
+if (!is.null(est) && is.finite(est$chao2[1])) abline(h = est$chao2[1], lty = 2, col = "grey40")
+```
+
+---
+
+# Activity Patterns
+
+```{r act-check}
+has_act <- !is.null(params$activity_hour) && nrow(params$activity_hour) > 0
+has_season <- !is.null(params$activity_week) && nrow(params$activity_week) > 0
+if (!has_act) {
+  cat("*No activity data available. Run Stages 1 and 4 first.*\n")
+}
+top_species <- character()
+if (has_act) {
+  top_species <- if (!is.null(params$species_counts)) params$species_counts$species else
+    unique(params$activity_hour$species)
+  top_species <- head(intersect(top_species, params$activity_hour$species), 6)
+}
+```
+
+```{r act-intro, eval=has_act, results="asis"}
+cat("Activity is the number of detected events per hour of recording, so",
+    "periods and sites recorded for different lengths of time can be compared.",
+    "It describes how much a species calls, not how many animals there are.",
+    "The six most detected species are shown.\n\n")
+```
+
+```{r act-hour, eval=has_act && length(top_species) > 0, fig.width=8, fig.height=6}
+act_h <- params$activity_hour
+op <- par(mfrow = c(ceiling(length(top_species) / 2), 2), mar = c(4, 4, 2, 1))
+for (sp in top_species) {
+  one <- act_h[act_h$species == sp, ]
+  vals <- ifelse(is.na(one$detections_per_hour), 0, one$detections_per_hour)
+  barplot(vals, names.arg = one$period, col = "steelblue", cex.main = 0.9,
+          main = sub("_.*", "", sp), xlab = "Hour of day",
+          ylab = "Detections per recorded hour")
+}
+par(op)
+```
+
+```{r act-week, eval=has_season && length(top_species) > 0, fig.width=8, fig.height=6}
+act_w <- params$activity_week
+op <- par(mfrow = c(ceiling(length(top_species) / 2), 2), mar = c(4, 4, 2, 1))
+for (sp in top_species) {
+  one <- act_w[act_w$species == sp, ]
+  plot(one$period, one$detections_per_hour, type = "b", pch = 16, col = "darkorange",
+       main = sub("_.*", "", sp), xlab = "Week starting", cex.main = 0.9,
+       ylab = "Detections per recorded hour")
+}
+par(op)
+```
+
+---
+
 # Validation Results
 
 ```{r val-check}
@@ -140,6 +238,19 @@ rec_display[, (num_cols_r) := lapply(.SD, round, 3),
             .SDcols = num_cols_r]
 knitr::kable(rec_display,
              caption = "Recall by species and threshold")
+```
+
+## Species thresholds
+
+```{r thr-check}
+has_thr <- !is.null(params$thresholds) && nrow(params$thresholds) > 0
+```
+
+```{r thr-table, eval=has_thr}
+thr_display <- data.table::copy(params$thresholds)
+num_cols_thr <- names(thr_display)[vapply(thr_display, is.numeric, logical(1))]
+thr_display[, (num_cols_thr) := lapply(.SD, round, 3), .SDcols = num_cols_thr]
+knitr::kable(thr_display, caption = "Confidence threshold chosen for each species")
 ```
 
 ---

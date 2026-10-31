@@ -27,9 +27,13 @@ and Julian date), and site covariates. Writes everything to
 \details{
 \subsection{Occasion definition}{
 
-Each occasion is one calendar day (midnight to midnight in the
-project timezone). Days with less than \code{min_effort_hours} of
-recording are coded NA (not surveyed).
+An occasion is a block of \code{occupancy$occasion_length_days} calendar
+days (default 1, midnight to midnight in the project timezone). Blocks
+start on the first day with any recording in the project and are the same
+for every site. Occasions with less than \code{min_effort_hours} of
+recording in total are coded NA (not surveyed). A detection counts in the
+occasion that contains its date. Outputs that already exist are kept unless
+\code{force = TRUE}, so rebuild after changing the occasion length.
 }
 
 \subsection{Site definition}{

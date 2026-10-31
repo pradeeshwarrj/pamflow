@@ -206,9 +206,13 @@ pam_site_covariates <- function(master, effort) {
 #'   matrices), \code{effort}, \code{site_covariates}, \code{summary}.
 #' @details
 #' ## Occasion definition
-#' Each occasion is one calendar day (midnight to midnight in the
-#' project timezone). Days with less than \code{min_effort_hours} of
-#' recording are coded NA (not surveyed).
+#' An occasion is a block of \code{occupancy$occasion_length_days} calendar
+#' days (default 1, midnight to midnight in the project timezone). Blocks
+#' start on the first day with any recording in the project and are the same
+#' for every site. Occasions with less than \code{min_effort_hours} of
+#' recording in total are coded NA (not surveyed). A detection counts in the
+#' occasion that contains its date. Outputs that already exist are kept unless
+#' \code{force = TRUE}, so rebuild after changing the occasion length.
 #'
 #' ## Site definition
 #' Grids with a single deployment use the grid name as the site ID.
@@ -293,6 +297,9 @@ pam_build_occupancy <- function(cfg,
   } else {
     10
   }
+  occasion_days <- pam_check_bin_days(
+    pam_or(cfg$occupancy$occasion_length_days, 1L)
+  )
   global_thresh <- if (!is.null(cfg$processing$min_confidence)) {
     cfg$processing$min_confidence
   } else {
@@ -373,11 +380,20 @@ pam_build_occupancy <- function(cfg,
   }
 
   # ---- Calculate effort ----
-  effort <- pam_daily_effort(master, tz = tz,
-                             min_effort_h = min_effort_h)
+  # Occasions are blocks of `occasion_days` days that start on the first day
+  # with any recording and are shared by all sites (see pam_effort_bins).
+  bins <- pam_effort_bins(master, bin_days = occasion_days, tz = tz,
+                          min_effort_h = min_effort_h)
+  origin <- attr(bins, "origin")
+  effort <- bins[, .(site_id, occasion_date = bin_start,
+                     effort_hours, sufficient)]
+  det[, occasion_date := pam_bin_start(occasion_date, origin,
+                                       occasion_days)]
   pam_log("INFO",
-          sprintf("Effort: %d site-occasions, %d sufficient (>= %g h)",
-                  nrow(effort), sum(effort$sufficient), min_effort_h),
+          sprintf(paste("Effort: %d site-occasions of %d day(s),",
+                        "%d sufficient (>= %g h)"),
+                  nrow(effort), occasion_days,
+                  sum(effort$sufficient), min_effort_h),
           stage = stage, log_dir = cfg$paths$logs)
 
   # ---- Filter species ----

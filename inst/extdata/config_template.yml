@@ -84,7 +84,7 @@ birdnet:
 
 processing:
   min_confidence: 0.5
-  species_thresholds_file: null   # CSV with columns: scientific_name, threshold
+  species_thresholds_file: null   # CSV with columns: scientific_name, threshold (pam_species_thresholds(cfg, write = TRUE) makes one)
   species_whitelist: []           # names matched against scientific name, common name or species
   species_blacklist: []
   date_range: []                  # e.g. ["2026-03-26", "2026-04-20"] ; empty = no limit
@@ -136,9 +136,9 @@ recall:
   reviewer: ""
 
 occupancy:
-  occasion_length_days: 1
-  min_effort_hours: 2
-  min_detections: 10
+  occasion_length_days: 1       # days per occasion; also the default time bin of the count histories and ecological products
+  min_effort_hours: 2           # recording hours an occasion needs (in total) to count as surveyed
+  min_detections: 10            # species with fewer detections get no occupancy history
   run_id: "pilot_unfiltered"
 
 report:

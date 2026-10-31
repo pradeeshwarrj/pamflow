@@ -14,7 +14,10 @@ pam_report_data(cfg, run_id)
 \value{
 A named list with elements \code{effort}, \code{detections},
 \code{species_counts}, \code{hourly_pattern}, \code{precision},
-\code{recall}, \code{occupancy}.
+\code{recall}, \code{occupancy}, and the ecological products
+\code{activity_hour}, \code{activity_week}, \code{richness_sites},
+\code{richness_estimates}, \code{richness_accumulation} and
+\code{thresholds} (see \code{pam_report_ecology}).
 }
 \description{
 Reads outputs from Stages 1, 4, 5, 5b and 6 and returns a single

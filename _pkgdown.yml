@@ -126,6 +126,27 @@ reference:
       - pam_occasion_covariates
       - pam_site_covariates
 
+  - title: "Ecological products"
+    desc: "Per-species thresholds and a site, time-bin and species table with recording effort; activity patterns and richness."
+    contents:
+      - pam_species_thresholds
+      - pam_detection_table
+      - pam_activity
+      - pam_plot_activity
+      - pam_richness
+      - pam_plot_richness
+
+  - title: "Stage 7 — Input for occupancy and abundance models"
+    desc: "Count histories per species and site, covariates, seasons, and input ready for unmarked, ubms or spOccupancy. pamflow prepares the data; it does not fit the models."
+    contents:
+      - pam_count_history
+      - pam_count_histories
+      - pam_as_count_history
+      - pam_add_site_covariates
+      - pam_define_seasons
+      - pam_model_input
+      - pam_check_model_input
+
   - title: "Stage 8 — Reports"
     contents:
       - pam_report
