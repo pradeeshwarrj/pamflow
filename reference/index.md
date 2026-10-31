@@ -53,7 +53,7 @@ examples in this reference.
   [`pam_audio_info_dt()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.md)
   : Read Audio File Metadata (WAV or FLAC)
 - [`pam_audio_summary()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_summary.md)
-  : Summarise the audio master table
+  : Summarize the audio master table
 - [`pam_list_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.md)
   : List Audio Files in a Directory (WAV + FLAC)
 - [`pam_parse_filenames()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_parse_filenames.md)
@@ -242,7 +242,7 @@ by pointing the `birdnet:` section of the config at it.
   : Train a custom BirdNET classifier from R
 
 - [`pam_birdnet_train_repeat()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_repeat.md)
-  : Train the same classifier several times and summarise the metrics
+  : Train the same classifier several times and summarize the metrics
 
 - [`pam_birdnet_train_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_metrics.md)
   :

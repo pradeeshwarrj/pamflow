@@ -40,10 +40,10 @@ pam_model_input(
 
 - standardize:
 
-  If `TRUE`, numeric covariates are centred and scaled (mean 0, standard
-  deviation 1), which helps models converge. The centre and scale are
-  returned in `scaling` so that new data can be treated the same way.
-  Default `FALSE`: covariates are returned as they are.
+  If `TRUE`, numeric covariates are centered and scaled (mean 0,
+  standard deviation 1), which helps models converge. The center and
+  scale are returned in `scaling` so that new data can be treated the
+  same way. Default `FALSE`: covariates are returned as they are.
 
 - drop_unsurveyed:
 
@@ -88,7 +88,7 @@ is a list with
 
 - `site_ids`, `species`, `count`, `binary`;
 
-- `scaling`: centre and scale of every standardised covariate.
+- `scaling`: center and scale of every standardized covariate.
 
 With several species, `y` is an array (species, sites, occasions) and
 `species` lists the species. With `seasons`, the list also has
@@ -192,7 +192,7 @@ x$siteCovs
 #> site_c    0.9
 names(x$obsCovs)
 #> [1] "effort" "day"   
-# detection / non-detection instead of counts, covariates standardised
+# detection / non-detection instead of counts, covariates standardized
 pam_model_input(hist, binary = TRUE, standardize = TRUE)$y
 #>        1 2 3 4
 #> site_a 0 1 1 1

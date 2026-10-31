@@ -121,6 +121,13 @@ Before running, pamflow checks that every option it passes appears in
 the installed `birdnet-train --help` and stops with a clear message if
 one does not.
 
+## References
+
+Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep
+learning solution for avian diversity monitoring. *Ecological
+Informatics*, 61, 101236.
+[doi:10.1016/j.ecoinf.2021.101236](https://doi.org/10.1016/j.ecoinf.2021.101236)
+
 ## Examples
 
 ``` r

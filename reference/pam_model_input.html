@@ -82,8 +82,8 @@ non-detection (0), as used by occupancy and Royle-Nichols models.</p></dd>
 
 
 <dt id="arg-standardize">standardize<a class="anchor" aria-label="anchor" href="#arg-standardize"></a></dt>
-<dd><p>If <code>TRUE</code>, numeric covariates are centred and scaled
-(mean 0, standard deviation 1), which helps models converge. The centre and
+<dd><p>If <code>TRUE</code>, numeric covariates are centered and scaled
+(mean 0, standard deviation 1), which helps models converge. The center and
 scale are returned in <code>scaling</code> so that new data can be treated the same
 way. Default <code>FALSE</code>: covariates are returned as they are.</p></dd>
 
@@ -125,7 +125,7 @@ are the site identifiers); <code>NULL</code> if there are none;</p></li>
 hours, when the history has it) and <code>day</code> (days since the first
 occasion);</p></li>
 <li><p><code>site_ids</code>, <code>species</code>, <code>count</code>, <code>binary</code>;</p></li>
-<li><p><code>scaling</code>: centre and scale of every standardised covariate.</p></li>
+<li><p><code>scaling</code>: center and scale of every standardized covariate.</p></li>
 </ul><p>With several species, <code>y</code> is an array (species, sites, occasions) and
 <code>species</code> lists the species. With <code>seasons</code>, the list also has</p><ul><li><p><code>y_array</code>: sites x seasons x occasions within season (with a leading
 species dimension for several species); <code>y</code> is then the wide matrix
@@ -222,7 +222,7 @@ warning names them.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> site_c    0.9</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "effort" "day"   </span>
-<span class="r-in"><span><span class="co"># detection / non-detection instead of counts, covariates standardised</span></span></span>
+<span class="r-in"><span><span class="co"># detection / non-detection instead of counts, covariates standardized</span></span></span>
 <span class="r-in"><span><span class="fu">pam_model_input</span><span class="op">(</span><span class="va">hist</span>, binary <span class="op">=</span> <span class="cn">TRUE</span>, standardize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">y</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        1 2 3 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> site_a 0 1 1 1</span>

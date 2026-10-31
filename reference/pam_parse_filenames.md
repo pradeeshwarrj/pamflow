@@ -37,10 +37,10 @@ ex <- pam_example_project()
 pam_parse_filenames(c(ex$files[1], "not_a_recording.wav"),
                     pattern = ex$cfg$filenames$pattern,
                     timezone = "Asia/Kolkata")
-#>                                                                                         file_path
-#>                                                                                            <char>
-#> 1: /tmp/Rtmp0Obgrg/pamflow_example_1b94626a56b2/data/standardized/G0059/G0059_20260405_183000.wav
-#> 2:                                                                            not_a_recording.wav
+#>                                                                                        file_path
+#>                                                                                           <char>
+#> 1: /tmp/Rtmpjv5Il8/pamflow_example_1c97918fe64/data/standardized/G0059/G0059_20260405_183000.wav
+#> 2:                                                                           not_a_recording.wav
 #>                    file_name   grid          start_time valid_name
 #>                       <char> <char>              <POSc>     <lgcl>
 #> 1: G0059_20260405_183000.wav  G0059 2026-04-05 18:30:00       TRUE

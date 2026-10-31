@@ -45,7 +45,7 @@ pam_activity(
 - species:
 
   Optional species to keep: scientific names, common names or species
-  labels, in any capitalisation. `NULL` keeps all.
+  labels, in any capitalization. `NULL` keeps all.
 
 - thresholds:
 

@@ -17,7 +17,7 @@ dates, and it can:
     calls (Stage 4)
 6.  Let you validate detector accuracy (precision, Stage 5) and estimate
     recall against annotated ground truth (Stage 5b)
-7.  Build occupancy detection histories ready for statistical modelling
+7.  Build occupancy detection histories ready for statistical modeling
     (Stage 6)
 8.  Generate HTML, PDF and Excel reports (Stage 8)
 
@@ -469,18 +469,18 @@ hist <- pam_add_site_covariates(hist, covs)
 
 **3. Model input.**
 [`pam_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_model_input.md)
-turns the history into the three pieces that the modelling packages use:
+turns the history into the three pieces that the modeling packages use:
 the response `y`, the site covariates `siteCovs` and the observation
 covariates `obsCovs` (`effort` and `day`).
 
 ``` r
 x <- pam_model_input(hist)                          # counts, for abundance models
 x <- pam_model_input(hist, binary = TRUE)           # detection / non-detection, for occupancy
-x <- pam_model_input(hist, binary = TRUE, standardize = TRUE)   # covariates centred and scaled
+x <- pam_model_input(hist, binary = TRUE, standardize = TRUE)   # covariates centered and scaled
 pam_check_model_input(x)                            # dimensions, sites, values, missing data
 ```
 
-Standardising keeps the centre and scale in `x$scaling`. Sites that were
+Standardizing keeps the center and scale in `x$scaling`. Sites that were
 never surveyed are left out (with a message). `dir = "path"` also writes
 the pieces as CSV files for use outside R.
 
@@ -771,7 +771,7 @@ Stage 4. No need to rerun Stage 3.
 **Q: Does pamflow fit occupancy or abundance models?** No. It prepares
 the input (Stage 7) and checks it; you fit the models with `unmarked`,
 `ubms`, `spOccupancy` or another package. This keeps pamflow free of
-modelling dependencies and lets you choose the model.
+modeling dependencies and lets you choose the model.
 
 **Q: How do I use per-species confidence thresholds?** Run
 `pam_species_thresholds(cfg, write = TRUE)` after validation, then set
@@ -850,5 +850,20 @@ birdnet:
 | [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md)                         | Training app (progress, curves, results, runs) |
 | [`pam_birdnet_train_prepare()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_prepare.md) | Check a training folder before training        |
 | [`pam_birdnet_train()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train.md)                 | Train one classifier                           |
-| [`pam_birdnet_train_repeat()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_repeat.md)   | Train several times and summarise the scores   |
+| [`pam_birdnet_train_repeat()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_repeat.md)   | Train several times and summarize the scores   |
 | [`pam_birdnet_train_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_metrics.md) | Read the scores from a training log            |
+
+## Citing BirdNET and pamflow
+
+pamflow runs BirdNET but does not include it. If you use pamflow with
+BirdNET, please cite the BirdNET paper:
+
+> Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep
+> learning solution for avian diversity monitoring. *Ecological
+> Informatics*, 61, 101236.
+> <https://doi.org/10.1016/j.ecoinf.2021.101236>
+
+The BirdNET models and the BirdNET-Analyzer are licensed by their
+authors. Research and educational use is free and non-commercial; check
+each model’s license before other uses. To cite pamflow itself, run
+`citation("pamflow")`.

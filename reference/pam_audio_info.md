@@ -32,12 +32,12 @@ ex <- pam_example_project()
 pam_audio_info(ex$files)
 #>                                                                                         file_path
 #>                                                                                            <char>
-#> 1: /tmp/Rtmp0Obgrg/pamflow_example_1b945e1a56af/data/standardized/G0059/G0059_20260405_183000.wav
-#> 2: /tmp/Rtmp0Obgrg/pamflow_example_1b945e1a56af/data/standardized/G0059/G0059_20260405_183002.wav
-#> 3: /tmp/Rtmp0Obgrg/pamflow_example_1b945e1a56af/data/standardized/G0059/G0059_20260405_183004.wav
-#> 4: /tmp/Rtmp0Obgrg/pamflow_example_1b945e1a56af/data/standardized/G0110/G0110_20260406_060000.wav
-#> 5: /tmp/Rtmp0Obgrg/pamflow_example_1b945e1a56af/data/standardized/G0110/G0110_20260406_060002.wav
-#> 6: /tmp/Rtmp0Obgrg/pamflow_example_1b945e1a56af/data/standardized/G0110/G0110_20260406_060004.wav
+#> 1: /tmp/Rtmpjv5Il8/pamflow_example_1c971f0b28c5/data/standardized/G0059/G0059_20260405_183000.wav
+#> 2: /tmp/Rtmpjv5Il8/pamflow_example_1c971f0b28c5/data/standardized/G0059/G0059_20260405_183002.wav
+#> 3: /tmp/Rtmpjv5Il8/pamflow_example_1c971f0b28c5/data/standardized/G0059/G0059_20260405_183004.wav
+#> 4: /tmp/Rtmpjv5Il8/pamflow_example_1c971f0b28c5/data/standardized/G0110/G0110_20260406_060000.wav
+#> 5: /tmp/Rtmpjv5Il8/pamflow_example_1c971f0b28c5/data/standardized/G0110/G0110_20260406_060002.wav
+#> 6: /tmp/Rtmpjv5Il8/pamflow_example_1c971f0b28c5/data/standardized/G0110/G0110_20260406_060004.wav
 #>    file_size_b sample_rate channels  bits duration_s readable
 #>          <num>       <int>    <int> <int>      <num>   <lgcl>
 #> 1:       32080        8000        1    16          2     TRUE

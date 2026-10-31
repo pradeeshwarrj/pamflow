@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="End-to-End Passive Acoustic Monitoring Workflow">
-<meta name="description" content="Tools for passive acoustic monitoring projects, from raw recordings to data ready for ecological analysis. Standardizes and checks field recordings, runs BirdNET through its Python package, cleans and validates detections, and computes soundscape indices. Builds detection histories, count histories and input for occupancy and abundance models, summarizes activity patterns and species richness, and writes HTML, PDF and Excel reports. Optional Shiny apps support standardization, validation and annotation, and the training of custom BirdNET classifiers.">
-<meta property="og:description" content="Tools for passive acoustic monitoring projects, from raw recordings to data ready for ecological analysis. Standardizes and checks field recordings, runs BirdNET through its Python package, cleans and validates detections, and computes soundscape indices. Builds detection histories, count histories and input for occupancy and abundance models, summarizes activity patterns and species richness, and writes HTML, PDF and Excel reports. Optional Shiny apps support standardization, validation and annotation, and the training of custom BirdNET classifiers.">
+<meta name="description" content="Tools for passive acoustic monitoring projects, from raw recordings to data ready for ecological analysis. Standardizes and checks field recordings, runs BirdNET (Kahl et al. 2021 &lt;doi:10.1016/j.ecoinf.2021.101236&gt;) through its Python package, cleans and validates detections, and computes soundscape indices. Builds detection histories, count histories and input for occupancy and abundance models, summarizes activity patterns and species richness, and writes HTML, PDF and Excel reports. Optional Shiny apps support standardization, validation and annotation, and the training of custom BirdNET classifiers.">
+<meta property="og:description" content="Tools for passive acoustic monitoring projects, from raw recordings to data ready for ecological analysis. Standardizes and checks field recordings, runs BirdNET (Kahl et al. 2021 &lt;doi:10.1016/j.ecoinf.2021.101236&gt;) through its Python package, cleans and validates detections, and computes soundscape indices. Builds detection histories, count histories and input for occupancy and abundance models, summarizes activity patterns and species richness, and writes HTML, PDF and Excel reports. Optional Shiny apps support standardization, validation and annotation, and the training of custom BirdNET classifiers.">
 <meta property="og:image" content="https://pradeeshwarrj.github.io/pamflow/logo.png">
 </head>
 <body>
@@ -86,7 +86,7 @@
 <li>
 <strong>Ecoacoustic Soundscape Indices</strong> Dynamic computation of ACI, ADI, AEve, Bio, H, M, and NDSI.</li>
 <li>
-<strong>Soundscape Visualizations &amp; HTML Reports</strong> 24-hour diel profiles, Day vs. Night comparisons, sitecovariate tables, and standalone HTML reports.</li>
+<strong>Soundscape Visualizations &amp; HTML Reports</strong> 24-hour diel profiles, Day vs. Night comparisons, site covariate tables, and standalone HTML reports.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -372,7 +372,7 @@
 <td>
 <code><a href="reference/pam_standardize.html">pam_standardize()</a></code> / <code><a href="reference/pam_standardization_app.html">pam_standardization_app()</a></code>
 </td>
-<td>Raven Compass-style triage: metadata extraction, memoisolation (&lt;60s), non-audio log separation, FLAC/WAV standardization</td>
+<td>Raven Compass-style triage: metadata extraction, memo isolation (&lt;60s), non-audio log separation, FLAC/WAV standardization</td>
 </tr>
 <tr class="even">
 <td>Both</td>
@@ -679,6 +679,15 @@
 <h2 id="resumability">Resumability<a class="anchor" aria-label="anchor" href="#resumability"></a>
 </h2>
 <p>If <code><a href="reference/pam_detect.html">pam_detect()</a></code> is interrupted (power loss, crash, etc.), simply run it again. It checks for completed batches and picks up where it left off.</p>
+</div>
+<div class="section level2">
+<h2 id="citing-birdnet-and-pamflow">Citing BirdNET and pamflow<a class="anchor" aria-label="anchor" href="#citing-birdnet-and-pamflow"></a>
+</h2>
+<p>pamflow runs BirdNET but does not include it. If you use pamflow with BirdNET, please cite the BirdNET paper:</p>
+<blockquote>
+<p>Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep learning solution for avian diversity monitoring. <em>Ecological Informatics</em>, 61, 101236. <a href="https://doi.org/10.1016/j.ecoinf.2021.101236" class="external-link uri">https://doi.org/10.1016/j.ecoinf.2021.101236</a></p>
+</blockquote>
+<p>The BirdNET models and the BirdNET-Analyzer are licensed by their authors (research and educational use is non-commercial and free; check each model’s license before other uses). To cite pamflow itself, run <code>citation("pamflow")</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>

@@ -62,7 +62,9 @@ Invisibly, a list: `envdir`, `python`, `python_version`, `packages`.
 ## Details
 
 Installing TensorFlow downloads roughly a gigabyte, so this can take
-several minutes. Afterwards run
+several minutes. In an interactive session you are asked to confirm
+before anything is downloaded; use `dry_run = TRUE` to see the plan
+first. Afterwards run
 [`pam_birdnet_doctor()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_doctor.md).
 
 ## Examples

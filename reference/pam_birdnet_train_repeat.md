@@ -1,6 +1,6 @@
-# Train the same classifier several times and summarise the metrics
+# Train the same classifier several times and summarize the metrics
 
-Each run uses a different random validation split and initialisation, so
+Each run uses a different random validation split and initialization, so
 a single score can be lucky or unlucky. Repeating the run shows how much
 the metrics vary, which is the yardstick for comparing settings, or
 pamflow against the Analyzer GUI, fairly.
