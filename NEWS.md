@@ -1,4 +1,4 @@
-# pamflow (development version)
+# pamflow 0.6.0
 
 ## Occupancy occasions
 * **Stage 6 now uses `occupancy.occasion_length_days`.** Until now `pam_build_occupancy()` always used one-day occasions and ignored the setting. Occasions are now blocks of that many days, starting on the first recorded day and the same for every site; `min_effort_hours` applies to the whole occasion. With the default of 1 day the results are unchanged. Existing occupancy outputs are kept unless you pass `force = TRUE`.
@@ -15,6 +15,10 @@ pamflow prepares the data; it does not fit the models and does not depend on any
 * **`pam_count_history()`** builds the count history of one species (detections or recordings with a detection per site and occasion, `NA` where a site was not surveyed) with matching matrices of recording effort and days. **`pam_count_histories()`** does it for many species in one pass over the detections, on a shared grid of sites and occasions. **`pam_as_count_history()`** wraps counts from another source, and **`pam_add_site_covariates()`** attaches covariates by `site_id` later.
 * **`pam_model_input()`** turns histories into `y`, `siteCovs` and `obsCovs` (counts or detection / non-detection, optionally standardised and written to CSV). For several species `y` is a species x site x occasion array. With `seasons` it groups occasions into primary periods for multi-season models and returns both the wide matrix (for `unmarked` and `ubms`) and arrays (for `spOccupancy`), padded to equal length, with optional season covariates as yearly site covariates. **`pam_define_seasons()`** builds seasons by year or month.
 * **`pam_check_model_input()`** checks dimensions, site and occasion matching, response values and missing values before the input goes to a modelling package.
+
+## Shiny apps
+* **The standardization, validation and annotation apps now look like the training app**: a centered page with the pamflow logo, a light and dark mode switch, one card per setting, pill-style choices and the same pastel colours. The standardization app has folder buttons and number cards for the scan; the validation and annotation apps show a progress bar, the spectrogram and the audio above the controls. What the apps save and how they work is unchanged.
+* **All app texts are translatable.** `pam_standardization_app()`, `pam_validate()` and `pam_annotate()` take a `lang` argument, and their texts live in `inst/i18n/<code>.yml` with the training app's. Values saved in your result files (such as the "none" choice for the true species) stay in English.
 
 ## Reports and guide
 * **`pam_report()` has new sections**: species richness and diversity (per-site table, Hill numbers, species accumulation and the Chao2 estimate), activity patterns (detections per recorded hour by hour of day and by week) and the per-species thresholds saved by `pam_species_thresholds()`. The Excel workbook gets matching sheets. A section is left out, and noted in the log, when its inputs are missing.

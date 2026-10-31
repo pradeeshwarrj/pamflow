@@ -28,3 +28,19 @@ A data.table with `filename`, `species`, `scientific_name`,
 the recording), `site` (= grid), `grid`, `recorder`, `deployment_id`,
 `in_deployment`, `recording_date`, `recording_start` and
 `detection_datetime` (local time), `rel`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+det <- suppressMessages(pam_assemble_detections(ex$cfg))
+#> Error: object 'ex' not found
+nrow(det)   # the batch file had one duplicate row, which is dropped
+#> NULL
+as.data.frame(det)[, c("filename", "species", "confidence", "start_time", "end_time")]
+#> Error in as.data.frame.default(det): cannot coerce class '"function"' to a data.frame
+```

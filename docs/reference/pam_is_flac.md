@@ -17,3 +17,10 @@ pam_is_flac(path)
 ## Value
 
 Logical scalar or vector.
+
+## Examples
+
+``` r
+pam_is_flac(c("a.flac", "b.wav"))
+#> Error in pam_is_flac(c("a.flac", "b.wav")): could not find function "pam_is_flac"
+```

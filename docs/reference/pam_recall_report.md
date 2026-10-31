@@ -41,3 +41,30 @@ pam_recall_report(
 A list: `metrics` (see
 [`pam_recall_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_metrics.md)),
 `n_segments`, `n_no_species`, `n_other_only`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+segments <- suppressMessages(pam_recall_draw(ex$cfg, n = 12, run_id = NULL))
+#> Error: object 'ex' not found
+gt_dir <- file.path(ex$cfg$paths$validation, "ground_truth")
+#> Error: object 'ex' not found
+# normally the annotation app writes this file; here the parakeet is "heard" everywhere
+truth <- data.frame(segment_id = segments$segment_id,
+                    present = "Psittacula longicauda_Long-tailed Parakeet",
+                    possible = "", other = "", none_audible = FALSE, note = "",
+                    reviewer = "example", reviewed_at = format(Sys.time()),
+                    stringsAsFactors = FALSE)
+#> Error in segments$segment_id: object of type 'closure' is not subsettable
+utils::write.csv(truth, file.path(gt_dir, "recall_annotations.csv"), row.names = FALSE)
+#> Error in eval(expr, p): object 'truth' not found
+rep <- suppressMessages(pam_recall_report(ex$cfg))
+#> Error: object 'ex' not found
+rep$n_segments
+#> Error in rep$n_segments: object of type 'special' is not subsettable
+```

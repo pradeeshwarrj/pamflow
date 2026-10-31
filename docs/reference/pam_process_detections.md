@@ -33,3 +33,20 @@ Writes `detections_clean.csv`, `removed_detections.csv` (with the reason
 for each removal) and `processing_steps.csv`. Times are written as
 local-time text. Run with
 `pam_run_stage("04_process", pam_process_detections, cfg, run_id = "...")`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+out <- suppressMessages(pam_process_detections(ex$cfg))
+#> Error: object 'ex' not found
+out$steps
+#> Error: object 'out' not found
+# the results are also written to the run folder
+list.files(file.path(ex$cfg$paths$detections, "run01", "processed"))
+#> Error: object 'ex' not found
+```

@@ -1,4 +1,5 @@
-# English interface texts for pam_train_app().
+# English interface texts for the pamflow Shiny apps: pam_train_app() and the apps for
+# standardization (std_), validation (val_) and annotation (gt_) keys.
 # To add a language, copy this file to <code>.yml (for example es.yml) and translate the
 # values; keys must stay the same. Texts you leave out fall back to English.
 # %s and %d are filled in by the app; keep them (and their order) in your translation.
@@ -195,3 +196,115 @@ phase_cache: Loading the saved cache...
 res_cache_mismatch: The cache was made with different frequency, speed or cropping settings than the form shows. Training used the clips as saved in the cache, with the settings listed here.
 res_cache_missing: The cache file was not found, so the clips were read from the training folder instead.
 res_split_test: '%d clips were used for training. The %d test clips were not trained on; they were used to score each epoch and the final model.'
+# ---- shared by the review apps -----------------------------------------------------
+btn_save_next: Save and next
+btn_prev: Previous
+btn_skip: Skip
+lbl_note: Note (optional)
+# ---- standardization app -----------------------------------------------------------
+std_title: Standardization and data triage
+std_page_title: pamflow | Standardization and data triage
+std_tab_inspect: Inspect raw data
+std_tab_convert: Convert and standardize
+std_tab_log: Log and audit trail
+std_lbl_raw: Raw data folder
+std_desc_raw: Folder with the recorder dumps. The original files are never changed.
+std_lbl_min_dur: Minimum duration (s)
+std_desc_min_dur: Shorter recordings are treated as memos.
+std_lbl_tz: Time zone
+std_desc_tz: Time zone of the file names and timestamps.
+std_btn_scan: Scan raw folder
+std_stat_total: Total files
+std_stat_gb: Total size (GB)
+std_stat_audio: Standard audio
+std_stat_memos: Short memos
+std_stat_non_audio: Non-audio files
+std_stat_corrupt: Corrupt or unreadable
+std_inventory: Raw file inventory
+std_status: Status
+std_no_data: 'No data loaded. Click "Scan raw folder" above.'
+std_lbl_std_dir: Standardized folder
+std_desc_std_dir: Where the converted recordings are written.
+std_lbl_iso_dir: Isolated folder
+std_desc_iso_dir: Where memos, non-audio files and corrupt files are moved.
+std_lbl_prefix: File name prefix (optional)
+std_desc_prefix: Added in front of the new file names.
+std_lbl_format: Target format
+std_lbl_hz: Target sample rate (Hz)
+std_lbl_channels: Audio channels
+std_ch_mono: Mono
+std_ch_stereo: Stereo
+std_lbl_organize: Subfolder structure
+std_org_grid: Grid folder (G0059/)
+std_org_grid_date: Grid and date (G0059/YYYY/MM/DD)
+std_org_date: Date folders (YYYY/MM/DD)
+std_org_preserve: Keep the original folders
+std_org_flat: One folder (flat)
+std_lbl_rename: Rename strategy
+std_ren_auto: Date and time read from the name
+std_ren_keep: Keep the original name
+std_lbl_isolate: Set aside
+std_isolate_non_audio: Non-audio files
+std_isolate_short: Short clips (below the minimum duration)
+std_preview_title: File name preview
+std_preview_none: 'No raw files scanned yet. Click "Scan raw folder" first.'
+std_preview_no_valid: No standardizable audio files found.
+std_preview_input: Sample input file
+std_preview_grid: Grid or site
+std_preview_in_specs: Input
+std_preview_output: New file name
+std_preview_out_specs: Output
+std_btn_dry: Dry run
+std_btn_run: Run standardization
+std_console_title: Log
+std_console_ready: 'Ready. Click "Scan raw folder" or "Dry run" to look at the data.'
+std_err_no_dir: 'Error: the raw folder does not exist: %s'
+std_err_generic: 'Error: %s'
+std_err_dry: 'Dry run error: %s'
+std_err_run: 'Standardization error: %s'
+std_progress_scan: Scanning the raw folder...
+std_progress_dry: Running the dry run...
+std_progress_run: Standardizing and converting...
+std_done_dry: 'Dry run finished. Planned actions: %d. Conversions: %d. Copies: %d. Files set aside: %d.'
+std_done_run: 'Standardization finished. Files processed: %d. Converted: %d. Copied: %d. Set aside: %d.'
+std_log_title: Standardization summary
+std_no_log: No log yet. Run a dry run or the standardization.
+# ---- validation app ----------------------------------------------------------------
+val_title: Validation
+val_page_title: pamflow | Validation
+val_lbl_reviewer: Reviewer
+val_desc_reviewer: Your name, saved with each verdict.
+val_progress: '%d of %d reviewed'
+val_lbl_verdict: Is the predicted species present in the highlighted window?
+val_correct: Correct
+val_incorrect: Incorrect
+val_unsure: Unsure
+val_lbl_true_species: True species
+val_desc_true_species: Pick it or type it; leave it blank if unknown.
+val_meta_where: 'Grid %s | %s'
+val_meta_conf: 'Model confidence: %.2f'
+val_window: 'Detection window: %.1f to %.1f s of the clip (the rest is context)'
+val_whole_clip: Whole clip
+val_window_only: Detection window only
+val_spec_alt: Spectrogram of the clip
+val_choose_first: Choose Correct, Incorrect or Unsure first
+val_all_done: All samples reviewed
+# ---- annotation app ----------------------------------------------------------------
+gt_title: Ground-truth annotation
+gt_page_title: pamflow | Ground-truth annotation
+gt_lbl_annotator: Annotator
+gt_desc_annotator: Your name, saved with each annotation.
+gt_progress: '%d of %d segments annotated'
+gt_lbl_present: Species you hear
+gt_desc_present: Pick every species that you can hear.
+gt_lbl_possible: Possibly present
+gt_desc_possible: Species you are not sure about.
+gt_lbl_other: Other species heard
+gt_desc_other: Species that are not in the list.
+gt_lbl_none: Nothing from the list
+gt_none_text: No species from the list audible in this segment
+gt_segment: 'Segment of %d s, local time %s'
+gt_spec_alt: Spectrogram of the segment
+gt_err_empty: 'Pick the species you hear, or tick "No species from the list audible"'
+gt_err_conflict: 'You ticked "No species from the list audible" but also picked species. Fix one of them.'
+gt_all_done: All segments annotated

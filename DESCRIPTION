@@ -1,12 +1,22 @@
 Package: pamflow
 Title: End-to-End Passive Acoustic Monitoring Workflow
-Version: 0.5.0
-Authors@R: person("RJ", "Pradeeshwar", email = "pradeeshwarrj@gmail.com", role = c("aut", "cre", "cph"))
-Description: Standardising passive acoustic recordings, running BirdNET acoustic
-    scanning, validating detections, calculating soundscape diversity indices,
-    and preparing occupancy-ready detection histories and reports.
+Version: 0.6.0
+Authors@R: person(given = "Pradeeshwar", family = "Rajagopal James",
+    email = "pradeeshwarrj@gmail.com", role = c("aut", "cre", "cph"),
+    comment = c(ORCID = "0000-0003-1246-442X"))
+Description: Tools for passive acoustic monitoring projects, from raw recordings
+    to data ready for ecological analysis. Standardizes and checks field
+    recordings, runs 'BirdNET' through its Python package, cleans and validates
+    detections, and computes soundscape indices. Builds detection histories,
+    count histories and input for occupancy and abundance models, summarizes
+    activity patterns and species richness, and writes HTML, PDF and Excel
+    reports. Optional Shiny apps support standardization, validation and
+    annotation, and the training of custom 'BirdNET' classifiers.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Language: en-US
+SystemRequirements: FFmpeg (audio conversion, filtering and clips); uv (creates
+    the optional Python environment for 'BirdNET')
 Roxygen: list(markdown = TRUE)
 Depends: 
     R (>= 4.0.0)
@@ -27,6 +37,7 @@ Imports:
     tools,
     tuneR,
     utils,
+    withr (>= 2.5.0),
     yaml
 Suggests: 
     knitr,
@@ -35,14 +46,11 @@ Suggests:
     rmarkdown,
     rstudioapi,
     soundecology,
-    spOccupancy,
     tcltk,
     testthat (>= 3.2.0),
-    ubms,
-    unmarked,
-    withr
+    unmarked
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.1
-URL: https://pradeeshwarrj.github.io/pamflow, https://github.com/pradeeshwarrj/pamflow
+URL: https://pradeeshwarrj.github.io/pamflow/, https://github.com/pradeeshwarrj/pamflow
 BugReports: https://github.com/pradeeshwarrj/pamflow/issues
 VignetteBuilder: knitr

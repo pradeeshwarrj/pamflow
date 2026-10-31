@@ -8,23 +8,23 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Standardising passive acoustic recordings, running BirdNET acoustic scanning, validating detections, calculating soundscape diversity indices, and preparing occupancy-ready detection histories and reports.
+Tools for passive acoustic monitoring projects, from raw recordings to data ready for ecological analysis. Standardizes and checks field recordings, runs 'BirdNET' through its Python package, cleans and validates detections, and computes soundscape indices. Builds detection histories, count histories and input for occupancy and abundance models, summarizes activity patterns and species richness, and writes HTML, PDF and Excel reports. Optional Shiny apps support standardization, validation and annotation, and the training of custom 'BirdNET' classifiers.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://pradeeshwarrj.github.io/pamflow}
+  \item \url{https://pradeeshwarrj.github.io/pamflow/}
   \item \url{https://github.com/pradeeshwarrj/pamflow}
   \item Report bugs at \url{https://github.com/pradeeshwarrj/pamflow/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: RJ Pradeeshwar \email{pradeeshwarrj@gmail.com} [copyright holder]
+\strong{Maintainer}: Pradeeshwar Rajagopal James \email{pradeeshwarrj@gmail.com} (\href{https://orcid.org/0000-0003-1246-442X}{ORCID}) [copyright holder]
 
 Authors:
 \itemize{
-  \item RJ Pradeeshwar \email{pradeeshwarrj@gmail.com} [copyright holder]
+  \item Pradeeshwar Rajagopal James \email{pradeeshwarrj@gmail.com} (\href{https://orcid.org/0000-0003-1246-442X}{ORCID}) [copyright holder]
 }
 
 }

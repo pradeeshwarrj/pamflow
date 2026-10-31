@@ -439,7 +439,7 @@ pam_train_plot_runs <- function(tbl, labels = list(), dark = FALSE) {
 
 # ---- look and feel ---------------------------------------------------------------------
 
-#' Stylesheet of the training app (internal)
+#' Stylesheet of the pamflow apps (internal)
 #'
 #' A quiet, minimal look: system fonts, a white page, hairline dividers, one
 #' accent colour and no shadows. Plain CSS on top of Shiny's own Bootstrap, so it
@@ -451,9 +451,11 @@ pam_train_plot_runs <- function(tbl, labels = list(), dark = FALSE) {
 pam_train_css <- function() {
   paste(
     ":root { --ink:#1f2328; --muted:#5b6370; --line:#e3e7ee; --accent:#8fb4e3; --accent-ink:#35568a;",
-    "  --card:#f3f6fc; --page:#fbfcfe; --field:#ffffff; --on-accent:#1f2328; --logo-bg:transparent; }",
+    "  --card:#f3f6fc; --page:#fbfcfe; --field:#ffffff; --on-accent:#1f2328; --logo-bg:transparent;",
+    "  --ok:#2f7a52; --warn:#9a5a12; --bad:#b2453f; --odd:#7b4fa8; }",
     "[data-theme='dark'] { --ink:#e6e9ee; --muted:#a3acb9; --line:#343b47; --accent:#8fb4e3;",
-    "  --accent-ink:#a9c4ea; --card:#212630; --page:#161a20; --field:#1a1e26; --logo-bg:#ffffff; }",
+    "  --accent-ink:#a9c4ea; --card:#212630; --page:#161a20; --field:#1a1e26; --logo-bg:#ffffff;",
+    "  --ok:#8fd1a8; --warn:#f0b46e; --bad:#f09a94; --odd:#c9a5ec; }",
     "html { color-scheme: light; } [data-theme='dark'] { color-scheme: dark; }",
     "body { font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;",
     "  color: var(--ink); background:var(--page); font-size:14px; line-height:1.5; }",
@@ -539,6 +541,38 @@ pam_train_css <- function() {
     ".irs--shiny .irs-bar, .irs-bar { background:var(--accent); border-color:var(--accent); }",
     ".alert { border-radius:8px; box-shadow:none; }",
     ".shiny-notification { background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:8px; box-shadow:0 2px 10px rgba(53,86,138,0.12); opacity:1; }",
+    # number cards, media and review controls (standardization, validation and annotation apps)
+    ".pam-stat { background:var(--card); border-radius:10px; padding:14px 16px; text-align:center; }",
+    ".pam-stat-num { font-size:26px; font-weight:600; line-height:1.15; color:var(--accent-ink); }",
+    ".pam-stat-label { color:var(--muted); font-size:12.5px; margin-top:2px; }",
+    ".pam-stat-ok .pam-stat-num { color:var(--ok); } .pam-stat-warn .pam-stat-num { color:var(--warn); }",
+    ".pam-stat-bad .pam-stat-num { color:var(--bad); } .pam-stat-odd .pam-stat-num { color:var(--odd); }",
+    ".pam-media { background:var(--card); border-radius:10px; padding:12px; margin-bottom:12px; }",
+    ".pam-media img { width:100%; height:auto; border-radius:6px; background:#ffffff; }",
+    ".pam-media audio { width:100%; margin-top:4px; }",
+    ".pam-audio-label { font-size:12.5px; color:var(--muted); margin:10px 0 2px; }",
+    ".pam-meta-title { font-size:18px; font-weight:600; margin:0; }",
+    ".pam-meta-sub { color:var(--muted); font-style:italic; }",
+    ".pam-meta-line { color:var(--muted); font-size:12.5px; margin:2px 0 0; }",
+    ".pam-progress-text { text-align:center; color:var(--muted); font-size:13px; margin:0; }",
+    ".pam-nav { display:flex; gap:8px; margin:10px 0 18px; } .pam-nav .btn { flex:1; }",
+    ".pam-preview p { margin:0 0 4px; } .pam-preview .pam-out { color:var(--accent-ink); font-weight:600; }",
+    # selectize dropdowns and pickers: Shiny's own theme sets a white background, so these win with !important
+    ".selectize-control .selectize-input, .selectize-control.single .selectize-input,",
+    "  .selectize-control.single .selectize-input.input-active { border:1px solid var(--line); border-radius:8px;",
+    "  box-shadow:none; background:var(--field) !important; background-image:none !important; color:var(--ink);",
+    "  min-height:36px; padding:7px 10px; }",
+    ".selectize-control .selectize-input.focus { border-color:var(--accent); box-shadow:none; }",
+    ".selectize-control .selectize-input > .item, .selectize-control .selectize-input input { color:var(--ink); }",
+    ".selectize-control .selectize-input input::placeholder { color:var(--muted); }",
+    ".selectize-control.single .selectize-input:after { border-color:var(--muted) transparent transparent transparent; }",
+    ".selectize-control.single .selectize-input.dropdown-active:after { border-color:transparent transparent var(--muted) transparent; }",
+    ".selectize-dropdown, .selectize-dropdown.form-control { background:var(--field); color:var(--ink);",
+    "  border:1px solid var(--line); border-radius:8px; height:auto; box-shadow:none; }",
+    ".selectize-dropdown .option, .selectize-dropdown .create { color:var(--ink); }",
+    ".selectize-dropdown .active, .selectize-dropdown .option:hover { background:var(--card); color:var(--ink); }",
+    ".selectize-control.multi .selectize-input > div { background:var(--accent); color:var(--on-accent); border-radius:6px; }",
+    ".checkbox label, .radio label { cursor:pointer; }",
     "@media (max-width: 700px) { .container-fluid { padding:0 12px 40px; }",
     "  .pam-cols-2, .pam-cols-3 { grid-template-columns:1fr; } }",
     sep = "\n")
@@ -616,6 +650,146 @@ pam_train_plot_theme <- function(base_size = 12, dark = FALSE) {
 #' @noRd
 pam_train_plot_colours <- function(dark = FALSE) {
   if (dark) c("#7fb2ee", "#f0a08f") else c("#4f86c6", "#d9776a")
+}
+
+# ---- shared page pieces of all pamflow apps ----------------------------------------------
+
+#' Make the logo folder available to the apps (internal)
+#' @return The folder, invisibly (empty when the package is not installed).
+#' @keywords internal
+#' @noRd
+pam_app_assets <- function() {
+  dir <- system.file("app", "www", package = "pamflow")
+  if (nzchar(dir)) shiny::addResourcePath("pamflow-assets", dir)
+  invisible(dir)
+}
+
+#' The `<head>` of an app page: stylesheet and theme script (internal)
+#' @return A Shiny tag.
+#' @keywords internal
+#' @noRd
+pam_app_head <- function() {
+  shiny::tags$head(shiny::tags$style(shiny::HTML(pam_train_css())),
+                   shiny::tags$script(shiny::HTML(pam_train_theme_js())))
+}
+
+#' Page header of the apps: logo, title and the light/dark switch (internal)
+#'
+#' @param tr Translation function from `pam_i18n()`.
+#' @param title_key Translation key of the title.
+#' @return A Shiny tag.
+#' @keywords internal
+#' @noRd
+pam_app_header <- function(tr, title_key) {
+  shiny::div(
+    class = "pam-header",
+    shiny::tags$button(
+      type = "button", id = "theme_switch", class = "pam-theme", role = "switch",
+      `aria-checked` = "false",
+      shiny::span(class = "pam-theme-track", shiny::span(class = "pam-theme-thumb")),
+      shiny::span(tr("lbl_dark_mode"))),
+    shiny::div(
+      class = "pam-brand",
+      shiny::tags$img(src = "pamflow-assets/logo.png", class = "pam-logo", alt = tr("logo_alt")),
+      shiny::tags$h1(tr(title_key))))
+}
+
+#' Building blocks of the app layout (internal)
+#'
+#' One setting is one card: a title, a one-line description and the control.
+#' All texts go through `tr`, so an app is translated by translating its keys.
+#'
+#' @param tr Translation function from `pam_i18n()`.
+#' @return A list of functions: `choices(values, keys)`, `card(id, title_key,
+#'   desc_key, control, kind, class)` (`kind` "label" ties the title to the
+#'   input, "group" labels a radio group), `pills(id, values, keys, selected)`,
+#'   `grid(..., cols)`, `path_row(id, value, pick_id)`, `number(id, value, ...)`
+#'   and `stat(output_id, label_key, tone)` (a number card for `uiOutput`).
+#' @keywords internal
+#' @noRd
+pam_app_widgets <- function(tr) {
+  choices <- function(values, keys) stats::setNames(values, vapply(keys, tr, character(1)))
+  card <- function(id, title_key, desc_key = NULL, control, kind = "label", class = NULL) {
+    title_id <- paste0(id, "_title")
+    desc_id <- paste0(id, "_desc")
+    title <- if (identical(kind, "label")) {
+      shiny::tags$label(id = title_id, `for` = id, class = "pam-card-title", tr(title_key))
+    } else {
+      shiny::div(id = title_id, class = "pam-card-title", tr(title_key))
+    }
+    body <- shiny::div(
+      title,
+      if (!is.null(desc_key)) shiny::div(id = desc_id, class = "pam-card-desc", tr(desc_key)),
+      if (identical(kind, "group")) {
+        shiny::div(role = "radiogroup", `aria-labelledby` = title_id, control)
+      } else {
+        control
+      })
+    shiny::div(class = paste(c("pam-card", class), collapse = " "), body)
+  }
+  pills <- function(id, values, keys, selected) {
+    shiny::radioButtons(id, label = NULL, inline = TRUE, choices = choices(values, keys),
+                        selected = selected)
+  }
+  grid <- function(..., cols = 2L) {
+    shiny::div(class = paste0("pam-grid pam-cols-", cols), ...)
+  }
+  path_row <- function(id, value, pick_id) {
+    shiny::div(
+      class = "pam-path",
+      shiny::textInput(id, label = NULL, value = value, width = "100%"),
+      shiny::actionButton(pick_id, tr("btn_browse")))
+  }
+  number <- function(id, value, ...) {
+    shiny::numericInput(id, label = NULL, value = value, width = "100%", ...)
+  }
+  stat <- function(output_id, label_key, tone = NULL) {
+    shiny::div(class = paste(c("pam-stat", if (!is.null(tone)) paste0("pam-stat-", tone)), collapse = " "),
+               shiny::uiOutput(output_id),
+               shiny::div(class = "pam-stat-label", tr(label_key)))
+  }
+  list(choices = choices, card = card, pills = pills, grid = grid, path_row = path_row,
+       number = number, stat = stat)
+}
+
+#' Fill a path box from a folder dialog (internal)
+#'
+#' Call inside an observer. Starts in the folder already typed, tells the user when no
+#' dialog is available, and runs `after` with the chosen folder.
+#'
+#' @param session,input The Shiny session and input of the app.
+#' @param tr Translation function from `pam_i18n()`.
+#' @param input_id Id of the text box to fill.
+#' @param key Translation key of the dialog title.
+#' @param after Optional function called with the chosen folder.
+#' @return `NULL`, invisibly.
+#' @keywords internal
+#' @noRd
+pam_app_pick_into <- function(session, input, tr, input_id, key, after = NULL) {
+  typed <- trimws(as.character(input[[input_id]]))
+  start <- if (length(typed) == 1L && nzchar(typed) && dir.exists(typed)) typed else getwd()
+  chosen <- pam_pick_dir(tr(key), default = start)
+  if (is.null(chosen)) {
+    shiny::showNotification(tr("picker_unavailable"), type = "message")
+  } else {
+    shiny::updateTextInput(session, input_id, value = chosen)
+    if (!is.null(after)) after(chosen)
+  }
+  invisible(NULL)
+}
+
+#' Thin progress bar for "n of N" displays (internal)
+#'
+#' @param done Number finished.
+#' @param total Total number (0 gives an empty bar).
+#' @return A Shiny tag.
+#' @keywords internal
+#' @noRd
+pam_app_progress_bar <- function(done, total) {
+  pct <- if (total > 0) round(100 * min(done, total) / total) else 0
+  shiny::div(class = "progress", role = "progressbar", `aria-valuemin` = 0, `aria-valuemax` = 100,
+             `aria-valuenow` = pct,
+             shiny::div(class = "progress-bar", style = sprintf("width:%d%%;", as.integer(pct))))
 }
 
 # ---- test-set results ------------------------------------------------------------------

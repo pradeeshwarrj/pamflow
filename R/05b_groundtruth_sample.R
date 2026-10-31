@@ -79,8 +79,7 @@ pam_recall_frame <- function(master, segment_s = 60, hours = NULL) {
 #' @export
 pam_recall_sample <- function(frame, n, seed = 1L, exclude_keys = character()) {
   f <- frame[!seg_key %in% exclude_keys]
-  set.seed(seed)
-  f[sample.int(.N, min(.N, as.integer(n)))]
+  f[withr::with_seed(seed, sample.int(nrow(f), min(nrow(f), as.integer(n))))]
 }
 
 #' Draw a round of random segments for ground-truth annotation

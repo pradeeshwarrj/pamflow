@@ -281,3 +281,37 @@ test_that("pam_standardize: an empty raw folder returns the empty inspection tab
                                           isolated_dir = file.path(d, "i")))
   expect_equal(nrow(res), 0L)
 })
+
+test_that("the standardization app scans a folder, shows the numbers and runs a dry run", {
+  skip_if_not_installed("shiny")
+  ex <- pam_example_project()
+  withr::defer(unlink(ex$root, recursive = TRUE))
+  dest <- withr::local_tempdir()
+  tz <- ex$cfg$filenames$timezone
+
+  shiny::testServer(pam_standardization_app(ex$cfg, raw_dir = ex$audio_dir), {
+    expect_match(console_text(), "Ready", fixed = TRUE)
+    expect_equal(nrow(inspect_data()), 0L)
+    session$setInputs(raw_path = ex$audio_dir, min_dur = 1, tz = tz, btn_scan = 1)
+    expect_equal(nrow(inspect_data()), 6L)
+    expect_match(as.character(output$stat_total_files$html), ">6<", fixed = TRUE)
+    expect_match(as.character(output$stat_standardizable$html), "pam-stat-num", fixed = TRUE)
+    expect_match(as.character(output$stat_corrupt$html), ">0<", fixed = TRUE)
+
+    session$setInputs(std_path = file.path(dest, "std"), iso_path = file.path(dest, "iso"),
+                      prefix = "", target_format = "wav", target_hz = 8000, channels = "1",
+                      organize_folders = "grid", rename_strategy = "auto",
+                      isolate_non_audio = TRUE, isolate_short = TRUE, btn_dry_run = 1)
+    expect_match(console_text(), "^Dry run finished\\. Planned actions: 6\\.")
+    expect_equal(nrow(log_data()), 6L)
+  })
+})
+
+test_that("the standardization app reports a missing folder in its log", {
+  skip_if_not_installed("shiny")
+  shiny::testServer(pam_standardization_app(list(), raw_dir = tempdir()), {
+    session$setInputs(raw_path = file.path(tempdir(), "no_such_folder_xyz"), min_dur = 1,
+                      tz = "UTC", btn_scan = 1)
+    expect_match(console_text(), "the raw folder does not exist", fixed = TRUE)
+  })
+})

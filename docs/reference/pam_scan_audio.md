@@ -37,3 +37,17 @@ Audio discovery uses
 [`pam_list_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_list_audio.md)
 (WAV + FLAC). Header reading uses
 [`pam_audio_info()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_info.md).
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+res$summary$overall
+#> Error: object 'res' not found
+# the master table and summaries are also written to the project
+list.files(ex$cfg$paths$metadata)
+#> Error: object 'ex' not found
+```

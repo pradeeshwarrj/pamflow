@@ -4,12 +4,15 @@
 \alias{pam_standardization_app}
 \title{Launch PAM Standardization & Data Triage Shiny App}
 \usage{
-pam_standardization_app(cfg = NULL, raw_dir = NULL)
+pam_standardization_app(cfg = NULL, raw_dir = NULL, lang = NULL)
 }
 \arguments{
 \item{cfg}{Optional configuration object from \code{pam_load_config()}.}
 
 \item{raw_dir}{Optional path override for raw audio directory.}
+
+\item{lang}{Interface language code (for example \code{"en"}); \code{NULL} chooses it as
+\code{pam_train_app()} does. Translations live in \verb{inst/i18n/<code>.yml}.}
 }
 \value{
 Runs Shiny application.

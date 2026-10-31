@@ -56,3 +56,20 @@ pam_validation_draw(
 ## Value
 
 Invisibly, the newly added rows.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 5))
+#> Error: object 'ex' not found
+as.data.frame(new)[, c("sample_id", "species", "confidence", "clip_file")]
+#> Error in as.data.frame.default(new): cannot coerce class '"function"' to a data.frame
+# the sample file is written to the run folder
+file.exists(file.path(ex$cfg$paths$detections, "run01", "validation", "validation_samples.csv"))
+#> Error: object 'ex' not found
+```

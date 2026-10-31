@@ -24,3 +24,12 @@ pam_audio_info_dt(paths)
 
 A `data.table` with columns `file_path`, `file_size_b`, `sample_rate`,
 `channels`, `bits`, `duration_s`, `readable`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+pam_audio_info(ex$files)
+#> Error: object 'ex' not found
+```

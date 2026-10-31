@@ -261,3 +261,35 @@ test_that("pam_wilson_ci: higher confidence gives a wider interval", {
   expect_gte(pam_wilson_ci(0, 10)$low, 0)
   expect_lte(pam_wilson_ci(10, 10)$high, 1)
 })
+
+test_that("the validation app shows progress, species and media in the shared look", {
+  skip_if_not_installed("shiny")
+  root <- withr::local_tempdir()
+  cfg <- list(paths = list(detections = file.path(root, "det"), logs = file.path(root, "logs")),
+              birdnet = list(run_id = "t"))
+  val_dir <- file.path(root, "det", "t", "validation")
+  dir.create(file.path(val_dir, "clips"), recursive = TRUE)
+  dir.create(file.path(val_dir, "spectrograms"))
+  samples <- data.table::data.table(
+    sample_id = 1:2, species = c("Aus a_X", "Bus b_Y"), common_name = c("X bird", "Y bird"),
+    scientific_name = c("Aus a", "Bus b"), grid = "G1", detection_datetime = "2026-04-05 18:30:01",
+    confidence = c(0.7, 0.8), clip_file = c("c1.wav", "c2.wav"), spec_file = c("s1.png", "s2.png"),
+    event_offset_s = 1, event_end_offset_s = 2)
+  data.table::fwrite(samples, file.path(val_dir, "validation_samples.csv"))
+  file.create(file.path(val_dir, "clips", samples$clip_file))
+  file.create(file.path(val_dir, "spectrograms", samples$spec_file))
+
+  shiny::testServer(pam_validation_app(cfg, "t", reviewer = "me", show_confidence = TRUE), {
+    html <- function(x) as.character(x$html)
+    expect_match(html(output$progress), "0 of 2 reviewed", fixed = TRUE)
+    expect_match(html(output$progress), "progress-bar", fixed = TRUE)
+    expect_match(html(output$meta), "pam-meta-title", fixed = TRUE)
+    expect_match(html(output$meta), "Model confidence", fixed = TRUE)
+    expect_match(html(output$media), "pamspecs/s[12]\\.png")
+    expect_match(html(output$media), "Whole clip", fixed = TRUE)
+    expect_match(html(output$media), "Detection window only", fixed = TRUE)
+  })
+  shiny::testServer(pam_validation_app(cfg, "t"), {
+    expect_false(grepl("Model confidence", as.character(output$meta$html), fixed = TRUE))
+  })
+})

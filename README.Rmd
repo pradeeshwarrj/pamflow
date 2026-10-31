@@ -193,6 +193,8 @@ The GUI provides three tabs:
 
 - **Log** — Live processing log
 
+The validation (`pam_validate()`) and annotation (`pam_annotate()`) apps share this look, with a light and dark mode.
+
 ### Headless Standardization R
 
 ``` r

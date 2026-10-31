@@ -74,8 +74,10 @@ estimate.
 ## Examples
 
 ``` r
+if (interactive()) {
+  pam_train_app()
+}
 if (FALSE) { # \dontrun{
-pam_train_app()
 pam_train_app(data_dir = "E:/clips", output_dir = "E:/models", lang = "en")
 } # }
 ```

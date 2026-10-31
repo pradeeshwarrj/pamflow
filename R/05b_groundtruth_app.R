@@ -2,10 +2,11 @@
 #'
 #' @param cfg A `pam_config` object.
 #' @param reviewer Annotator name pre-filled in the app.
+#' @param lang Interface language code (see `pam_train_app()`); `NULL` chooses it.
 #' @return A `shiny.appobj`.
 #' @keywords internal
 #' @noRd
-pam_annotation_app <- function(cfg, reviewer = "") {
+pam_annotation_app <- function(cfg, reviewer = "", lang = NULL) {
   if (!requireNamespace("shiny", quietly = TRUE)) {
     rlang::abort("Package 'shiny' is required: install.packages(\"shiny\")")
   }
@@ -37,8 +38,7 @@ pam_annotation_app <- function(cfg, reviewer = "") {
                      error = function(e) character())
   labels <- labels[nzchar(labels)]
 
-  set.seed(1)
-  ids <- sample(seg$segment_id)                  # shuffled order
+  ids <- withr::with_seed(1, sample(seg$segment_id))      # fixed shuffled order
   pos0 <- which(!ids %in% res0$segment_id)[1]
   if (is.na(pos0)) pos0 <- 1L
 
@@ -49,39 +49,52 @@ pam_annotation_app <- function(cfg, reviewer = "") {
     if (is.null(x) || is.na(x) || !nzchar(x)) character(0) else strsplit(x, ";", fixed = TRUE)[[1]]
   }
 
+  tr <- pam_i18n(lang)
+  w <- pam_app_widgets(tr)
+  card <- w$card; grid <- w$grid
+  pam_app_assets()
+
   ui <- shiny::fluidPage(
-    shiny::titlePanel("Ground-truth annotation"),
-    shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        width = 4,
-        shiny::textInput("reviewer", "Annotator", value = reviewer),
-        shiny::uiOutput("progress"),
-        shiny::hr(),
-        shiny::selectizeInput("present", "Species you hear (all of them)", choices = labels,
-                              multiple = TRUE),
-        shiny::selectizeInput("possible", "Possibly present (not sure)", choices = labels,
-                              multiple = TRUE),
-        shiny::textInput("other", "Other species heard (not in the list)"),
-        shiny::checkboxInput("none", "No species from the list audible in this segment"),
-        shiny::textInput("note", "Note (optional)"),
-        shiny::actionButton("save", "Save & next", class = "btn-primary"),
-        shiny::actionButton("prev", "Previous"),
-        shiny::actionButton("skip", "Skip")),
-      shiny::mainPanel(width = 8, shiny::uiOutput("media"))))
+    title = tr("gt_page_title"),
+    pam_app_head(),
+    pam_app_header(tr, "gt_title"),
+    grid(
+      card("reviewer", "gt_lbl_annotator", "gt_desc_annotator",
+           shiny::textInput("reviewer", label = NULL, value = reviewer, width = "100%")),
+      shiny::div(class = "pam-card", shiny::uiOutput("progress"))),
+    shiny::uiOutput("media"),
+    card("present", "gt_lbl_present", "gt_desc_present",
+         shiny::selectizeInput("present", label = NULL, choices = labels, multiple = TRUE,
+                               width = "100%")),
+    card("possible", "gt_lbl_possible", "gt_desc_possible",
+         shiny::selectizeInput("possible", label = NULL, choices = labels, multiple = TRUE,
+                               width = "100%")),
+    grid(
+      card("other", "gt_lbl_other", "gt_desc_other",
+           shiny::textInput("other", label = NULL, width = "100%")),
+      card("none", "gt_lbl_none", NULL,
+           shiny::checkboxInput("none", tr("gt_none_text"), value = FALSE), kind = "group")),
+    card("note", "lbl_note", NULL, shiny::textInput("note", label = NULL, width = "100%")),
+    shiny::actionButton("save", tr("btn_save_next"), class = "btn-primary pam-start"),
+    shiny::div(class = "pam-nav",
+               shiny::actionButton("prev", tr("btn_prev")),
+               shiny::actionButton("skip", tr("btn_skip"))))
 
   server <- function(input, output, session) {
     rv <- shiny::reactiveValues(pos = pos0, results = res0)
     current <- shiny::reactive(seg[segment_id == ids[rv$pos]])
 
-    output$progress <- shiny::renderUI(tg$p(tg$strong(sprintf(
-      "%d of %d segments annotated", nrow(rv$results), nrow(seg)))))
+    output$progress <- shiny::renderUI(shiny::tagList(
+      tg$p(class = "pam-progress-text", tr("gt_progress", nrow(rv$results), nrow(seg))),
+      pam_app_progress_bar(nrow(rv$results), nrow(seg))))
     output$media <- shiny::renderUI({
       s <- current()
       src <- paste0("gtclips/", s$clip_file)
-      shiny::tagList(
-        tg$p(sprintf("Segment of %d s, local time %s", s$segment_s, substr(s$slot_time, 12, 19))),
-        tg$img(src = paste0("gtspecs/", s$spec_file), style = "width:100%;"),
-        tg$audio(src = src, controls = NA, style = "width:100%;"))
+      shiny::div(
+        class = "pam-media",
+        tg$p(class = "pam-meta-line", tr("gt_segment", s$segment_s, substr(s$slot_time, 12, 19))),
+        tg$img(src = paste0("gtspecs/", s$spec_file), alt = tr("gt_spec_alt")),
+        tg$audio(src = src, controls = NA))
     })
 
     shiny::observeEvent(rv$pos, {
@@ -106,14 +119,11 @@ pam_annotation_app <- function(cfg, reviewer = "") {
       other <- trimws(pam_or(input$other, ""))
       none <- isTRUE(input$none)
       if (!length(present) && !none && !nzchar(other)) {
-        shiny::showNotification(
-          "Pick the species you hear, or tick 'No species from the list audible'", type = "warning")
+        shiny::showNotification(tr("gt_err_empty"), type = "warning")
         return()
       }
       if (none && length(present)) {
-        shiny::showNotification(
-          "You ticked 'No species audible' but also picked species. Fix one of them.",
-          type = "error")
+        shiny::showNotification(tr("gt_err_conflict"), type = "error")
         return()
       }
       row <- data.table::data.table(
@@ -129,7 +139,7 @@ pam_annotation_app <- function(cfg, reviewer = "") {
       nxt <- todo[todo > rv$pos]
       if (!length(nxt)) nxt <- todo
       if (length(nxt)) rv$pos <- nxt[1] else {
-        shiny::showNotification("All segments annotated", type = "message")
+        shiny::showNotification(tr("gt_all_done"), type = "message")
       }
     })
     shiny::observeEvent(input$prev, rv$pos <- max(1L, rv$pos - 1L))
@@ -148,6 +158,8 @@ pam_annotation_app <- function(cfg, reviewer = "") {
 #'
 #' @param cfg A `pam_config` object.
 #' @param reviewer Annotator name pre-filled in the app.
+#' @param lang Interface language code (for example `"en"`); `NULL` chooses it as
+#'   `pam_train_app()` does. Translations live in `inst/i18n/<code>.yml`.
 #' @return Nothing; runs until the app is closed.
 #' @examples
 #' if (interactive() && nzchar(Sys.which("ffmpeg"))) {
@@ -158,6 +170,6 @@ pam_annotation_app <- function(cfg, reviewer = "") {
 #'   pam_annotate(ex$cfg)
 #' }
 #' @export
-pam_annotate <- function(cfg, reviewer = pam_or(cfg$recall$reviewer, "")) {
-  shiny::runApp(pam_annotation_app(cfg, reviewer), launch.browser = TRUE)
+pam_annotate <- function(cfg, reviewer = pam_or(cfg$recall$reviewer, ""), lang = NULL) {
+  shiny::runApp(pam_annotation_app(cfg, reviewer, lang), launch.browser = TRUE)
 }

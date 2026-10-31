@@ -22,3 +22,14 @@ pam_checkpoint_add(ids, path)
 ## Value
 
 `ids`, invisibly.
+
+## Examples
+
+``` r
+ckpt <- tempfile(fileext = ".txt")
+pam_checkpoint_add("a.wav", ckpt)
+pam_checkpoint_add("b.wav", ckpt)
+pam_checkpoint_read(ckpt)
+#> [1] "a.wav" "b.wav"
+unlink(ckpt)
+```

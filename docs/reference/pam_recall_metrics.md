@@ -53,3 +53,29 @@ and threshold: `tp`, `fn`, `fp`, `tn`, `n_present`, `recall`,
 With simple random sampling of segments the estimates apply to the
 sampled recordings and hours. A species that is rarely present in random
 segments has few `n_present` and an uncertain recall.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+segments <- suppressMessages(pam_recall_draw(ex$cfg, n = 12, run_id = NULL))
+#> Error: object 'ex' not found
+events <- suppressMessages(pam_validation_pool(ex$cfg))
+#> Error: object 'ex' not found
+# normally the annotation app records what an expert hears; here we pretend the
+# parakeet is present in every segment
+truth <- data.table::data.table(segment_id = segments$segment_id,
+                                present = "Psittacula longicauda_Long-tailed Parakeet",
+                                possible = NA_character_)
+#> Error in segments$segment_id: object of type 'closure' is not subsettable
+m <- pam_recall_metrics(truth, segments, events, thresholds = c(0.3, 0.5))
+#> Error in .(segment_id, rel, seg_start, seg_end): could not find function "."
+m <- as.data.frame(m)
+#> Error: object 'm' not found
+m[m$scientific_name == "ALL", c("threshold", "n_present", "tp", "fn", "fp", "recall", "precision")]
+#> Error: object 'm' not found
+```

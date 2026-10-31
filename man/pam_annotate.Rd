@@ -4,12 +4,15 @@
 \alias{pam_annotate}
 \title{Open the ground-truth annotation app}
 \usage{
-pam_annotate(cfg, reviewer = pam_or(cfg$recall$reviewer, ""))
+pam_annotate(cfg, reviewer = pam_or(cfg$recall$reviewer, ""), lang = NULL)
 }
 \arguments{
 \item{cfg}{A \code{pam_config} object.}
 
 \item{reviewer}{Annotator name pre-filled in the app.}
+
+\item{lang}{Interface language code (for example \code{"en"}); \code{NULL} chooses it as
+\code{pam_train_app()} does. Translations live in \verb{inst/i18n/<code>.yml}.}
 }
 \value{
 Nothing; runs until the app is closed.

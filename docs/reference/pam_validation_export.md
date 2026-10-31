@@ -30,3 +30,20 @@ pam_validation_export(cfg, run_id = cfg$birdnet$run_id, force = FALSE)
 ## Value
 
 Invisibly, list(n_ok, n_failed, failed_ids).
+
+## Examples
+
+``` r
+# \donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  # the later stages read the master table that the scan builds
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  proc <- suppressMessages(pam_process_detections(ex$cfg))
+  new <- suppressMessages(pam_validation_draw(ex$cfg, strategy = "random", n = 3))
+  out <- suppressMessages(pam_validation_export(ex$cfg))
+  out$n_ok
+}
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# }
+```

@@ -39,3 +39,19 @@ error text, are appended to `metadata/02_filter_results.csv`. Only files
 with `qc_pass == TRUE` are filtered. Format (WAV vs FLAC) is preserved
 from source files. Run with
 `pam_run_stage("02_filter", pam_filter_audio, cfg)`.
+
+## Examples
+
+``` r
+# \donttest{
+if (nzchar(Sys.which("ffmpeg"))) {
+  ex <- pam_example_project()
+  # the later stages read the master table that the scan builds
+  res <- suppressMessages(pam_scan_audio(ex$cfg))
+  out <- suppressMessages(pam_filter_audio(ex$cfg))
+  out$n_ok
+  basename(list.files(ex$cfg$paths$filtered, recursive = TRUE))
+}
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# }
+```

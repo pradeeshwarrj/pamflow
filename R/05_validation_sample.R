@@ -126,8 +126,7 @@ pam_validation_sample <- function(pool, strategy = c("stratified", "random", "ra
     p <- p[wanted]                            # is not shadowed by the `species` column
   }
   p <- p[!event_id %in% exclude_ids]
-  set.seed(seed)
-  picked <- switch(
+  picked <- withr::with_seed(seed, switch(
     strategy,
     stratified = p[, .SD[sample.int(.N, min(.N, as.integer(n_per_cell)))],
                    by = .(scientific_name, band)],
@@ -136,7 +135,7 @@ pam_validation_sample <- function(pool, strategy = c("stratified", "random", "ra
       rare <- totals[N <= rare_max_events, scientific_name]
       p[scientific_name %in% rare][
         , .SD[sample.int(.N, min(.N, as.integer(rare_n)))], by = scientific_name]
-    })
+    }))
   picked[]
 }
 

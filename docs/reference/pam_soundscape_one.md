@@ -39,3 +39,16 @@ pam_soundscape_one(
 ## Value
 
 A `data.table` with file/window metadata and index values.
+
+## Examples
+
+``` r
+# \donttest{
+if (requireNamespace("soundecology", quietly = TRUE)) {
+  ex <- pam_example_project()
+  # the example tones are only 2 s long and 8 kHz, so some indices come out as NA
+  pam_soundscape_one(ex$files[1], cfg = ex$cfg)
+}
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# }
+```

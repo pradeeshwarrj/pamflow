@@ -22,3 +22,18 @@ pam_audio_summary(master, dep = NULL)
 
 A list: `overall` (one-row data.table), `per_grid` (data.table),
 `grids_without_deployment`, `deployments_without_audio`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+summ <- pam_audio_summary(res$master, res$deployments)
+#> Error: object 'res' not found
+summ$overall
+#> Error: object 'summ' not found
+summ$per_grid
+#> Error: object 'summ' not found
+```

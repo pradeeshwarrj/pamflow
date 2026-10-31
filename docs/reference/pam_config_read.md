@@ -27,7 +27,12 @@ Missing keys fall back to the template defaults.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-cfg <- pam_config_read("config/config.yml")
-} # }
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+cfg <- pam_config_read(ex$config)
+#> Error: object 'ex' not found
+cfg$birdnet$run_id
+#> Error: object 'cfg' not found
+cfg$paths$audio_standardized
+#> Error: object 'cfg' not found
 ```

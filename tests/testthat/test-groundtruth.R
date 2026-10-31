@@ -330,3 +330,27 @@ test_that("pam_recall_report: aborts when no annotated segment belongs to the ru
     pam_recall_report(cfg, "t", thresholds = 0.5, pool = mk_gt_pool()))),
     "No annotated segments")
 })
+
+test_that("the annotation app shows progress and the segment in the shared look", {
+  skip_if_not_installed("shiny")
+  root <- withr::local_tempdir()
+  cfg <- mk_cfg_gt(root, seg_s = 20)
+  gt <- file.path(root, "val", "ground_truth")
+  dir.create(file.path(gt, "clips"), recursive = TRUE)
+  dir.create(file.path(gt, "spectrograms"))
+  seg <- data.table::data.table(segment_id = 1:2, clip_file = c("c1.wav", "c2.wav"),
+                                spec_file = c("s1.png", "s2.png"), segment_s = 20L,
+                                slot_time = "2026-04-05 18:30:00")
+  data.table::fwrite(seg, file.path(gt, "recall_segments.csv"))
+  file.create(file.path(gt, "clips", seg$clip_file))
+  file.create(file.path(gt, "spectrograms", seg$spec_file))
+
+  shiny::testServer(pam_annotation_app(cfg, "me"), {
+    html <- function(x) as.character(x$html)
+    expect_match(html(output$progress), "0 of 2 segments annotated", fixed = TRUE)
+    expect_match(html(output$progress), "progress-bar", fixed = TRUE)
+    expect_match(html(output$media), "Segment of 20 s, local time 18:30:00", fixed = TRUE)
+    expect_match(html(output$media), "gtspecs/s[12]\\.png")
+    expect_match(html(output$media), "pam-media", fixed = TRUE)
+  })
+})

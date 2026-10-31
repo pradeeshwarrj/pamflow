@@ -31,3 +31,14 @@ seconds are dropped, a blank recovery time becomes
 (e.g. 15-04-0206) is replaced by the deployment year. Rows that still
 can't be parsed get NA and are listed by
 [`pam_check_deployments()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_check_deployments.md).
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+dep <- pam_read_deployments(ex$cfg)
+#> Error: object 'ex' not found
+as.data.frame(dep)[, c("deployment_id", "grid", "deploy_start", "retrieve_end")]
+#> Error: object 'dep' not found
+```

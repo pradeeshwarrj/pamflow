@@ -7,7 +7,7 @@ standardized audio transcoding.
 ## Usage
 
 ``` r
-pam_standardization_app(cfg = NULL, raw_dir = NULL)
+pam_standardization_app(cfg = NULL, raw_dir = NULL, lang = NULL)
 ```
 
 ## Arguments
@@ -21,6 +21,21 @@ pam_standardization_app(cfg = NULL, raw_dir = NULL)
 
   Optional path override for raw audio directory.
 
+- lang:
+
+  Interface language code (for example `"en"`); `NULL` chooses it as
+  [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md)
+  does. Translations live in `inst/i18n/<code>.yml`.
+
 ## Value
 
 Runs Shiny application.
+
+## Examples
+
+``` r
+if (interactive()) {
+  ex <- pam_example_project()
+  pam_standardization_app(ex$cfg, raw_dir = ex$audio_dir)
+}
+```

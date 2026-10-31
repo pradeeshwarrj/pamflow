@@ -55,3 +55,13 @@ removes the duplicates. Per-file outcomes (seconds, errors) go to
 `file_results.csv`; settings and the `birdnet` package version go to
 `run_settings_*.yml`. Run with
 `pam_run_stage("03_detect", pam_detect, cfg)`.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# needs the BirdNET Python environment (pam_birdnet_setup("inference")) and your model
+cfg <- pam_config_read("config/config.yml")
+res <- pam_run_stage("03_detect", pam_detect, cfg)
+} # }
+```

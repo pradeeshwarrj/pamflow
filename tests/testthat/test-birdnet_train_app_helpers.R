@@ -374,3 +374,71 @@ test_that("a language file with a bare number is read as text", {
   local_mocked_bindings(pam_i18n_dir = function() dir)
   expect_identical(pam_i18n("en")("thr_default"), "0.5")
 })
+
+# ---- shared look of the pamflow apps ---------------------------------------------------------
+
+test_that("every text the standardization, validation and annotation apps ask for exists", {
+  src_dir <- testthat::test_path("..", "..", "R")
+  files <- file.path(src_dir, c("00_standardization_app.R", "05_validation_app.R", "05b_groundtruth_app.R"))
+  skip_if_not(all(file.exists(files)), "R sources are not available (installed package)")
+  txt <- paste(unlist(lapply(files, readLines, warn = FALSE)), collapse = "\n")
+  grab <- function(pattern) {
+    m <- regmatches(txt, gregexpr(pattern, txt, perl = TRUE))[[1L]]
+    sub(pattern, "\\1", m, perl = TRUE)
+  }
+  used <- unique(c(grab("\"((?:std|val|gt)_[a-z_0-9]+)\""),
+                   grab("\"(btn_save_next|btn_prev|btn_skip|lbl_note|btn_browse|picker_unavailable|lbl_dark_mode|logo_alt)\"")))
+  used <- setdiff(used, "std_path")           # a Shiny input id, not a text key
+  have <- names(yaml::read_yaml(file.path(pam_i18n_dir(), "en.yml"), fileEncoding = "UTF-8"))
+  expect_true(length(used) > 60L)
+  expect_equal(setdiff(used, have), character())
+})
+
+test_that("the texts of the other apps fill in their numbers", {
+  tr <- pam_i18n("en")
+  expect_equal(tr("val_progress", 3L, 10L), "3 of 10 reviewed")
+  expect_equal(tr("gt_progress", 1L, 4L), "1 of 4 segments annotated")
+  expect_equal(tr("std_done_dry", 6L, 2L, 3L, 1L),
+               "Dry run finished. Planned actions: 6. Conversions: 2. Copies: 3. Files set aside: 1.")
+  expect_equal(tr("val_meta_conf", 0.5), "Model confidence: 0.50")
+  expect_equal(tr("gt_segment", 20L, "18:30:00"), "Segment of 20 s, local time 18:30:00")
+})
+
+test_that("the shared page pieces build the markup of the training app", {
+  tr <- pam_i18n("en")
+  w <- pam_app_widgets(tr)
+  card <- as.character(w$card("x", "val_lbl_reviewer", "val_desc_reviewer", shiny::textInput("x", NULL)))
+  expect_match(card, "pam-card", fixed = TRUE)
+  expect_match(card, "Reviewer", fixed = TRUE)
+  expect_match(card, "for=\"x\"", fixed = TRUE)
+  group <- as.character(w$card("g", "val_lbl_verdict", NULL, "body", kind = "group"))
+  expect_match(group, "role=\"radiogroup\"", fixed = TRUE)
+  expect_match(as.character(w$stat("n", "std_stat_total", "ok")), "pam-stat pam-stat-ok", fixed = TRUE)
+  expect_match(as.character(w$grid("a", "b", cols = 3L)), "pam-cols-3", fixed = TRUE)
+  expect_equal(w$choices("a", "btn_stop"), c(Stop = "a"))
+  pills <- as.character(w$pills("verdict", c("a", "b"), c("val_correct", "val_incorrect"), character(0)))
+  expect_match(pills, "Correct", fixed = TRUE)
+  expect_false(grepl("checked", pills, fixed = TRUE))
+  header <- as.character(pam_app_header(tr, "val_title"))
+  expect_match(header, "Validation", fixed = TRUE)
+  expect_match(header, "theme_switch", fixed = TRUE)
+  expect_match(header, "pamflow-assets/logo.png", fixed = TRUE)
+})
+
+test_that("the progress bar is capped and empty bars are allowed", {
+  expect_match(as.character(pam_app_progress_bar(3, 4)), "width:75%", fixed = TRUE)
+  expect_match(as.character(pam_app_progress_bar(9, 4)), "width:100%", fixed = TRUE)
+  expect_match(as.character(pam_app_progress_bar(1, 0)), "width:0%", fixed = TRUE)
+})
+
+test_that("the stylesheet has the number cards, the status colours and the review controls", {
+  css <- pam_train_css()
+  for (piece in c(".pam-stat", ".pam-media", ".pam-nav", ".selectize-input", "--ok:#2f7a52", "--ok:#8fd1a8")) {
+    expect_true(grepl(piece, css, fixed = TRUE), info = piece)
+  }
+  expect_equal(pam_train_css(), pam_train_css())
+  head <- pam_app_head()                                  # a head tag: the stylesheet, then the script
+  expect_equal(head$name, "head")
+  expect_match(as.character(head$children[[1]]), "pam-header", fixed = TRUE)
+  expect_match(as.character(head$children[[2]]), "<script>", fixed = TRUE)
+})

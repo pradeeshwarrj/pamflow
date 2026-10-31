@@ -41,3 +41,15 @@ pam_inspect_raw(
 ## Value
 
 data.table containing detailed file metadata and triage categorization.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the example audio stands in for a raw dump; recordings under 1 s would count as memos
+insp <- suppressMessages(pam_inspect_raw(ex$audio_dir, min_duration_s = 1))
+#> Error in pam_inspect_raw(ex$audio_dir, min_duration_s = 1): could not find function "pam_inspect_raw"
+as.data.frame(insp)[, c("filename", "duration_s", "grid", "category")]
+#> Error: object 'insp' not found
+```

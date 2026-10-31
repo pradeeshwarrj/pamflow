@@ -31,3 +31,22 @@ pam_run_stage(stage, fn, cfg, ...)
 
 A list: `status` ("ok" or "failed"), `result`, `duration` (difftime),
 `warnings` (character).
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+res <- suppressMessages(pam_run_stage("demo", function(cfg, x) x * 2, ex$cfg, x = 21))
+#> Error: object 'ex' not found
+res$status
+#> Error: object 'res' not found
+res$result
+#> Error: object 'res' not found
+
+# an error is logged and returned as a failed status; it does not stop your script
+bad <- suppressMessages(pam_run_stage("demo_fail", function(cfg) stop("boom"), ex$cfg))
+#> Error: object 'ex' not found
+bad$status
+#> Error: object 'bad' not found
+```

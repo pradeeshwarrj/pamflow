@@ -8,7 +8,8 @@ pam_validate(
   cfg,
   run_id = cfg$birdnet$run_id,
   reviewer = pam_or(cfg$validation$reviewer, ""),
-  show_confidence = isTRUE(cfg$validation$show_confidence)
+  show_confidence = isTRUE(cfg$validation$show_confidence),
+  lang = NULL
 )
 }
 \arguments{
@@ -20,6 +21,9 @@ pam_validate(
 
 \item{show_confidence}{Show the model's confidence while reviewing. Hidden
 by default (\code{validation$show_confidence}) to avoid biasing the reviewer.}
+
+\item{lang}{Interface language code (for example \code{"en"}); \code{NULL} chooses it as
+\code{pam_train_app()} does. Translations live in \verb{inst/i18n/<code>.yml}.}
 }
 \value{
 Nothing; runs until the app is closed.

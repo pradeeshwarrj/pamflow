@@ -152,8 +152,8 @@ pam_detect <- function(cfg, master = NULL, sample_n = NULL, seed = 1L, force = F
     todo <- todo[!absent]
   }
   if (!is.null(sample_n)) {
-    set.seed(seed)
-    todo <- todo[sample.int(.N, min(as.integer(sample_n), .N))]
+    n_todo <- nrow(todo)
+    todo <- todo[withr::with_seed(seed, sample.int(n_todo, min(as.integer(sample_n), n_todo)))]
   }
   pending <- todo[!rel %in% pam_checkpoint_read(ckpt)]
   if (!nrow(pending)) {

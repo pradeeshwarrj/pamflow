@@ -25,3 +25,17 @@ pam_validation_pool(cfg, run_id = cfg$birdnet$run_id)
 ## Value
 
 A data.table of events with `event_id` (rel\|species\|start).
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+pool <- suppressMessages(pam_validation_pool(ex$cfg))
+#> Error: object 'ex' not found
+as.data.frame(pool)[, c("species", "confidence", "n_windows", "start_time")]
+#> Error: object 'pool' not found
+```

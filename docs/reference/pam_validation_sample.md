@@ -62,3 +62,28 @@ pam_validation_sample(
 ## Value
 
 A data.table: the sampled rows with `band_idx` and `band`.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the later stages read the master table that the scan builds
+res <- suppressMessages(pam_scan_audio(ex$cfg))
+#> Error: object 'ex' not found
+pool <- suppressMessages(pam_validation_pool(ex$cfg))
+#> Error: object 'ex' not found
+bands <- unlist(ex$cfg$validation$bands)
+#> Error: object 'ex' not found
+# at most one event per species and confidence band
+smp <- pam_validation_sample(pool, "stratified", bands = bands, n_per_cell = 1)
+#> Error: object 'pool' not found
+as.data.frame(smp)[, c("species", "confidence", "band")]
+#> Error: object 'smp' not found
+
+# five events at random from the whole pool
+rnd <- pam_validation_sample(pool, "random", bands = bands, n = 5, seed = 42)
+#> Error: object 'pool' not found
+nrow(rnd)
+#> Error: object 'rnd' not found
+```

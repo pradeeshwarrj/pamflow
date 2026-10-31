@@ -28,3 +28,15 @@ pam_parse_filenames(files, pattern, timezone)
 A data.table with `file_path`, `file_name`, `grid`, `start_time`
 (POSIXct) and `valid_name`. Files that don't match get NA and
 `valid_name = FALSE`; they are never dropped.
+
+## Examples
+
+``` r
+ex <- pam_example_project()
+#> Error in pam_example_project(): could not find function "pam_example_project"
+# the second name does not match the pattern, so it is flagged, not dropped
+pam_parse_filenames(c(ex$files[1], "not_a_recording.wav"),
+                    pattern = ex$cfg$filenames$pattern,
+                    timezone = "Asia/Kolkata")
+#> Error: object 'ex' not found
+```

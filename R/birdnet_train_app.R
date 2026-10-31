@@ -57,62 +57,16 @@ pam_train_app <- function(cfg = NULL, data_dir = NULL, output_dir = NULL, lang =
   if (is.null(init_out)) init_out <- ""
   if (is.null(data_dir)) data_dir <- ""
 
-  choices <- function(values, keys) stats::setNames(values, vapply(keys, tr, character(1)))
+  # layout pieces shared by all pamflow apps (see pam_app_widgets() in birdnet_train_app_helpers.R)
+  w <- pam_app_widgets(tr)
+  choices <- w$choices; card <- w$card; pills <- w$pills; grid <- w$grid
+  path_row <- w$path_row; number <- w$number
 
-  # One setting = one card: a title, a one-line description and the control.
-  # `kind` "label" ties the title to the input; "group" labels a radio group.
-  card <- function(id, title_key, desc_key = NULL, control, kind = "label", class = NULL) {
-    title_id <- paste0(id, "_title")
-    desc_id <- paste0(id, "_desc")
-    title <- if (identical(kind, "label")) {
-      shiny::tags$label(id = title_id, `for` = id, class = "pam-card-title", tr(title_key))
-    } else {
-      shiny::div(id = title_id, class = "pam-card-title", tr(title_key))
-    }
-    body <- shiny::div(
-      title,
-      if (!is.null(desc_key)) shiny::div(id = desc_id, class = "pam-card-desc", tr(desc_key)),
-      if (identical(kind, "group")) {
-        shiny::div(role = "radiogroup", `aria-labelledby` = title_id, control)
-      } else {
-        control
-      })
-    shiny::div(class = paste(c("pam-card", class), collapse = " "), body)
-  }
-  pills <- function(id, values, keys, selected) {
-    shiny::radioButtons(id, label = NULL, inline = TRUE, choices = choices(values, keys),
-                        selected = selected)
-  }
-  grid <- function(..., cols = 2L) {
-    shiny::div(class = paste0("pam-grid pam-cols-", cols), ...)
-  }
-  path_row <- function(id, value, pick_id) {
-    shiny::div(
-      class = "pam-path",
-      shiny::textInput(id, label = NULL, value = value, width = "100%"),
-      shiny::actionButton(pick_id, tr("btn_browse")))
-  }
-  number <- function(id, value, ...) {
-    shiny::numericInput(id, label = NULL, value = value, width = "100%", ...)
-  }
-
-  logo_dir <- system.file("app", "www", package = "pamflow")
-  if (nzchar(logo_dir)) shiny::addResourcePath("pamflow-assets", logo_dir)
+  pam_app_assets()
 
   ui <- shiny::fluidPage(
-    shiny::tags$head(shiny::tags$style(shiny::HTML(pam_train_css())),
-                     shiny::tags$script(shiny::HTML(pam_train_theme_js()))),
-    shiny::div(
-      class = "pam-header",
-      shiny::tags$button(
-        type = "button", id = "theme_switch", class = "pam-theme", role = "switch",
-        `aria-checked` = "false",
-        shiny::span(class = "pam-theme-track", shiny::span(class = "pam-theme-thumb")),
-        shiny::span(tr("lbl_dark_mode"))),
-      shiny::div(
-        class = "pam-brand",
-        shiny::tags$img(src = "pamflow-assets/logo.png", class = "pam-logo", alt = tr("logo_alt")),
-        shiny::tags$h1(tr("app_title")))),
+    pam_app_head(),
+    pam_app_header(tr, "app_title"),
     if (!env_ok) shiny::div(class = "alert alert-danger", role = "alert", tr("env_missing")),
     shiny::tabsetPanel(
       id = "main_tabs",
@@ -254,18 +208,8 @@ pam_train_app <- function(cfg = NULL, data_dir = NULL, output_dir = NULL, lang =
       classes(tryCatch(pam_birdnet_train_prepare(dir, quiet = TRUE), error = function(e) NULL))
       invisible(NULL)
     }
-    pick_start <- function(path) {
-      path <- trimws(as.character(path))
-      if (length(path) == 1L && nzchar(path) && dir.exists(path)) path else getwd()
-    }
     pick_into <- function(input_id, key, after = NULL) {
-      d <- pam_pick_dir(tr(key), default = pick_start(input[[input_id]]))
-      if (is.null(d)) {
-        shiny::showNotification(tr("picker_unavailable"), type = "message")
-      } else {
-        shiny::updateTextInput(session, input_id, value = d)
-        if (!is.null(after)) after(d)
-      }
+      pam_app_pick_into(session, input, tr, input_id, key, after)
     }
     shiny::observeEvent(input$pick_train, pick_into("train_dir", "lbl_train_dir", check_data))
     shiny::observeEvent(input$pick_test, pick_into("test_dir", "lbl_test_dir"))
