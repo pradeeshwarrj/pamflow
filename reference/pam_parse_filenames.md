@@ -39,7 +39,7 @@ pam_parse_filenames(c(ex$files[1], "not_a_recording.wav"),
                     timezone = "Asia/Kolkata")
 #>                                                                                         file_path
 #>                                                                                            <char>
-#> 1: /tmp/Rtmpefifs1/pamflow_example_1c57200a7668/data/standardized/G0059/G0059_20260405_183000.wav
+#> 1: /tmp/RtmpcPP94A/pamflow_example_1c4d49945d55/data/standardized/G0059/G0059_20260405_183000.wav
 #> 2:                                                                            not_a_recording.wav
 #>                    file_name   grid          start_time valid_name
 #>                       <char> <char>              <POSc>     <lgcl>

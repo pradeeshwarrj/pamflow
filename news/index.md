@@ -1,5 +1,101 @@
 # Changelog
 
+## pamflow (development version)
+
+### Occupancy occasions
+
+- **Stage 6 now uses `occupancy.occasion_length_days`.** Until now
+  [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)
+  always used one-day occasions and ignored the setting. Occasions are
+  now blocks of that many days, starting on the first recorded day and
+  the same for every site; `min_effort_hours` applies to the whole
+  occasion. With the default of 1 day the results are unchanged.
+  Existing occupancy outputs are kept unless you pass `force = TRUE`.
+
+### Ecological products
+
+- **[`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md)**
+  chooses a confidence threshold for each species from the Stage 5
+  validation. For each species it takes the lowest confidence whose
+  estimated precision is within `tolerance` (0.05) of that species’ own
+  best, so no precision target is needed. Species with too little
+  validation get the global threshold (the `reason` column says why),
+  and a `manual` table overrides any species. `write = TRUE` saves
+  `species_thresholds.csv`, which can be used as
+  `processing.species_thresholds_file`.
+- **[`pam_detection_table()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detection_table.md)**
+  gives one row per site, time bin and species with detections,
+  recordings with a detection, recording effort and detections per hour
+  (zeros included). The bin length defaults to
+  `occupancy.occasion_length_days` (1 day) and can be set with
+  `bin_days`. It is the base for the planned activity, richness and
+  abundance functions.
+- **[`pam_activity()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_activity.md)**
+  gives detections per recorded hour for each species by hour of the
+  day, day, week or month (pooled over sites or per site), for daily and
+  seasonal activity patterns. Recording effort is split over the clock
+  hours each recording covers, so recordings that start part way through
+  an hour or cross midnight are counted correctly. It accepts the same
+  species selection and thresholds as the table, and returns a relative
+  activity index (1 = the species’ peak).
+  **[`pam_plot_activity()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_plot_activity.md)**
+  draws it.
+- **[`pam_richness()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_richness.md)**
+  gives species richness and Hill numbers (orders you choose, default 1
+  and 2) for every site and time bin and for every site over the whole
+  survey, the expected species accumulation over sites, and the Chao2
+  estimate of how many species were missed. A species counts as present
+  in a bin only with at least `min_events` events (default 1), and Hill
+  numbers can weight species by their event counts or by presence only.
+  The site table can be joined to habitat covariates by `site_id`.
+  **[`pam_plot_richness()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_plot_richness.md)**
+  draws the accumulation curve or richness per site.
+
+### Stage 7: input for occupancy and abundance models
+
+pamflow prepares the data; it does not fit the models and does not
+depend on any modelling package.
+
+- **[`pam_count_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_history.md)**
+  builds the count history of one species (detections or recordings with
+  a detection per site and occasion, `NA` where a site was not surveyed)
+  with matching matrices of recording effort and days.
+  **[`pam_count_histories()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_histories.md)**
+  does it for many species in one pass over the detections, on a shared
+  grid of sites and occasions.
+  **[`pam_as_count_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_as_count_history.md)**
+  wraps counts from another source, and
+  **[`pam_add_site_covariates()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_add_site_covariates.md)**
+  attaches covariates by `site_id` later.
+- **[`pam_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_model_input.md)**
+  turns histories into `y`, `siteCovs` and `obsCovs` (counts or
+  detection / non-detection, optionally standardised and written to
+  CSV). For several species `y` is a species x site x occasion array.
+  With `seasons` it groups occasions into primary periods for
+  multi-season models and returns both the wide matrix (for `unmarked`
+  and `ubms`) and arrays (for `spOccupancy`), padded to equal length,
+  with optional season covariates as yearly site covariates.
+  **[`pam_define_seasons()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_define_seasons.md)**
+  builds seasons by year or month.
+- **[`pam_check_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_check_model_input.md)**
+  checks dimensions, site and occasion matching, response values and
+  missing values before the input goes to a modelling package.
+
+### Reports and guide
+
+- **[`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)
+  has new sections**: species richness and diversity (per-site table,
+  Hill numbers, species accumulation and the Chao2 estimate), activity
+  patterns (detections per recorded hour by hour of day and by week) and
+  the per-species thresholds saved by
+  [`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md).
+  The Excel workbook gets matching sheets. A section is left out, and
+  noted in the log, when its inputs are missing.
+- The guide and README describe the new functions: Stage 7 model input,
+  thresholds, activity and richness, plus
+  [`pam_audio_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_history.md)
+  in the function reference and FAQ, and the occasion length of Stage 6.
+
 ## pamflow 0.5.0
 
 ### Audio history

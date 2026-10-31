@@ -23,8 +23,15 @@ with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking,
   (runs the Python `birdnet` package; no birdnetR needed)
 - **Clean & merge** overlapping detections into events
 - **Interactive validation** via Shiny app with precision metrics
-- **Occupancy detection histories** (daily 1/0 matrices per site per
-  species)
+- **Occupancy detection histories** (1/0 matrices per site per species;
+  occasion length set in the config)
+- **Activity, richness and diversity** from the detections and the
+  recording effort: species thresholds from validation, activity
+  patterns by hour or season, Hill numbers, species accumulation
+- **Input for occupancy and abundance models** (`unmarked`, `ubms`,
+  `spOccupancy`): count histories for one or many species and seasons,
+  with covariates and checks. pamflow prepares the data; it does not fit
+  the models
 - **Standalone BirdNET training tool** (separate from the workflow):
   train your own classifier from R or in a point-and-click app, with
   per-class test results
@@ -89,6 +96,10 @@ out$steps                               # what each cleaning rule removed
 
 occ <- pam_build_occupancy(ex$cfg)      # Stage 6: detection histories
 occ$histories[[1]]
+
+act <- pam_activity(ex$cfg)             # activity by hour of the day
+rich <- pam_richness(ex$cfg)            # richness and diversity per site
+rich$sites
 ```
 
 Open `ex$root` in your file browser to see what each stage wrote. Every
@@ -246,6 +257,10 @@ pam_validation_metrics(val, pool, bands = c(0.5, 0.6, 0.7, 0.8, 0.9))
 # Stage 6: Build occupancy detection histories
 pam_build_occupancy(cfg)
 
+# Stage 7: Input for occupancy and abundance models (you fit them yourself)
+hist <- pam_count_history(cfg, species = "Gracula religiosa")
+x <- pam_model_input(hist, binary = TRUE)   # y, siteCovs, obsCovs
+
 # Stage 8: Generate species detection reports
 pam_report(cfg)
 ```
@@ -269,24 +284,61 @@ sc_results <- pam_soundscape_run(cfg)
 vis_results <- pam_soundscape_run_vis(cfg)
 ```
 
+## Beyond occupancy: activity, richness and model input
+
+The cleaned detections can answer more than occupancy questions. These
+functions use the recording effort, so sites and periods recorded for
+different lengths of time can be compared. pamflow prepares the input
+for occupancy and abundance models but does not fit them: use
+`unmarked`, `ubms`, `spOccupancy` or any other package.
+
+``` r
+# One confidence threshold per species, from the Stage 5 validation
+thr <- pam_species_thresholds(cfg, write = TRUE)
+
+# Activity: detections per recorded hour, by hour of day, day, week or month
+act <- pam_activity(cfg, by = "hour")
+pam_plot_activity(act)
+
+# Richness, Hill numbers, species accumulation and the Chao2 estimate
+rich <- pam_richness(cfg)
+rich$sites
+pam_plot_richness(rich)
+
+# Input for occupancy and abundance models (one species, or many, and seasons)
+hist <- pam_count_history(cfg, species = "Gracula religiosa")
+x <- pam_model_input(hist, binary = TRUE)    # y, siteCovs, obsCovs
+pam_check_model_input(x)
+umf <- unmarked::unmarkedFrameOccu(y = x$y, siteCovs = x$siteCovs, obsCovs = x$obsCovs)
+```
+
+Occasions follow `occupancy.occasion_length_days` in the config. See the
+guide
+([`vignette("pamflow-guide")`](https://pradeeshwarrj.github.io/pamflow/articles/pamflow-guide.md))
+for several species, several seasons and the details of each function.
+
 ## Pipeline Stages
 
-| Workflow | Stage | Function                                                                                                                                                                                                                                                                                          | What it does                                                                                                               |
-|----------|-------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| Both     | 00    | [`pam_standardize()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.md) / [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md)                                                                                         | Raven Compass-style triage: metadata extraction, memoisolation (\<60s), non-audio log separation, FLAC/WAV standardization |
-| Both     | 1     | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)                                                                                                                                                                                                         | Inventories audio files, matches to deployments, flags QC issues                                                           |
-| Both     | 2     | [`pam_filter_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.md)                                                                                                                                                                                                     | High-pass filter on the QC checked files; can be customized                                                                |
-| B        | 2b    | [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)                                                                                                                                                                                                 | Computes soundscape indices per 10-min window with 500Hz high-pass filter                                                  |
-| B        | 2c    | [`pam_soundscape_run_vis()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.md)                                                                                                                                                                                         | Plots 24-hour diel profiles, Day/Night comparisons, and generates HTML report                                              |
-| A        | 3     | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)                                                                                                                                                                                                                 | Runs BirdNET on all files in parallel batches; resumable                                                                   |
-| A        | 4     | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md)                                                                                                                                                                                         | Filters by confidence, deployment window, species; merges overlapping windows                                              |
-| A        | 5     | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)                                                                                                                                                                                               | Draws a stratified random sample for manual review                                                                         |
-| A        | 5     | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)                                                                                                                                                                                           | Cuts short WAV clips around each sampled detection                                                                         |
-| A        | 5     | `pam_validation_app()`                                                                                                                                                                                                                                                                            | Shiny app to listen and confirm/reject species                                                                             |
-| A        | 5     | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md)                                                                                                                                                                                         | Computes precision by species and confidence band                                                                          |
-| A        | 5b    | [`pam_recall_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_draw.md) / [`pam_recall_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_export.md) / [`pam_recall_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_metrics.md) | Optional ground-truth segments to estimate recall                                                                          |
-| A        | 6     | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)                                                                                                                                                                                               | Builds daily detection matrices, effort, and site covariates                                                               |
-| A        | 8     | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)                                                                                                                                                                                                                 | Generates HTML report and Excel workbook                                                                                   |
+| Workflow | Stage | Function                                                                                                                                                                                                                                                                                                  | What it does                                                                                                               |
+|----------|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| Both     | 00    | [`pam_standardize()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.md) / [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md)                                                                                                 | Raven Compass-style triage: metadata extraction, memoisolation (\<60s), non-audio log separation, FLAC/WAV standardization |
+| Both     | 1     | [`pam_scan_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_scan_audio.md)                                                                                                                                                                                                                 | Inventories audio files, matches to deployments, flags QC issues                                                           |
+| Both     | 2     | [`pam_filter_audio()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_audio.md)                                                                                                                                                                                                             | High-pass filter on the QC checked files; can be customized                                                                |
+| B        | 2b    | [`pam_soundscape_run()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run.md)                                                                                                                                                                                                         | Computes soundscape indices per 10-min window with 500Hz high-pass filter                                                  |
+| B        | 2c    | [`pam_soundscape_run_vis()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_soundscape_run_vis.md)                                                                                                                                                                                                 | Plots 24-hour diel profiles, Day/Night comparisons, and generates HTML report                                              |
+| A        | 3     | [`pam_detect()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detect.md)                                                                                                                                                                                                                         | Runs BirdNET on all files in parallel batches; resumable                                                                   |
+| A        | 4     | [`pam_process_detections()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_process_detections.md)                                                                                                                                                                                                 | Filters by confidence, deployment window, species; merges overlapping windows                                              |
+| A        | 5     | [`pam_validation_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_draw.md)                                                                                                                                                                                                       | Draws a stratified random sample for manual review                                                                         |
+| A        | 5     | [`pam_validation_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_export.md)                                                                                                                                                                                                   | Cuts short WAV clips around each sampled detection                                                                         |
+| A        | 5     | `pam_validation_app()`                                                                                                                                                                                                                                                                                    | Shiny app to listen and confirm/reject species                                                                             |
+| A        | 5     | [`pam_validation_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_validation_metrics.md)                                                                                                                                                                                                 | Computes precision by species and confidence band                                                                          |
+| A        | 5b    | [`pam_recall_draw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_draw.md) / [`pam_recall_export()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_export.md) / [`pam_recall_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_recall_metrics.md)         | Optional ground-truth segments to estimate recall                                                                          |
+| A        | 6     | [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)                                                                                                                                                                                                       | Builds detection matrices (occasion length from the config), effort, and site covariates                                   |
+| A        | 7     | [`pam_count_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_history.md) / [`pam_count_histories()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_histories.md)                                                                                                     | Counts of one or many species by site and occasion, with effort and covariates                                             |
+| A        | 7     | [`pam_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_model_input.md) / [`pam_define_seasons()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_define_seasons.md) / [`pam_check_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_check_model_input.md) | Input for `unmarked`, `ubms` or `spOccupancy`, for one or many species and seasons, checked before fitting                 |
+| A        | Eco   | [`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md)                                                                                                                                                                                                 | One confidence threshold per species from the validation                                                                   |
+| A        | Eco   | [`pam_activity()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_activity.md) / [`pam_richness()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_richness.md)                                                                                                                             | Activity patterns and species richness and diversity from the detections                                                   |
+| A        | 8     | [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)                                                                                                                                                                                                                         | Generates HTML, PDF and Excel reports, including richness and activity                                                     |
 
 > **Note:** All stage functions take `cfg` as their primary argument.
 > The run_id is read from the config file. Stage 00 can also be run
@@ -366,24 +418,25 @@ MyProject/
 The most-used settings and their defaults (the full list is in the
 template, see step 3 above).
 
-| Section           | Key                       | Default                      | Description                                           |
-|-------------------|---------------------------|------------------------------|-------------------------------------------------------|
-| `filenames`       | `timezone`                | `"Asia/Kolkata"`             | Timezone for filename date-times and deployment dates |
-| `standardization` | `min_duration_s`          | 60                           | Files shorter than this are isolated as memos         |
-| `standardization` | `target_format`           | `"flac"`                     | Output audio format (`flac` or `wav`)                 |
-| `birdnet`         | `run_id`                  | `"run01"`                    | Name of this detection run                            |
-| `birdnet`         | `input`                   | `"standardized"`             | Audio to scan: `"standardized"` or `"filtered"`       |
-| `birdnet`         | `model_dir`               | `"models/custom_classifier"` | Folder with your `.tflite` model and `_Labels.txt`    |
-| `birdnet`         | `classifier_name`         | `"CustomClassifier"`         | Model file name without `.tflite`                     |
-| `birdnet`         | `workers`                 | `null`                       | Worker processes; `null` = half of the physical cores |
-| `birdnet`         | `min_confidence`          | 0.3                          | Minimum BirdNET score to keep                         |
-| `birdnet`         | `chunk_size`              | 100                          | Files per batch; progress is saved after each batch   |
-| `processing`      | `min_confidence`          | 0.5                          | Minimum confidence kept after processing              |
-| `processing`      | `merge_gap_s`             | 3                            | Gap (seconds) for merging overlapping detections      |
-| `processing`      | `drop_outside_deployment` | `true`                       | Remove detections outside deployment windows          |
-| `occupancy`       | `occasion_length_days`    | 1                            | Days per sampling occasion                            |
-| `occupancy`       | `min_effort_hours`        | 2                            | Minimum recording hours per occasion                  |
-| `occupancy`       | `min_detections`          | 10                           | Minimum total detections to include a species         |
+| Section           | Key                       | Default                      | Description                                                                                                                                               |
+|-------------------|---------------------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `filenames`       | `timezone`                | `"Asia/Kolkata"`             | Timezone for filename date-times and deployment dates                                                                                                     |
+| `standardization` | `min_duration_s`          | 60                           | Files shorter than this are isolated as memos                                                                                                             |
+| `standardization` | `target_format`           | `"flac"`                     | Output audio format (`flac` or `wav`)                                                                                                                     |
+| `birdnet`         | `run_id`                  | `"run01"`                    | Name of this detection run                                                                                                                                |
+| `birdnet`         | `input`                   | `"standardized"`             | Audio to scan: `"standardized"` or `"filtered"`                                                                                                           |
+| `birdnet`         | `model_dir`               | `"models/custom_classifier"` | Folder with your `.tflite` model and `_Labels.txt`                                                                                                        |
+| `birdnet`         | `classifier_name`         | `"CustomClassifier"`         | Model file name without `.tflite`                                                                                                                         |
+| `birdnet`         | `workers`                 | `null`                       | Worker processes; `null` = half of the physical cores                                                                                                     |
+| `birdnet`         | `min_confidence`          | 0.3                          | Minimum BirdNET score to keep                                                                                                                             |
+| `birdnet`         | `chunk_size`              | 100                          | Files per batch; progress is saved after each batch                                                                                                       |
+| `processing`      | `min_confidence`          | 0.5                          | Minimum confidence kept after processing                                                                                                                  |
+| `processing`      | `merge_gap_s`             | 3                            | Gap (seconds) for merging overlapping detections                                                                                                          |
+| `processing`      | `drop_outside_deployment` | `true`                       | Remove detections outside deployment windows                                                                                                              |
+| `processing`      | `species_thresholds_file` | `null`                       | CSV with `scientific_name` and `threshold`; see [`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md) |
+| `occupancy`       | `occasion_length_days`    | 1                            | Days per occasion; also the default time bin of the Stage 7 and ecological functions                                                                      |
+| `occupancy`       | `min_effort_hours`        | 2                            | Minimum recording hours in an occasion for it to count as surveyed                                                                                        |
+| `occupancy`       | `min_detections`          | 10                           | Minimum total detections to include a species                                                                                                             |
 
 ## Resumability
 

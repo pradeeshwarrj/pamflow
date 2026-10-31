@@ -91,6 +91,12 @@ Defaults to <code>cfg$paths$reports</code>.</p></dd>
 a warning is issued and the other formats are still produced.</p>
 <p>Excel output is a multi-sheet workbook with one sheet per report
 section, created with <code>openxlsx</code>.</p>
+<p>Besides recording effort, detections, validation and occupancy, the report
+includes species richness and diversity per site (with the species
+accumulation curve and the Chao2 estimate), activity patterns (detections
+per recorded hour by hour of the day and by week) and the per-species
+thresholds saved by <code><a href="pam_species_thresholds.html">pam_species_thresholds()</a></code>. A section is left out
+when its inputs are not available.</p>
     </div>
 
     <div class="section level2">

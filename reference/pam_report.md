@@ -56,6 +56,14 @@ still produced.
 Excel output is a multi-sheet workbook with one sheet per report
 section, created with `openxlsx`.
 
+Besides recording effort, detections, validation and occupancy, the
+report includes species richness and diversity per site (with the
+species accumulation curve and the Chao2 estimate), activity patterns
+(detections per recorded hour by hour of the day and by week) and the
+per-species thresholds saved by
+[`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md).
+A section is left out when its inputs are not available.
+
 ## Examples
 
 ``` r

@@ -176,6 +176,47 @@ examples in this reference.
 - [`pam_site_covariates()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_site_covariates.md)
   : Build site-level covariate table
 
+## Ecological products
+
+Per-species thresholds and a site, time-bin and species table with
+recording effort; activity patterns and richness.
+
+- [`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md)
+  : Choose a confidence threshold for each species from the validation
+  results
+- [`pam_detection_table()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_detection_table.md)
+  : Table of detections and recording effort per site, time bin and
+  species
+- [`pam_activity()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_activity.md)
+  : Activity patterns: detections per recorded hour
+- [`pam_plot_activity()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_plot_activity.md)
+  : Plot activity patterns
+- [`pam_richness()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_richness.md)
+  : Species richness and diversity per site and occasion
+- [`pam_plot_richness()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_plot_richness.md)
+  : Plot species richness
+
+## Stage 7 — Input for occupancy and abundance models
+
+Count histories per species and site, covariates, seasons, and input
+ready for unmarked, ubms or spOccupancy. pamflow prepares the data; it
+does not fit the models.
+
+- [`pam_count_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_history.md)
+  : Count history of one species: detections per site and occasion
+- [`pam_count_histories()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_histories.md)
+  : Count histories of many species at once
+- [`pam_as_count_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_as_count_history.md)
+  : Make a count history from your own counts
+- [`pam_add_site_covariates()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_add_site_covariates.md)
+  : Add site covariates to a count history
+- [`pam_define_seasons()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_define_seasons.md)
+  : Define seasons from the occasions of a history
+- [`pam_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_model_input.md)
+  : Prepare a count history as input for abundance and occupancy models
+- [`pam_check_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_check_model_input.md)
+  : Check model input before fitting
+
 ## Stage 8 — Reports
 
 - [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md)

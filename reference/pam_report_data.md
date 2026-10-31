@@ -23,4 +23,7 @@ pam_report_data(cfg, run_id)
 ## Value
 
 A named list with elements `effort`, `detections`, `species_counts`,
-`hourly_pattern`, `precision`, `recall`, `occupancy`.
+`hourly_pattern`, `precision`, `recall`, `occupancy`, and the ecological
+products `activity_hour`, `activity_week`, `richness_sites`,
+`richness_estimates`, `richness_accumulation` and `thresholds` (see
+`pam_report_ecology`).

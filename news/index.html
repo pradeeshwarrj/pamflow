@@ -33,6 +33,41 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="pamflow-development-version">pamflow (development version)<a class="anchor" aria-label="anchor" href="#pamflow-development-version"></a></h2>
+<div class="section level3">
+<h3 id="occupancy-occasions-development-version">Occupancy occasions<a class="anchor" aria-label="anchor" href="#occupancy-occasions-development-version"></a></h3>
+<ul><li>
+<strong>Stage 6 now uses <code>occupancy.occasion_length_days</code>.</strong> Until now <code><a href="../reference/pam_build_occupancy.html">pam_build_occupancy()</a></code> always used one-day occasions and ignored the setting. Occasions are now blocks of that many days, starting on the first recorded day and the same for every site; <code>min_effort_hours</code> applies to the whole occasion. With the default of 1 day the results are unchanged. Existing occupancy outputs are kept unless you pass <code>force = TRUE</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="ecological-products-development-version">Ecological products<a class="anchor" aria-label="anchor" href="#ecological-products-development-version"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/pam_species_thresholds.html">pam_species_thresholds()</a></code></strong> chooses a confidence threshold for each species from the Stage 5 validation. For each species it takes the lowest confidence whose estimated precision is within <code>tolerance</code> (0.05) of that species’ own best, so no precision target is needed. Species with too little validation get the global threshold (the <code>reason</code> column says why), and a <code>manual</code> table overrides any species. <code>write = TRUE</code> saves <code>species_thresholds.csv</code>, which can be used as <code>processing.species_thresholds_file</code>.</li>
+<li>
+<strong><code><a href="../reference/pam_detection_table.html">pam_detection_table()</a></code></strong> gives one row per site, time bin and species with detections, recordings with a detection, recording effort and detections per hour (zeros included). The bin length defaults to <code>occupancy.occasion_length_days</code> (1 day) and can be set with <code>bin_days</code>. It is the base for the planned activity, richness and abundance functions.</li>
+<li>
+<strong><code><a href="../reference/pam_activity.html">pam_activity()</a></code></strong> gives detections per recorded hour for each species by hour of the day, day, week or month (pooled over sites or per site), for daily and seasonal activity patterns. Recording effort is split over the clock hours each recording covers, so recordings that start part way through an hour or cross midnight are counted correctly. It accepts the same species selection and thresholds as the table, and returns a relative activity index (1 = the species’ peak). <strong><code><a href="../reference/pam_plot_activity.html">pam_plot_activity()</a></code></strong> draws it.</li>
+<li>
+<strong><code><a href="../reference/pam_richness.html">pam_richness()</a></code></strong> gives species richness and Hill numbers (orders you choose, default 1 and 2) for every site and time bin and for every site over the whole survey, the expected species accumulation over sites, and the Chao2 estimate of how many species were missed. A species counts as present in a bin only with at least <code>min_events</code> events (default 1), and Hill numbers can weight species by their event counts or by presence only. The site table can be joined to habitat covariates by <code>site_id</code>. <strong><code><a href="../reference/pam_plot_richness.html">pam_plot_richness()</a></code></strong> draws the accumulation curve or richness per site.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="stage-input-for-occupancy-and-abundance-models-development-version">Stage 7: input for occupancy and abundance models<a class="anchor" aria-label="anchor" href="#stage-input-for-occupancy-and-abundance-models-development-version"></a></h3>
+<p>pamflow prepares the data; it does not fit the models and does not depend on any modelling package.</p>
+<ul><li>
+<strong><code><a href="../reference/pam_count_history.html">pam_count_history()</a></code></strong> builds the count history of one species (detections or recordings with a detection per site and occasion, <code>NA</code> where a site was not surveyed) with matching matrices of recording effort and days. <strong><code><a href="../reference/pam_count_histories.html">pam_count_histories()</a></code></strong> does it for many species in one pass over the detections, on a shared grid of sites and occasions. <strong><code><a href="../reference/pam_as_count_history.html">pam_as_count_history()</a></code></strong> wraps counts from another source, and <strong><code><a href="../reference/pam_add_site_covariates.html">pam_add_site_covariates()</a></code></strong> attaches covariates by <code>site_id</code> later.</li>
+<li>
+<strong><code><a href="../reference/pam_model_input.html">pam_model_input()</a></code></strong> turns histories into <code>y</code>, <code>siteCovs</code> and <code>obsCovs</code> (counts or detection / non-detection, optionally standardised and written to CSV). For several species <code>y</code> is a species x site x occasion array. With <code>seasons</code> it groups occasions into primary periods for multi-season models and returns both the wide matrix (for <code>unmarked</code> and <code>ubms</code>) and arrays (for <code>spOccupancy</code>), padded to equal length, with optional season covariates as yearly site covariates. <strong><code><a href="../reference/pam_define_seasons.html">pam_define_seasons()</a></code></strong> builds seasons by year or month.</li>
+<li>
+<strong><code><a href="../reference/pam_check_model_input.html">pam_check_model_input()</a></code></strong> checks dimensions, site and occasion matching, response values and missing values before the input goes to a modelling package.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="reports-and-guide-development-version">Reports and guide<a class="anchor" aria-label="anchor" href="#reports-and-guide-development-version"></a></h3>
+<ul><li>
+<strong><code><a href="../reference/pam_report.html">pam_report()</a></code> has new sections</strong>: species richness and diversity (per-site table, Hill numbers, species accumulation and the Chao2 estimate), activity patterns (detections per recorded hour by hour of day and by week) and the per-species thresholds saved by <code><a href="../reference/pam_species_thresholds.html">pam_species_thresholds()</a></code>. The Excel workbook gets matching sheets. A section is left out, and noted in the log, when its inputs are missing.</li>
+<li>The guide and README describe the new functions: Stage 7 model input, thresholds, activity and richness, plus <code><a href="../reference/pam_audio_history.html">pam_audio_history()</a></code> in the function reference and FAQ, and the occasion length of Stage 6.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="pamflow-050">pamflow 0.5.0<a class="anchor" aria-label="anchor" href="#pamflow-050"></a></h2>
 <div class="section level3">
 <h3 id="audio-history-0-5-0">Audio history<a class="anchor" aria-label="anchor" href="#audio-history-0-5-0"></a></h3>
