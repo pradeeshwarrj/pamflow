@@ -20,7 +20,7 @@ pam_count_histories(
 \item{cfg}{A \code{pam_config} object.}
 
 \item{species}{Optional species to include: scientific names, common names or
-species labels (any capitalisation). \code{NULL} (the default) takes every
+species labels (any capitalization). \code{NULL} (the default) takes every
 species in the detections.}
 
 \item{run_id}{Detection run (sub-folder of paths$detections).}

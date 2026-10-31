@@ -101,7 +101,7 @@ pam_count_column <- function(count, counts) {
 #' Make a count history from your own counts
 #'
 #' Wraps a matrix of counts (sites in rows, occasions in columns) so that it can
-#' be prepared for modelling by [pam_model_input()]. [pam_count_history()] builds the same
+#' be prepared for modeling by [pam_model_input()]. [pam_count_history()] builds the same
 #' object from the detections of a project; use this function when the counts
 #' come from somewhere else.
 #'
@@ -118,8 +118,8 @@ pam_count_column <- function(count, counts) {
 #'   occasion number minus one.
 #' @param occasions Optional data frame describing the occasions, one row per
 #'   column of `y`.
-#' @param species Name of the species, for labelling.
-#' @param count What the counts are: `"events"` or `"files"` (for labelling).
+#' @param species Name of the species, for labeling.
+#' @param count What the counts are: `"events"` or `"files"` (for labeling).
 #' @return An object of class `pam_count_history`: a list with `y`, `effort`,
 #'   `day`, `site_covariates`, `occasions`, `species` and `count`.
 #' @examples
@@ -183,7 +183,7 @@ pam_as_count_history <- function(y, site_covariates = NULL, effort = NULL, day =
 #'
 #' @param cfg A `pam_config` object.
 #' @param species The species, given as scientific name, common name or species
-#'   label (any capitalisation). It must identify exactly one species.
+#'   label (any capitalization). It must identify exactly one species.
 #' @param run_id Detection run (sub-folder of paths$detections).
 #' @param bin_days Length of an occasion in days. `NULL` uses
 #'   `occupancy$occasion_length_days` (1 if not set).
@@ -267,7 +267,7 @@ pam_count_history <- function(cfg, species, run_id = cfg$birdnet$run_id, bin_day
 #'
 #' @inheritParams pam_count_history
 #' @param species Optional species to include: scientific names, common names or
-#'   species labels (any capitalisation). `NULL` (the default) takes every
+#'   species labels (any capitalization). `NULL` (the default) takes every
 #'   species in the detections.
 #' @param min_total Species with fewer than this many counts in total, over all
 #'   sites and occasions, are left out (default 1, which drops species with no

@@ -23,8 +23,8 @@ pam_model_input(
 N-mixture (abundance) models. If \code{TRUE}, \code{y} is detection (1) or
 non-detection (0), as used by occupancy and Royle-Nichols models.}
 
-\item{standardize}{If \code{TRUE}, numeric covariates are centred and scaled
-(mean 0, standard deviation 1), which helps models converge. The centre and
+\item{standardize}{If \code{TRUE}, numeric covariates are centered and scaled
+(mean 0, standard deviation 1), which helps models converge. The center and
 scale are returned in \code{scaling} so that new data can be treated the same
 way. Default \code{FALSE}: covariates are returned as they are.}
 
@@ -58,7 +58,7 @@ are the site identifiers); \code{NULL} if there are none;
 hours, when the history has it) and \code{day} (days since the first
 occasion);
 \item \code{site_ids}, \code{species}, \code{count}, \code{binary};
-\item \code{scaling}: centre and scale of every standardised covariate.
+\item \code{scaling}: center and scale of every standardized covariate.
 }
 
 With several species, \code{y} is an array (species, sites, occasions) and
@@ -151,7 +151,7 @@ x <- pam_model_input(hist)
 x$y
 x$siteCovs
 names(x$obsCovs)
-# detection / non-detection instead of counts, covariates standardised
+# detection / non-detection instead of counts, covariates standardized
 pam_model_input(hist, binary = TRUE, standardize = TRUE)$y
 }
 \seealso{

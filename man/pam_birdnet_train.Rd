@@ -103,3 +103,8 @@ pam_birdnet_train("E:/training_clips", "E:/models/Rerun",
                   load_params = "E:/models/BirdNet_v2_custom_Params.csv")
 }
 }
+\references{
+Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep
+learning solution for avian diversity monitoring. \emph{Ecological Informatics}, 61,
+101236. \doi{10.1016/j.ecoinf.2021.101236}
+}

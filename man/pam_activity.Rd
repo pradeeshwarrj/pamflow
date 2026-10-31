@@ -27,7 +27,7 @@ pam_activity(
 detections divided by all recorded hours. If \code{TRUE}, one row per site.}
 
 \item{species}{Optional species to keep: scientific names, common names or
-species labels, in any capitalisation. \code{NULL} keeps all.}
+species labels, in any capitalization. \code{NULL} keeps all.}
 
 \item{thresholds}{Optional per-species thresholds (a data frame, or the path
 of a CSV file, with \code{scientific_name} and \code{threshold}), for example from

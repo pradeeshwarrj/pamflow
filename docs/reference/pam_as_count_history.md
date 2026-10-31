@@ -1,7 +1,7 @@
 # Make a count history from your own counts
 
 Wraps a matrix of counts (sites in rows, occasions in columns) so that
-it can be prepared for modelling by
+it can be prepared for modeling by
 [`pam_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_model_input.md).
 [`pam_count_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_history.md)
 builds the same object from the detections of a project; use this
@@ -53,11 +53,11 @@ pam_as_count_history(
 
 - species:
 
-  Name of the species, for labelling.
+  Name of the species, for labeling.
 
 - count:
 
-  What the counts are: `"events"` or `"files"` (for labelling).
+  What the counts are: `"events"` or `"files"` (for labeling).
 
 ## Value
 

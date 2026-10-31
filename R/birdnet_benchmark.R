@@ -1,4 +1,4 @@
-#' Summarise benchmark timings (internal)
+#' Summarize benchmark timings (internal)
 #'
 #' Pure function (no I/O) so it can be tested.
 #'
@@ -40,7 +40,7 @@ pam_bench_summarise <- function(timings, n_total = NULL) {
 #'   `n_failed`, `elapsed_s`, `files_per_hour`, `speedup`, `efficiency` and
 #'   `est_hours_full`. Also written to `<logs>/birdnet_benchmark.csv`.
 #' @details The timing includes model loading in every worker, which is part of
-#'   the real cost of starting a run. Real runs amortise it over many files, so
+#'   the real cost of starting a run. Real runs amortize it over many files, so
 #'   the full-archive estimate is slightly pessimistic. Run on an otherwise idle
 #'   machine.
 #' @examples

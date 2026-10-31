@@ -19,7 +19,7 @@ pam_count_history(
 \item{cfg}{A \code{pam_config} object.}
 
 \item{species}{The species, given as scientific name, common name or species
-label (any capitalisation). It must identify exactly one species.}
+label (any capitalization). It must identify exactly one species.}
 
 \item{run_id}{Detection run (sub-folder of paths$detections).}
 

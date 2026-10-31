@@ -2,7 +2,7 @@
 % Please edit documentation in R/birdnet_train.R
 \name{pam_birdnet_train_repeat}
 \alias{pam_birdnet_train_repeat}
-\title{Train the same classifier several times and summarise the metrics}
+\title{Train the same classifier several times and summarize the metrics}
 \usage{
 pam_birdnet_train_repeat(data_dir, output, n = 5L, params = list(), ...)
 }
@@ -25,7 +25,7 @@ A list: \code{runs} (data.frame with \code{run}, \code{status}, \code{auprc}, \c
 with \code{metric}, \code{n}, \code{mean}, \code{sd}, \code{min}, \code{max} over the successful runs).
 }
 \description{
-Each run uses a different random validation split and initialisation, so a
+Each run uses a different random validation split and initialization, so a
 single score can be lucky or unlucky. Repeating the run shows how much the
 metrics vary, which is the yardstick for comparing settings, or pamflow
 against the Analyzer GUI, fairly.

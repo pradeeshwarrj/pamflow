@@ -31,7 +31,7 @@ pam_count_histories(
 - species:
 
   Optional species to include: scientific names, common names or species
-  labels (any capitalisation). `NULL` (the default) takes every species
+  labels (any capitalization). `NULL` (the default) takes every species
   in the detections.
 
 - run_id:

@@ -39,7 +39,7 @@ baseline to compare the new backend against.
 }
 \details{
 The timing includes model loading in every worker, which is part of
-the real cost of starting a run. Real runs amortise it over many files, so
+the real cost of starting a run. Real runs amortize it over many files, so
 the full-archive estimate is slightly pessimistic. Run on an otherwise idle
 machine.
 }

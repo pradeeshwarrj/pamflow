@@ -56,6 +56,13 @@ removes the duplicates. Per-file outcomes (seconds, errors) go to
 `run_settings_*.yml`. Run with
 `pam_run_stage("03_detect", pam_detect, cfg)`.
 
+## References
+
+Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep
+learning solution for avian diversity monitoring. *Ecological
+Informatics*, 61, 101236.
+[doi:10.1016/j.ecoinf.2021.101236](https://doi.org/10.1016/j.ecoinf.2021.101236)
+
 ## Examples
 
 ``` r

@@ -102,6 +102,9 @@ pam_detect_settings <- function(cfg) {
 #' @param force If TRUE, delete this run's earlier results and start over.
 #' @return Invisibly, a list: `n_pending`, `n_done`, `n_failed`,
 #'   `n_detections`, `run_dir`.
+#' @references Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep
+#'   learning solution for avian diversity monitoring. *Ecological Informatics*, 61,
+#'   101236. \doi{10.1016/j.ecoinf.2021.101236}
 #' @details BirdNET runs in pamflow's Python inference environment (see
 #'   `pam_birdnet_setup()`) using the `birdnet` Python package, which does its
 #'   own multiprocessing: `birdnet$workers` worker processes each load the

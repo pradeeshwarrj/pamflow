@@ -4,7 +4,7 @@ Runs a set of consistency checks on the output of
 [`pam_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_model_input.md):
 dimensions, site and occasion matching, the values of the response and
 missing values. Use it after editing the input by hand, or to confirm
-that input is ready before it is passed to a modelling package.
+that input is ready before it is passed to a modeling package.
 
 ## Usage
 

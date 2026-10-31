@@ -2,7 +2,7 @@
 % Please edit documentation in R/01_scan_audio.R
 \name{pam_audio_summary}
 \alias{pam_audio_summary}
-\title{Summarise the audio master table}
+\title{Summarize the audio master table}
 \usage{
 pam_audio_summary(master, dep = NULL)
 }
@@ -17,7 +17,7 @@ A list: \code{overall} (one-row data.table), \code{per_grid} (data.table),
 \code{grids_without_deployment}, \code{deployments_without_audio}.
 }
 \description{
-Summarise the audio master table
+Summarize the audio master table
 }
 \examples{
 ex <- pam_example_project()

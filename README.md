@@ -49,7 +49,7 @@ with 500 Hz low-stop filtering, 1-minute memory-safe sub-chunking,
 - **Ecoacoustic Soundscape Indices** Dynamic computation of ACI, ADI,
   AEve, Bio, H, M, and NDSI.
 - **Soundscape Visualizations & HTML Reports** 24-hour diel profiles,
-  Day vs. Night comparisons, sitecovariate tables, and standalone HTML
+  Day vs. Night comparisons, site covariate tables, and standalone HTML
   reports.
 
 ## Prerequisites
@@ -329,7 +329,7 @@ and the details of each function.
 
 | Workflow | Stage | Function | What it does |
 |----|----|----|----|
-| Both | 00 | `pam_standardize()` / `pam_standardization_app()` | Raven Compass-style triage: metadata extraction, memoisolation (\<60s), non-audio log separation, FLAC/WAV standardization |
+| Both | 00 | `pam_standardize()` / `pam_standardization_app()` | Raven Compass-style triage: metadata extraction, memo isolation (\<60s), non-audio log separation, FLAC/WAV standardization |
 | Both | 1 | `pam_scan_audio()` | Inventories audio files, matches to deployments, flags QC issues |
 | Both | 2 | `pam_filter_audio()` | High-pass filter on the QC checked files; can be customized |
 | B | 2b | `pam_soundscape_run()` | Computes soundscape indices per 10-min window with 500Hz high-pass filter |
@@ -448,6 +448,14 @@ template, see step 3 above).
 If `pam_detect()` is interrupted (power loss, crash, etc.), simply run
 it again. It checks for completed batches and picks up where it left
 off.
+
+## Citing BirdNET and pamflow
+
+pamflow runs BirdNET but does not include it. If you use pamflow with BirdNET, please cite the BirdNET paper:
+
+> Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep learning solution for avian diversity monitoring. *Ecological Informatics*, 61, 101236. <https://doi.org/10.1016/j.ecoinf.2021.101236>
+
+The BirdNET models and the BirdNET-Analyzer are licensed by their authors (research and educational use is non-commercial and free; check each model's license before other uses). To cite pamflow itself, run `citation("pamflow")`.
 
 ## License
 

@@ -46,7 +46,9 @@ a matching Python already installed.
 }
 \details{
 Installing TensorFlow downloads roughly a gigabyte, so this can
-take several minutes. Afterwards run \code{pam_birdnet_doctor()}.
+take several minutes. In an interactive session you are asked to confirm
+before anything is downloaded; use \code{dry_run = TRUE} to see the plan first.
+Afterwards run \code{pam_birdnet_doctor()}.
 }
 \examples{
 \dontrun{

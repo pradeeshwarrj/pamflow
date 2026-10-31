@@ -2,16 +2,6 @@
 
 ## pamflow 0.6.0
 
-### Occupancy occasions
-
-- **Stage 6 now uses `occupancy.occasion_length_days`.** Until now
-  [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)
-  always used one-day occasions and ignored the setting. Occasions are
-  now blocks of that many days, starting on the first recorded day and
-  the same for every site; `min_effort_hours` applies to the whole
-  occasion. With the default of 1 day the results are unchanged.
-  Existing occupancy outputs are kept unless you pass `force = TRUE`.
-
 ### Ecological products
 
 - **[`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md)**
@@ -54,7 +44,7 @@
 ### Stage 7: input for occupancy and abundance models
 
 pamflow prepares the data; it does not fit the models and does not
-depend on any modelling package.
+depend on any modeling package.
 
 - **[`pam_count_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_count_history.md)**
   builds the count history of one species (detections or recordings with
@@ -69,7 +59,7 @@ depend on any modelling package.
   attaches covariates by `site_id` later.
 - **[`pam_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_model_input.md)**
   turns histories into `y`, `siteCovs` and `obsCovs` (counts or
-  detection / non-detection, optionally standardised and written to
+  detection / non-detection, optionally standardized and written to
   CSV). For several species `y` is a species x site x occasion array.
   With `seasons` it groups occasions into primary periods for
   multi-season models and returns both the wide matrix (for `unmarked`
@@ -79,14 +69,14 @@ depend on any modelling package.
   builds seasons by year or month.
 - **[`pam_check_model_input()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_check_model_input.md)**
   checks dimensions, site and occasion matching, response values and
-  missing values before the input goes to a modelling package.
+  missing values before the input goes to a modeling package.
 
 ### Shiny apps
 
 - **The standardization, validation and annotation apps now look like
   the training app**: a centered page with the pamflow logo, a light and
   dark mode switch, one card per setting, pill-style choices and the
-  same pastel colours. The standardization app has folder buttons and
+  same pastel colors. The standardization app has folder buttons and
   number cards for the scan; the validation and annotation apps show a
   progress bar, the spectrogram and the audio above the controls. What
   the apps save and how they work is unchanged.
@@ -98,6 +88,16 @@ depend on any modelling package.
   take a `lang` argument, and their texts live in `inst/i18n/<code>.yml`
   with the training app’s. Values saved in your result files (such as
   the “none” choice for the true species) stay in English.
+
+### Occupancy occasions
+
+- **Stage 6 now uses `occupancy.occasion_length_days`.** Until now
+  [`pam_build_occupancy()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_build_occupancy.md)
+  always used one-day occasions and ignored the setting. Occasions are
+  now blocks of that many days, starting on the first recorded day and
+  the same for every site; `min_effort_hours` applies to the whole
+  occasion. With the default of 1 day the results are unchanged.
+  Existing occupancy outputs are kept unless you pass `force = TRUE`.
 
 ### Reports and guide
 
@@ -113,6 +113,20 @@ depend on any modelling package.
   thresholds, activity and richness, plus
   [`pam_audio_history()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_audio_history.md)
   in the function reference and FAQ, and the occasion length of Stage 6.
+
+### Package and CRAN preparation
+
+- BirdNET is cited (Kahl et al. 2021,
+  <doi:10.1016/j.ecoinf.2021.101236>) in the description, help pages,
+  README and guide.
+- [`pam_birdnet_setup()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_setup.md)
+  asks for confirmation before downloading (about 1 GB) in interactive
+  sessions.
+- Random samples use
+  [`withr::with_seed()`](https://withr.r-lib.org/reference/with_seed.html),
+  so your session’s random seed is no longer changed.
+- Updated description, citation (with ORCID) and `SystemRequirements`;
+  `ubms` and `spOccupancy` removed from Suggests.
 
 ## pamflow 0.5.0
 

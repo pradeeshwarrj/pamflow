@@ -30,7 +30,7 @@ pam_count_history(
 - species:
 
   The species, given as scientific name, common name or species label
-  (any capitalisation). It must identify exactly one species.
+  (any capitalization). It must identify exactly one species.
 
 - run_id:
 

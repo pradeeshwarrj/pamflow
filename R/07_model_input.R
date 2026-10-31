@@ -4,8 +4,8 @@
 
 #' Standardise covariates (internal)
 #'
-#' Numeric covariates are centred and scaled (mean 0, standard deviation 1);
-#' character covariates become factors. A constant covariate is only centred.
+#' Numeric covariates are centered and scaled (mean 0, standard deviation 1);
+#' character covariates become factors. A constant covariate is only centered.
 #'
 #' @param site_covs Data frame with `site_id` and covariates.
 #' @param obs_covs Named list of matrices (observation covariates).
@@ -233,8 +233,8 @@ pam_season_covariates <- function(tab, season_names) {
 #' @param binary If `FALSE` (the default), `y` holds the counts, as used by
 #'   N-mixture (abundance) models. If `TRUE`, `y` is detection (1) or
 #'   non-detection (0), as used by occupancy and Royle-Nichols models.
-#' @param standardize If `TRUE`, numeric covariates are centred and scaled
-#'   (mean 0, standard deviation 1), which helps models converge. The centre and
+#' @param standardize If `TRUE`, numeric covariates are centered and scaled
+#'   (mean 0, standard deviation 1), which helps models converge. The center and
 #'   scale are returned in `scaling` so that new data can be treated the same
 #'   way. Default `FALSE`: covariates are returned as they are.
 #' @param drop_unsurveyed If `TRUE` (the default), sites with no surveyed
@@ -261,7 +261,7 @@ pam_season_covariates <- function(tab, season_names) {
 #'     hours, when the history has it) and `day` (days since the first
 #'     occasion);
 #'   * `site_ids`, `species`, `count`, `binary`;
-#'   * `scaling`: centre and scale of every standardised covariate.
+#'   * `scaling`: center and scale of every standardized covariate.
 #'
 #' With several species, `y` is an array (species, sites, occasions) and
 #' `species` lists the species. With `seasons`, the list also has
@@ -333,7 +333,7 @@ pam_season_covariates <- function(tab, season_names) {
 #' x$y
 #' x$siteCovs
 #' names(x$obsCovs)
-#' # detection / non-detection instead of counts, covariates standardised
+#' # detection / non-detection instead of counts, covariates standardized
 #' pam_model_input(hist, binary = TRUE, standardize = TRUE)$y
 #' @seealso [pam_count_history()], [pam_count_histories()], [pam_define_seasons()],
 #'   [pam_check_model_input()]
@@ -492,7 +492,7 @@ pam_write_model_input <- function(x, dir) {
 #' Runs a set of consistency checks on the output of [pam_model_input()]:
 #' dimensions, site and occasion matching, the values of the response and
 #' missing values. Use it after editing the input by hand, or to confirm that
-#' input is ready before it is passed to a modelling package.
+#' input is ready before it is passed to a modeling package.
 #'
 #' @param x A `pam_model_input`.
 #' @param error If `TRUE` (the default), a failed check is an error that names the

@@ -217,7 +217,7 @@ pam_match_deployments <- function(master, dep) {
   master[]
 }
 
-#' Summarise the audio master table
+#' Summarize the audio master table
 #'
 #' @param master Output of `pam_scan_audio()$master`.
 #' @param dep Optional deployment table, to report grids/deployments with no

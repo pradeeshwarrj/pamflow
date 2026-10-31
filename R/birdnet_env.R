@@ -312,7 +312,9 @@ pam_find_uv <- function() {
 #'   or in a standard install location; set it if you installed uv elsewhere.
 #' @return Invisibly, a list: `envdir`, `python`, `python_version`, `packages`.
 #' @details Installing TensorFlow downloads roughly a gigabyte, so this can
-#'   take several minutes. Afterwards run `pam_birdnet_doctor()`.
+#'   take several minutes. In an interactive session you are asked to confirm
+#'   before anything is downloaded; use `dry_run = TRUE` to see the plan first.
+#'   Afterwards run `pam_birdnet_doctor()`.
 #' @examples
 #' \dontrun{
 #' pam_birdnet_setup("inference", dry_run = TRUE)
@@ -339,6 +341,16 @@ pam_birdnet_setup <- function(component = c("inference", "training"),
       return(invisible(plan))
     }
     unlink(envdir, recursive = TRUE)
+  }
+  if (interactive()) {
+    answer <- utils::askYesNo(
+      sprintf(paste("This will create a Python environment at %s and download about 1 GB",
+                    "of packages (TensorFlow and BirdNET). Continue?"), envdir),
+      default = FALSE)
+    if (!isTRUE(answer)) {
+      rlang::inform("Nothing was installed.")
+      return(invisible(plan))
+    }
   }
   dir.create(dirname(envdir), recursive = TRUE, showWarnings = FALSE)
   cli::cli_alert_info("Creating {component} environment (Python {python_version}) at {envdir}")

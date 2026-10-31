@@ -81,7 +81,7 @@ pam_period <- function(date, hour, by) {
 #' @param by_site If `FALSE` (the default), sites are pooled: the rate is all
 #'   detections divided by all recorded hours. If `TRUE`, one row per site.
 #' @param species Optional species to keep: scientific names, common names or
-#'   species labels, in any capitalisation. `NULL` keeps all.
+#'   species labels, in any capitalization. `NULL` keeps all.
 #' @param thresholds Optional per-species thresholds (a data frame, or the path
 #'   of a CSV file, with `scientific_name` and `threshold`), for example from
 #'   `pam_species_thresholds()`. They are applied on top of Stage 4 and can only

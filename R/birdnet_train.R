@@ -573,6 +573,9 @@ pam_birdnet_train_prepare <- function(data_dir, min_clips = 20L, quiet = FALSE) 
 #' pam_birdnet_train("E:/training_clips", "E:/models/Rerun",
 #'                   load_params = "E:/models/BirdNet_v2_custom_Params.csv")
 #' }
+#' @references Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep
+#'   learning solution for avian diversity monitoring. *Ecological Informatics*, 61,
+#'   101236. \doi{10.1016/j.ecoinf.2021.101236}
 #' @export
 pam_birdnet_train <- function(data_dir, output, params = list(), test_data = NULL,
                               load_params = NULL, cache_mode = NULL, cache_file = NULL,
@@ -817,9 +820,9 @@ pam_train_finish <- function(plan, status, elapsed, log_dir = NULL, quiet = FALS
                  metrics = metrics, evaluation = evaluation, cache = cache))
 }
 
-#' Train the same classifier several times and summarise the metrics
+#' Train the same classifier several times and summarize the metrics
 #'
-#' Each run uses a different random validation split and initialisation, so a
+#' Each run uses a different random validation split and initialization, so a
 #' single score can be lucky or unlucky. Repeating the run shows how much the
 #' metrics vary, which is the yardstick for comparing settings, or pamflow
 #' against the Analyzer GUI, fairly.

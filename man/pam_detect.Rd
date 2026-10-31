@@ -49,3 +49,8 @@ cfg <- pam_config_read("config/config.yml")
 res <- pam_run_stage("03_detect", pam_detect, cfg)
 }
 }
+\references{
+Kahl, S., Wood, C. M., Eibl, M. and Klinck, H. (2021). BirdNET: A deep
+learning solution for avian diversity monitoring. \emph{Ecological Informatics}, 61,
+101236. \doi{10.1016/j.ecoinf.2021.101236}
+}

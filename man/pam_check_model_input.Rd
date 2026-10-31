@@ -21,7 +21,7 @@ A data.table with one row per check: \code{check}, \code{passed} and \code{detai
 Runs a set of consistency checks on the output of \code{\link[=pam_model_input]{pam_model_input()}}:
 dimensions, site and occasion matching, the values of the response and
 missing values. Use it after editing the input by hand, or to confirm that
-input is ready before it is passed to a modelling package.
+input is ready before it is passed to a modeling package.
 }
 \details{
 The checks are: the response is a numeric array; sites are unique

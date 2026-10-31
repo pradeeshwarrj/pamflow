@@ -1,6 +1,6 @@
-# Summarise the audio master table
+# Summarize the audio master table
 
-Summarise the audio master table
+Summarize the audio master table
 
 ## Usage
 

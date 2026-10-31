@@ -33,9 +33,9 @@ occasion number minus one.}
 \item{occasions}{Optional data frame describing the occasions, one row per
 column of \code{y}.}
 
-\item{species}{Name of the species, for labelling.}
+\item{species}{Name of the species, for labeling.}
 
-\item{count}{What the counts are: \code{"events"} or \code{"files"} (for labelling).}
+\item{count}{What the counts are: \code{"events"} or \code{"files"} (for labeling).}
 }
 \value{
 An object of class \code{pam_count_history}: a list with \code{y}, \code{effort},
@@ -43,7 +43,7 @@ An object of class \code{pam_count_history}: a list with \code{y}, \code{effort}
 }
 \description{
 Wraps a matrix of counts (sites in rows, occasions in columns) so that it can
-be prepared for modelling by \code{\link[=pam_model_input]{pam_model_input()}}. \code{\link[=pam_count_history]{pam_count_history()}} builds the same
+be prepared for modeling by \code{\link[=pam_model_input]{pam_model_input()}}. \code{\link[=pam_count_history]{pam_count_history()}} builds the same
 object from the detections of a project; use this function when the counts
 come from somewhere else.
 }

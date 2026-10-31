@@ -371,7 +371,7 @@ pam_train_runs_table <- function(dir) {
 
 #' Learning-curve plot: validation AUPRC and AUROC by epoch (internal)
 #'
-#' Like the plot in the Analyzer GUI. Colour-blind-safe colours, and the two
+#' Like the plot in the Analyzer GUI. Color-blind-safe colors, and the two
 #' lines also differ in line type.
 #'
 #' @param history The `history` data.frame from `pam_train_parse_metrics()`.
@@ -643,9 +643,9 @@ pam_train_plot_theme <- function(base_size = 12, dark = FALSE) {
       legend.text = ggplot2::element_text(colour = muted))
 }
 
-#' Series colours of the app plots (internal)
+#' Series colors of the app plots (internal)
 #' @param dark Logical, dark theme.
-#' @return Character vector of two colours.
+#' @return Character vector of two colors.
 #' @keywords internal
 #' @noRd
 pam_train_plot_colours <- function(dark = FALSE) {
