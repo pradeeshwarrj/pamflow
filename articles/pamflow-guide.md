@@ -209,21 +209,21 @@ file.copy(system.file("extdata", "config_template.yml", package = "pamflow"),
 
 **Key settings:**
 
-| Setting                              | Meaning                                                                                                                                       |
-|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `paths.project_root`                 | Top-level project folder                                                                                                                      |
-| `filenames.timezone`                 | Timezone of file names and deployment dates                                                                                                   |
-| `birdnet.model_dir`                  | Folder with your custom BirdNET model                                                                                                         |
-| `birdnet.classifier_name`            | Model file name without `.tflite`                                                                                                             |
-| `birdnet.input`                      | `"standardized"` (default) or `"filtered"` audio                                                                                              |
-| `birdnet.run_id`                     | Name of this detection run                                                                                                                    |
-| `birdnet.workers`                    | Worker processes for BirdNET; `null` = half the physical cores                                                                                |
-| `birdnet.min_confidence`             | Lowest BirdNET score kept (0.3 by default)                                                                                                    |
-| `processing.min_confidence`          | Confidence cut applied when cleaning (0.5 by default)                                                                                         |
+| Setting | Meaning |
+|----|----|
+| `paths.project_root` | Top-level project folder |
+| `filenames.timezone` | Timezone of file names and deployment dates |
+| `birdnet.model_dir` | Folder with your custom BirdNET model |
+| `birdnet.classifier_name` | Model file name without `.tflite` |
+| `birdnet.input` | `"standardized"` (default) or `"filtered"` audio |
+| `birdnet.run_id` | Name of this detection run |
+| `birdnet.workers` | Worker processes for BirdNET; `null` = half the physical cores |
+| `birdnet.min_confidence` | Lowest BirdNET score kept (0.3 by default) |
+| `processing.min_confidence` | Confidence cut applied when cleaning (0.5 by default) |
 | `processing.species_thresholds_file` | CSV of per-species thresholds (see [`pam_species_thresholds()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_species_thresholds.md)) |
-| `occupancy.occasion_length_days`     | Days per occasion; also the default time bin of the Stage 7 and ecological functions                                                          |
-| `occupancy.min_effort_hours`         | Min recording hours in an occasion for it to count as surveyed                                                                                |
-| `occupancy.min_detections`           | Min detections for a species to get a history                                                                                                 |
+| `occupancy.occasion_length_days` | Days per occasion; also the default time bin of the Stage 7 and ecological functions |
+| `occupancy.min_effort_hours` | Min recording hours in an occasion for it to count as surveyed |
+| `occupancy.min_detections` | Min detections for a species to get a history |
 
 ------------------------------------------------------------------------
 
@@ -677,47 +677,47 @@ frequency ranges, and the day and night hours. This needs the
 
 ## 8. Complete Function Reference
 
-| Function                                                                                                    | Stage | Purpose                                      |
-|-------------------------------------------------------------------------------------------------------------|-------|----------------------------------------------|
-| `pam_config_read(path)`                                                                                     | Setup | Read and validate the config                 |
-| [`pam_example_project()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_example_project.md)         | Setup | Build a small sample project to try          |
-| `pam_birdnet_setup(component)`                                                                              | Setup | Create the BirdNET Python environment        |
-| [`pam_birdnet_doctor()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_doctor.md)           | Setup | Check the machine and environments           |
-| [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md) | 0     | Standardization and triage app               |
-| `pam_standardize(cfg)`                                                                                      | 0     | Standardize raw recordings                   |
-| `pam_scan_audio(cfg)`                                                                                       | 1     | Scan, QC, deployment matching                |
-| `pam_filter_audio(cfg)`                                                                                     | 2     | High-pass filter via FFmpeg                  |
-| `pam_soundscape_run(cfg)`                                                                                   | 2b    | Soundscape indices                           |
-| `pam_soundscape_run_vis(cfg)`                                                                               | 2c    | Soundscape plots and report                  |
-| `pam_detect(cfg)`                                                                                           | 3     | BirdNET detection (parallel, resumable)      |
-| `pam_birdnet_benchmark(cfg, workers)`                                                                       | 3     | Measure speed for several worker counts      |
-| [`pam_birdnet_cleanup()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_cleanup.md)         | 3     | Stop leftover BirdNET worker processes       |
-| `pam_assemble_detections(cfg)`                                                                              | 3, 4  | Combine detection batches                    |
-| `pam_process_detections(cfg)`                                                                               | 4     | Clean and merge detections                   |
-| `pam_validation_draw(cfg, strategy, n)`                                                                     | 5     | Draw a validation sample                     |
-| `pam_validation_export(cfg)`                                                                                | 5     | Export clips and spectrograms                |
-| `pam_validate(cfg)`                                                                                         | 5     | Open the review app                          |
-| `pam_validation_report(cfg)`                                                                                | 5     | Precision metrics                            |
-| `pam_recall_draw(cfg, n)`                                                                                   | 5b    | Draw ground-truth segments                   |
-| `pam_recall_export(cfg)`                                                                                    | 5b    | Export segment clips and spectrograms        |
-| `pam_annotate(cfg)`                                                                                         | 5b    | Open the annotation app                      |
-| `pam_recall_report(cfg)`                                                                                    | 5b    | Recall, precision and F1                     |
-| `pam_build_occupancy(cfg)`                                                                                  | 6     | Detection histories                          |
-| `pam_count_history(cfg, species)`                                                                           | 7     | Counts of one species by site and occasion   |
-| `pam_count_histories(cfg)`                                                                                  | 7     | Counts of many species on a shared grid      |
-| `pam_as_count_history(y)`                                                                                   | 7     | Use your own counts                          |
-| `pam_add_site_covariates(x, covs)`                                                                          | 7     | Attach site covariates by site               |
-| `pam_define_seasons(x)`                                                                                     | 7     | Seasons by year or month                     |
-| `pam_model_input(x)`                                                                                        | 7     | Input for unmarked, ubms or spOccupancy      |
-| `pam_check_model_input(x)`                                                                                  | 7     | Check the input before fitting               |
-| `pam_species_thresholds(cfg)`                                                                               | Eco   | One confidence threshold per species         |
-| `pam_detection_table(cfg)`                                                                                  | Eco   | Detections and effort per site, bin, species |
-| `pam_activity(cfg)`                                                                                         | Eco   | Detections per recorded hour, by period      |
-| `pam_plot_activity(act)`                                                                                    | Eco   | Plot activity patterns                       |
-| `pam_richness(cfg)`                                                                                         | Eco   | Richness, Hill numbers, accumulation, Chao2  |
-| `pam_plot_richness(rich)`                                                                                   | Eco   | Plot richness                                |
-| `pam_report(cfg)`                                                                                           | 8     | HTML, PDF and Excel reports                  |
-| `pam_audio_history(cfg)`                                                                                    | Any   | Follow audio files across the stages         |
+| Function | Stage | Purpose |
+|----|----|----|
+| `pam_config_read(path)` | Setup | Read and validate the config |
+| [`pam_example_project()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_example_project.md) | Setup | Build a small sample project to try |
+| `pam_birdnet_setup(component)` | Setup | Create the BirdNET Python environment |
+| [`pam_birdnet_doctor()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_doctor.md) | Setup | Check the machine and environments |
+| [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md) | 0 | Standardization and triage app |
+| `pam_standardize(cfg)` | 0 | Standardize raw recordings |
+| `pam_scan_audio(cfg)` | 1 | Scan, QC, deployment matching |
+| `pam_filter_audio(cfg)` | 2 | High-pass filter via FFmpeg |
+| `pam_soundscape_run(cfg)` | 2b | Soundscape indices |
+| `pam_soundscape_run_vis(cfg)` | 2c | Soundscape plots and report |
+| `pam_detect(cfg)` | 3 | BirdNET detection (parallel, resumable) |
+| `pam_birdnet_benchmark(cfg, workers)` | 3 | Measure speed for several worker counts |
+| [`pam_birdnet_cleanup()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_cleanup.md) | 3 | Stop leftover BirdNET worker processes |
+| `pam_assemble_detections(cfg)` | 3, 4 | Combine detection batches |
+| `pam_process_detections(cfg)` | 4 | Clean and merge detections |
+| `pam_validation_draw(cfg, strategy, n)` | 5 | Draw a validation sample |
+| `pam_validation_export(cfg)` | 5 | Export clips and spectrograms |
+| `pam_validate(cfg)` | 5 | Open the review app |
+| `pam_validation_report(cfg)` | 5 | Precision metrics |
+| `pam_recall_draw(cfg, n)` | 5b | Draw ground-truth segments |
+| `pam_recall_export(cfg)` | 5b | Export segment clips and spectrograms |
+| `pam_annotate(cfg)` | 5b | Open the annotation app |
+| `pam_recall_report(cfg)` | 5b | Recall, precision and F1 |
+| `pam_build_occupancy(cfg)` | 6 | Detection histories |
+| `pam_count_history(cfg, species)` | 7 | Counts of one species by site and occasion |
+| `pam_count_histories(cfg)` | 7 | Counts of many species on a shared grid |
+| `pam_as_count_history(y)` | 7 | Use your own counts |
+| `pam_add_site_covariates(x, covs)` | 7 | Attach site covariates by site |
+| `pam_define_seasons(x)` | 7 | Seasons by year or month |
+| `pam_model_input(x)` | 7 | Input for unmarked, ubms or spOccupancy |
+| `pam_check_model_input(x)` | 7 | Check the input before fitting |
+| `pam_species_thresholds(cfg)` | Eco | One confidence threshold per species |
+| `pam_detection_table(cfg)` | Eco | Detections and effort per site, bin, species |
+| `pam_activity(cfg)` | Eco | Detections per recorded hour, by period |
+| `pam_plot_activity(act)` | Eco | Plot activity patterns |
+| `pam_richness(cfg)` | Eco | Richness, Hill numbers, accumulation, Chao2 |
+| `pam_plot_richness(rich)` | Eco | Plot richness |
+| `pam_report(cfg)` | 8 | HTML, PDF and Excel reports |
+| `pam_audio_history(cfg)` | Any | Follow audio files across the stages |
 
 Every function has a help page with an example you can run on
 [`pam_example_project()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_example_project.md).
@@ -845,13 +845,13 @@ birdnet:
   classifier_name: "MyModel"
 ```
 
-| Function                                                                                                        | Purpose                                        |
-|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------|
-| [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md)                         | Training app (progress, curves, results, runs) |
-| [`pam_birdnet_train_prepare()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_prepare.md) | Check a training folder before training        |
-| [`pam_birdnet_train()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train.md)                 | Train one classifier                           |
-| [`pam_birdnet_train_repeat()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_repeat.md)   | Train several times and summarize the scores   |
-| [`pam_birdnet_train_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_metrics.md) | Read the scores from a training log            |
+| Function | Purpose |
+|----|----|
+| [`pam_train_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_train_app.md) | Training app (progress, curves, results, runs) |
+| [`pam_birdnet_train_prepare()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_prepare.md) | Check a training folder before training |
+| [`pam_birdnet_train()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train.md) | Train one classifier |
+| [`pam_birdnet_train_repeat()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_repeat.md) | Train several times and summarize the scores |
+| [`pam_birdnet_train_metrics()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_birdnet_train_metrics.md) | Read the scores from a training log |
 
 ## Citing BirdNET and pamflow
 
