@@ -32,6 +32,20 @@ params:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+# All has_* guards defined here so chunk-header eval= options can
+# reference them before their *-check chunks run.
+has_effort  <- !is.null(params$effort)         && is.data.frame(params$effort)         && nrow(params$effort)         > 0
+has_det     <- !is.null(params$species_counts)  && is.data.frame(params$species_counts)  && nrow(params$species_counts)  > 0
+has_hourly  <- !is.null(params$hourly_pattern)  && is.data.frame(params$hourly_pattern)  && nrow(params$hourly_pattern)  > 0
+has_rich    <- !is.null(params$richness_sites)  && is.data.frame(params$richness_sites)  && nrow(params$richness_sites)  > 0
+has_act     <- !is.null(params$activity_hour)   && is.data.frame(params$activity_hour)   && nrow(params$activity_hour)   > 0
+has_season  <- !is.null(params$activity_week)   && is.data.frame(params$activity_week)   && nrow(params$activity_week)   > 0
+has_prec    <- !is.null(params$precision)       && is.data.frame(params$precision)       && nrow(params$precision)       > 0
+has_recall  <- !is.null(params$recall)          && is.data.frame(params$recall)          && nrow(params$recall)          > 0
+has_occ     <- !is.null(params$occupancy)       && is.data.frame(params$occupancy)       && nrow(params$occupancy)       > 0
+has_thr     <- !is.null(params$thresholds)      && is.data.frame(params$thresholds)      && nrow(params$thresholds)      > 0
+top_species <- character()
 ```
 
 # Overview
