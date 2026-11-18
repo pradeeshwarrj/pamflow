@@ -49,10 +49,11 @@ Each point has been addressed:
 0 errors | 0 warnings | 1 note
 
 * This is a new submission.
-* The incoming check on win-builder may list "Kahl", "et" and "al" as possibly
-  misspelled words in the DESCRIPTION. They come from the author-year
-  reference to the 'BirdNET' paper (Kahl et al. 2021,
-  <doi:10.1016/j.ecoinf.2021.101236>); the DOI is correct.
+* The incoming check on win-builder (R-devel) lists "Kahl", "et", "al" and
+  "detections" as possibly misspelled words in the DESCRIPTION. The first
+  three come from the author-year reference to the 'BirdNET' paper (Kahl et
+  al. 2021, <doi:10.1016/j.ecoinf.2021.101236>); the DOI is correct.
+  "detections" is an ordinary English word.
 
 `spelling::spell_check_package()` and `urlchecker::url_check()` report no
 problems.
