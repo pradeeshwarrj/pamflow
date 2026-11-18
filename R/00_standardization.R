@@ -226,10 +226,13 @@ pam_inspect_raw <- function(raw_dir, recursive = TRUE, min_duration_s = 60, time
 #' Standardizes raw audio datasets by organizing folders, parsing timestamps, converting formats
 #' (WAV/FLAC), resampling, mixing channels to mono, isolating non-audio/memos, and logging results.
 #'
-#' @param cfg Optional configuration object from `pam_load_config()`.
+#' @param cfg Optional configuration object from `pam_load_config()`. Supplies
+#'   the folders and settings that are not given as arguments.
 #' @param raw_dir Directory containing raw audio files.
-#' @param standardized_dir Directory to save standardized audio.
+#' @param standardized_dir Directory to save standardized audio. Required (here
+#'   or in `cfg`) unless `dry_run = TRUE`; there is no default.
 #' @param isolated_dir Directory to save isolated non-audio and memo files.
+#'   Required (here or in `cfg`) unless `dry_run = TRUE`; there is no default.
 #' @param dry_run Logical, if TRUE simulates actions without modifying disk.
 #' @param prefix Prefix string prepended to standardized filenames.
 #' @param target_format Output format: "flac" or "wav".
@@ -280,9 +283,7 @@ pam_standardize <- function(cfg = NULL,
                             isolate_short = NULL,
                             timezone = NULL) {
 
-  if (is.null(cfg)) {
-    cfg <- tryCatch(pam_load_config(), error = function(e) list())
-  }
+  if (is.null(cfg)) cfg <- list()
 
   paths_cfg <- pam_or(cfg$paths, list())
   dir_cfg <- pam_or(cfg$directories, list())
@@ -291,9 +292,10 @@ pam_standardize <- function(cfg = NULL,
   fn_cfg <- pam_or(cfg$filenames, list())
 
   # Path resolutions (supports both cfg$paths and cfg$directories)
-  raw_dir <- pam_or(raw_dir, pam_or(paths_cfg$audio_raw, pam_or(dir_cfg$raw, pam_or(dir_cfg$input, "data/raw"))))
-  standardized_dir <- pam_or(standardized_dir, pam_or(paths_cfg$audio_standardized, pam_or(dir_cfg$standardized, "data/standardized")))
-  isolated_dir <- pam_or(isolated_dir, pam_or(paths_cfg$audio_isolated, pam_or(dir_cfg$isolated, "data/isolated")))
+  # no default folders: every path comes from `cfg` or the arguments
+  raw_dir <- pam_or(raw_dir, pam_or(paths_cfg$audio_raw, pam_or(dir_cfg$raw, dir_cfg$input)))
+  standardized_dir <- pam_or(standardized_dir, pam_or(paths_cfg$audio_standardized, dir_cfg$standardized))
+  isolated_dir <- pam_or(isolated_dir, pam_or(paths_cfg$audio_isolated, dir_cfg$isolated))
 
   # Parameter resolutions
   dry_run <- pam_or(dry_run, pam_or(std_cfg$dry_run, FALSE))
@@ -308,6 +310,15 @@ pam_standardize <- function(cfg = NULL,
   isolate_short <- pam_or(isolate_short, pam_or(std_cfg$isolate_short, TRUE))
   timezone <- pam_or(timezone, pam_or(std_cfg$timezone, pam_or(fn_cfg$timezone, "Asia/Kolkata")))
   fn_pattern <- pam_or(fn_cfg$pattern, NULL)
+
+  is_path <- function(x) is.character(x) && length(x) == 1L && !is.na(x) && nzchar(x)
+  if (!is_path(raw_dir)) {
+    rlang::abort("Give `raw_dir`, or a `cfg` with `paths$audio_raw`.")
+  }
+  if (!isTRUE(dry_run) && (!is_path(standardized_dir) || !is_path(isolated_dir))) {
+    rlang::abort(c("Give the output folders `standardized_dir` and `isolated_dir`, or a `cfg` with `paths$audio_standardized` and `paths$audio_isolated`.",
+                   i = "pamflow has no default output folder."))
+  }
 
   pam_log("INFO", as.character(glue::glue("Starting Stage 00 Standardization (dry_run = {dry_run})")), stage = "00_standardization")
   pam_log("INFO", as.character(glue::glue("Target format: {target_format} | Target Hz: {target_hz} | Layout: {organize_folders} | Timezone: {timezone}")), stage = "00_standardization")

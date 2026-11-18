@@ -187,8 +187,9 @@ pam_doctor_row <- function(check, status, detail) {
 pam_birdnet_doctor <- function(envs = list(inference = pam_birdnet_env_dir("inference"),
                                            training = pam_birdnet_env_dir("training")),
                                quiet = FALSE) {
-  rows <- list()
-  add <- function(...) rows[[length(rows) + 1L]] <<- pam_doctor_row(...)
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$rows <- list()
+  add <- function(...) acc$rows[[length(acc$rows) + 1L]] <- pam_doctor_row(...)
 
   # R side
   has_ret <- requireNamespace("reticulate", quietly = TRUE)
@@ -247,7 +248,7 @@ pam_birdnet_doctor <- function(envs = list(inference = pam_birdnet_env_dir("infe
     }
   }
 
-  out <- do.call(rbind, rows)
+  out <- do.call(rbind, acc$rows)
   class(out) <- c("pam_birdnet_doctor", class(out))
   if (!quiet) print(out)
   invisible(out)

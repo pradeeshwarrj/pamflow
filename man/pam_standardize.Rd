@@ -23,13 +23,16 @@ pam_standardize(
 )
 }
 \arguments{
-\item{cfg}{Optional configuration object from \code{pam_load_config()}.}
+\item{cfg}{Optional configuration object from \code{pam_load_config()}. Supplies
+the folders and settings that are not given as arguments.}
 
 \item{raw_dir}{Directory containing raw audio files.}
 
-\item{standardized_dir}{Directory to save standardized audio.}
+\item{standardized_dir}{Directory to save standardized audio. Required (here
+or in \code{cfg}) unless \code{dry_run = TRUE}; there is no default.}
 
-\item{isolated_dir}{Directory to save isolated non-audio and memo files.}
+\item{isolated_dir}{Directory to save isolated non-audio and memo files.
+Required (here or in \code{cfg}) unless \code{dry_run = TRUE}; there is no default.}
 
 \item{dry_run}{Logical, if TRUE simulates actions without modifying disk.}
 

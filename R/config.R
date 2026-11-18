@@ -1,31 +1,31 @@
 #' Read and validate a pamflow configuration file
 #'
-#' @param path Path to a YAML config file. If missing, looks for "config/config.yml" or loads default template.
+#' @param path Path to a YAML config file (required). There is no default:
+#'   pamflow never looks for a configuration in the working directory.
 #' @return A named list of class `pam_config`, with all paths resolved
 #'   against `paths$project_root`.
-#' @details Missing keys fall back to the template defaults.
+#' @details Missing keys fall back to the template defaults
+#'   (`system.file("extdata", "config_template.yml", package = "pamflow")`).
+#'   A relative `paths$project_root` is resolved against the folder that holds
+#'   the config file, not the working directory. The template uses `".."`, so a
+#'   config saved as `<project>/config/config.yml` points at `<project>`.
 #' @export
 #' @examples
 #' ex <- pam_example_project()
 #' cfg <- pam_config_read(ex$config)
 #' cfg$birdnet$run_id
 #' cfg$paths$audio_standardized
-pam_config_read <- function(path = NULL) {
+pam_config_read <- function(path) {
+  if (missing(path) || is.null(path) || !is.character(path) || length(path) != 1L ||
+      is.na(path) || !nzchar(path)) {
+    rlang::abort(c("`path` must be the path to your config file.",
+                   i = "For example: pam_config_read(\"E:/MyProject/config/config.yml\")."))
+  }
+  if (!file.exists(path)) {
+    rlang::abort(sprintf("Config file not found: %s", path))
+  }
+
   default_template <- system.file("extdata", "config_template.yml", package = "pamflow", mustWork = FALSE)
-  if (!nzchar(default_template)) {
-    default_template <- system.file("config_default.yml", package = "pamflow", mustWork = FALSE)
-  }
-
-  if (is.null(path) || !file.exists(path)) {
-    if (file.exists("config/config.yml")) {
-      path <- "config/config.yml"
-    } else if (nzchar(default_template) && file.exists(default_template)) {
-      path <- default_template
-    } else {
-      return(structure(list(paths = list(audio_raw = "data/raw", audio_standardized = "data/standardized", audio_isolated = "data/isolated")), class = c("pam_config", "list")))
-    }
-  }
-
   defaults <- if (nzchar(default_template) && file.exists(default_template)) {
     yaml::read_yaml(default_template)
   } else {
@@ -33,32 +33,51 @@ pam_config_read <- function(path = NULL) {
   }
 
   user <- yaml::read_yaml(path)
+  if (!is.list(user)) user <- list()
   cfg <- utils::modifyList(defaults, user)
 
-  root_dir <- if (!is.null(cfg$paths$project_root)) cfg$paths$project_root else getwd()
-  root <- tryCatch(normalizePath(root_dir, winslash = "/", mustWork = FALSE), error = function(e) getwd())
+  config_dir <- dirname(normalizePath(path, winslash = "/", mustWork = TRUE))
+  root_dir <- pam_or(cfg$paths$project_root, ".")
+  if (!fs::is_absolute_path(root_dir)) root_dir <- file.path(config_dir, root_dir)
+  root <- normalizePath(root_dir, winslash = "/", mustWork = FALSE)
 
   if (!is.null(cfg$paths)) {
     cfg$paths <- lapply(cfg$paths, function(p) {
       if (fs::is_absolute_path(p)) p else as.character(fs::path(root, p))
     })
-    cfg$paths$project_root <- root
   }
+  cfg$paths$project_root <- root
 
   pam_config_validate(cfg)
   structure(cfg, class = c("pam_config", "list"))
 }
 
+#' Project folder of a configuration
+#'
+#' @param cfg A config list.
+#' @return `cfg$paths$project_root`. Aborts when it is missing, so no output
+#'   is ever written relative to the working directory by default.
+#' @keywords internal
+#' @noRd
+pam_project_root <- function(cfg) {
+  root <- cfg$paths$project_root
+  if (is.null(root) || length(root) != 1L || is.na(root) || !nzchar(root)) {
+    rlang::abort(c("The configuration has no `paths$project_root`.",
+                   i = "Read it with pam_config_read(\"<path to config.yml>\")."))
+  }
+  root
+}
+
 #' Alias for pam_config_read
 #'
-#' @param path Path to config file.
+#' @param path Path to config file (required).
 #' @return pam_config object.
 #' @examples
 #' ex <- pam_example_project()
 #' cfg <- pam_load_config(ex$config)
 #' cfg$filenames$timezone
 #' @export
-pam_load_config <- function(path = NULL) {
+pam_load_config <- function(path) {
   pam_config_read(path = path)
 }
 
@@ -76,8 +95,9 @@ pam_load_config <- function(path = NULL) {
 #' inherits(res, "try-error")
 #' @export
 pam_config_validate <- function(cfg) {
-  problems <- character()
-  chk <- function(ok, msg) if (!isTRUE(ok)) problems <<- c(problems, msg)
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$problems <- character()
+  chk <- function(ok, msg) if (!isTRUE(ok)) acc$problems <- c(acc$problems, msg)
 
   if (!is.null(cfg$birdnet)) {
     if (!is.null(cfg$birdnet$min_confidence)) {
@@ -123,8 +143,8 @@ pam_config_validate <- function(cfg) {
     chk(cfg$filenames$timezone %in% OlsonNames(), "filenames$timezone is not a valid Olson timezone")
   }
 
-  if (length(problems)) {
-    rlang::abort(c("Invalid pamflow configuration:", stats::setNames(problems, rep("x", length(problems)))))
+  if (length(acc$problems)) {
+    rlang::abort(c("Invalid pamflow configuration:", stats::setNames(acc$problems, rep("x", length(acc$problems)))))
   }
   invisible(cfg)
 }

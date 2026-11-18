@@ -4,10 +4,11 @@
 \alias{pam_config_read}
 \title{Read and validate a pamflow configuration file}
 \usage{
-pam_config_read(path = NULL)
+pam_config_read(path)
 }
 \arguments{
-\item{path}{Path to a YAML config file. If missing, looks for "config/config.yml" or loads default template.}
+\item{path}{Path to a YAML config file (required). There is no default:
+pamflow never looks for a configuration in the working directory.}
 }
 \value{
 A named list of class \code{pam_config}, with all paths resolved
@@ -17,7 +18,11 @@ against \code{paths$project_root}.
 Read and validate a pamflow configuration file
 }
 \details{
-Missing keys fall back to the template defaults.
+Missing keys fall back to the template defaults
+(\code{system.file("extdata", "config_template.yml", package = "pamflow")}).
+A relative \code{paths$project_root} is resolved against the folder that holds
+the config file, not the working directory. The template uses \code{".."}, so a
+config saved as \verb{<project>/config/config.yml} points at \verb{<project>}.
 }
 \examples{
 ex <- pam_example_project()

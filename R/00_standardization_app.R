@@ -19,9 +19,7 @@
 #' }
 #' @export
 pam_standardization_app <- function(cfg = NULL, raw_dir = NULL, lang = NULL) {
-  if (is.null(cfg)) {
-    cfg <- tryCatch(pam_load_config(), error = function(e) list())
-  }
+  if (is.null(cfg)) cfg <- list()
 
   paths_cfg <- pam_or(cfg$paths, list())
   dir_cfg <- pam_or(cfg$directories, list())
@@ -29,9 +27,10 @@ pam_standardization_app <- function(cfg = NULL, raw_dir = NULL, lang = NULL) {
   fn_cfg <- pam_or(cfg$filenames, list())
   audio_cfg <- pam_or(cfg$audio, list())
 
-  init_raw <- pam_or(raw_dir, pam_or(paths_cfg$audio_raw, pam_or(dir_cfg$raw, pam_or(dir_cfg$input, "data/raw"))))
-  init_std <- pam_or(paths_cfg$audio_standardized, pam_or(dir_cfg$standardized, "data/standardized"))
-  init_iso <- pam_or(paths_cfg$audio_isolated, pam_or(dir_cfg$isolated, "data/isolated"))
+  # no default folders: empty fields until the user (or cfg) supplies them
+  init_raw <- pam_or(raw_dir, pam_or(paths_cfg$audio_raw, pam_or(dir_cfg$raw, pam_or(dir_cfg$input, ""))))
+  init_std <- pam_or(paths_cfg$audio_standardized, pam_or(dir_cfg$standardized, ""))
+  init_iso <- pam_or(paths_cfg$audio_isolated, pam_or(dir_cfg$isolated, ""))
   init_tz <- pam_or(std_cfg$timezone, pam_or(fn_cfg$timezone, "Asia/Kolkata"))
   init_pattern <- pam_or(fn_cfg$pattern, "")
   init_target_hz <- pam_or(std_cfg$target_hz, pam_or(audio_cfg$sample_rate, 48000))

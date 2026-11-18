@@ -15,12 +15,15 @@ Codecov
 Detections
 Diel
 Ecoacoustic
+Eibl
 Esc
 FFmpeg
 FFmpeg's
 FLAC
 HHMMSS
 Highpass
+Kahl
+Klinck
 Kolkata
 NDSI
 ORCID
@@ -59,9 +62,11 @@ codec
 detections
 diel
 difftime
+doi
 downsamples
 downsampling
 ecoacoustic
+ecoinf
 env
 et
 favicons

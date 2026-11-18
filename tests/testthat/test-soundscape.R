@@ -278,9 +278,8 @@ test_that("pam_soundscape_out_dir: defaults to <project_root>/data/soundscape/ru
                file.path("/proj", "data", "soundscape", "run01"))
 })
 
-test_that("pam_soundscape_out_dir: NULL cfg uses current directory", {
-  expect_equal(pamflow:::pam_soundscape_out_dir(NULL),
-               file.path(".", "data", "soundscape", "run01"))
+test_that("pam_soundscape_out_dir: NULL cfg is an error (no working-directory default)", {
+  expect_error(pamflow:::pam_soundscape_out_dir(NULL), "project_root")
 })
 
 # ── pam_soundscape_batch (pam_soundscape_one stubbed) ─────────────────────────

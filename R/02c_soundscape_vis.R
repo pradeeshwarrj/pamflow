@@ -178,24 +178,17 @@ pam_soundscape_report <- function(cfg, sc_results = NULL, vis_results = NULL) {
   }
 
   run_id <- pam_or(cfg$run_id, pam_or(cfg$soundscape$run_id, "run01"))
-  out_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id, "reports")
+  out_dir <- file.path(pam_project_root(cfg), "data", "soundscape", run_id, "reports")
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   template_path <- system.file("rmd", "soundscape_report.Rmd", package = "pamflow")
-  if (template_path == "" || !file.exists(template_path)) {
-    template_path <- file.path(pam_or(cfg$paths$project_root, "."), "inst", "rmd", "soundscape_report.Rmd")
-  }
-  if (!file.exists(template_path)) {
-    template_path <- file.path(getwd(), "inst", "rmd", "soundscape_report.Rmd")
-  }
-
-  if (!file.exists(template_path)) {
-    pam_log("WARN", "Report template not found at inst/rmd/soundscape_report.Rmd. Skipping report.", stage, log_dir)
+  if (!nzchar(template_path) || !file.exists(template_path)) {
+    pam_log("WARN", "Report template 'rmd/soundscape_report.Rmd' not found in the pamflow installation. Skipping report.", stage, log_dir)
     return(NULL)
   }
 
   if (is.null(sc_results)) {
-    cov_path <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id, "soundscape_site_covariates.csv")
+    cov_path <- file.path(pam_project_root(cfg), "data", "soundscape", run_id, "soundscape_site_covariates.csv")
     cov_dt <- if (file.exists(cov_path)) data.table::fread(cov_path) else NULL
   } else {
     cov_dt <- sc_results$site_covariates
@@ -242,7 +235,7 @@ pam_soundscape_run_vis <- function(cfg, sc_results = NULL, generate_report = TRU
 
   pam_log("INFO", glue::glue("Starting Stage 2c Soundscape Visualization for run_id: '{run_id}'"), stage, log_dir)
 
-  out_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id, "plots")
+  out_dir <- file.path(pam_project_root(cfg), "data", "soundscape", run_id, "plots")
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   if (!is.null(sc_results)) {
@@ -250,7 +243,7 @@ pam_soundscape_run_vis <- function(cfg, sc_results = NULL, generate_report = TRU
     diel_dt   <- sc_results$diel
   } else {
     sc_dir_candidates <- c(
-      file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id),
+      file.path(pam_project_root(cfg), "data", "soundscape", run_id),
       file.path(pam_or(cfg$paths$output, cfg$data$output), "soundscape", run_id)
     )
     sc_dir <- NULL
@@ -261,7 +254,7 @@ pam_soundscape_run_vis <- function(cfg, sc_results = NULL, generate_report = TRU
       }
     }
     if (is.null(sc_dir)) {
-      sc_dir <- file.path(pam_or(cfg$paths$project_root, "."), "data", "soundscape", run_id)
+      sc_dir <- file.path(pam_project_root(cfg), "data", "soundscape", run_id)
     }
 
     hourly_path <- file.path(sc_dir, "soundscape_hourly.csv")

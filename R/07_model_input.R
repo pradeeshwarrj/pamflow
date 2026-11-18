@@ -15,12 +15,13 @@
 #' @keywords internal
 #' @noRd
 pam_scale_covariates <- function(site_covs, obs_covs, standardize = TRUE) {
-  scaling <- list()
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$scaling <- list()
   scale_values <- function(x, source, name) {
     centre <- mean(x, na.rm = TRUE)
     spread <- stats::sd(x, na.rm = TRUE)
     if (!is.finite(spread) || spread == 0) spread <- 1
-    scaling[[length(scaling) + 1L]] <<- data.table::data.table(
+    acc$scaling[[length(acc$scaling) + 1L]] <- data.table::data.table(
       source = source, name = name, center = centre, scale = spread)
     (x - centre) / spread
   }
@@ -34,7 +35,7 @@ pam_scale_covariates <- function(site_covs, obs_covs, standardize = TRUE) {
     for (nm in names(obs_covs)) obs_covs[[nm]] <- scale_values(obs_covs[[nm]], "obs", nm)
   }
   list(site = site_covs, obs = obs_covs,
-       scaling = if (length(scaling)) data.table::rbindlist(scaling) else
+       scaling = if (length(acc$scaling)) data.table::rbindlist(acc$scaling) else
          data.table::data.table(source = character(), name = character(),
                                 center = numeric(), scale = numeric()))
 }
@@ -519,13 +520,14 @@ pam_check_model_input <- function(x, error = TRUE) {
   }
   layout <- attr(x, "layout")
   response <- if (!is.null(x$y_array)) x$y_array else x$y
-  rows <- list()
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$rows <- list()
   add <- function(check, passed, detail = "") {
-    rows[[length(rows) + 1L]] <<- data.table::data.table(
+    acc$rows[[length(acc$rows) + 1L]] <- data.table::data.table(
       check = check, passed = isTRUE(passed), detail = detail)
   }
   finish <- function() {
-    out <- data.table::rbindlist(rows)
+    out <- data.table::rbindlist(acc$rows)
     failed <- out[passed == FALSE]
     if (nrow(failed) && error) {
       rlang::abort(paste0("Model input failed ", nrow(failed), " check(s): ",

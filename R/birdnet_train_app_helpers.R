@@ -195,8 +195,9 @@ pam_train_progress <- function(text, n_classes = NA_integer_) {
 #' @keywords internal
 #' @noRd
 pam_train_validate_inputs <- function(x) {
-  errs <- character()
-  add <- function(key) errs <<- c(errs, key)
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$errs <- character()
+  add <- function(key) acc$errs <- c(acc$errs, key)
   txt <- function(v) if (is.null(v) || length(v) != 1L || is.na(v)) "" else trimws(as.character(v))
   num <- function(v) if (is.null(v) || length(v) != 1L || !is.numeric(v) || is.na(v)) NA_real_ else v
   cache_mode <- if (nzchar(txt(x$cache_mode))) txt(x$cache_mode) else "none"
@@ -243,7 +244,7 @@ pam_train_validate_inputs <- function(x) {
   if (is.na(runs) || runs < 1 || runs != round(runs)) add("err_runs")
   th <- x$threads
   if (!is.null(th) && length(th) == 1L && !is.na(th) && (!is.numeric(th) || th < 1)) add("err_threads")
-  unique(errs)
+  unique(acc$errs)
 }
 
 #' Turn the training form values into the options of `pam_train_plan()` (internal)

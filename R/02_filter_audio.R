@@ -61,7 +61,7 @@ pam_check_ffmpeg <- function(ffmpeg = "ffmpeg", filter = NULL) {
                    i = "or set filter$ffmpeg_path in the config to the full path of ffmpeg.exe."))
   }
   if (!is.null(filter)) {
-    t <- run(c("-v", "error", "-f", "lavfi", "-i", shQuote("anullsrc=r=48000:cl=mono"),
+    t <- run(c("-nostdin", "-v", "error", "-f", "lavfi", "-i", shQuote("anullsrc=r=48000:cl=mono"),
                "-t", "0.1", "-af", shQuote(filter), "-f", "null", "-"))
     if (!t$ok) {
       rlang::abort(c("This FFmpeg build rejected the high-pass filter chain.",
@@ -124,7 +124,7 @@ pam_filter_one <- function(item, filter, ffmpeg = "ffmpeg") {
 #'
 #' @param batch data.table with `input`, `output`, `bits`, `exp_dur`, `exp_sr`,
 #'   `exp_ch`.
-#' @param fn Worker function (`pam_filter_one` with a global environment).
+#' @param fn Worker function (`pam_filter_one` with the base environment).
 #' @param filter Filter string.
 #' @param fc The `filter` section of the config.
 #' @param cl Optional parallel cluster.
@@ -237,7 +237,7 @@ pam_filter_audio <- function(cfg, master = NULL, force = FALSE) {
 
   batches <- split(seq_len(nrow(pending)), ceiling(seq_len(nrow(pending)) / fc$chunk_size))
   fn <- pam_filter_one
-  environment(fn) <- globalenv()        # workers need no pamflow installation
+  environment(fn) <- baseenv()          # base R and `::` calls only, so workers need no pamflow installation
   cl <- NULL
   if (as.integer(fc$workers) > 1L) {
     cl <- parallel::makeCluster(as.integer(fc$workers))

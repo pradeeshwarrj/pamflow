@@ -4,10 +4,10 @@
 \alias{pam_load_config}
 \title{Alias for pam_config_read}
 \usage{
-pam_load_config(path = NULL)
+pam_load_config(path)
 }
 \arguments{
-\item{path}{Path to config file.}
+\item{path}{Path to config file (required).}
 }
 \value{
 pam_config object.

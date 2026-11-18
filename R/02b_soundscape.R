@@ -313,7 +313,11 @@ pam_soundscape_out_dir <- function(cfg) {
     return(file.path(cfg$data$soundscape, run_id))
   }
 
-  proj_root <- pam_or(cfg$paths$project_root, pam_or(cfg$data$project_root, "."))
+  proj_root <- if (is.null(cfg$paths$project_root) && !is.null(cfg$data$project_root)) {
+    cfg$data$project_root
+  } else {
+    pam_project_root(cfg)   # aborts: no output relative to the working directory
+  }
   file.path(proj_root, "data", "soundscape", run_id)
 }
 
@@ -700,8 +704,8 @@ pam_soundscape_run <- function(cfg, test_n = NULL) {
   meta_candidates <- c(
     if (!is.null(cfg$paths$metadata)) file.path(cfg$paths$metadata, "audio_master.csv") else NULL,
     if (!is.null(cfg$paths$metadata)) file.path(cfg$paths$metadata, "master_recordings.csv") else NULL,
-    file.path(pam_or(cfg$paths$project_root, "."), "data", "metadata", "audio_master.csv"),
-    file.path(pam_or(cfg$paths$project_root, "."), "data", "metadata", "master_recordings.csv"),
+    file.path(pam_project_root(cfg), "data", "metadata", "audio_master.csv"),
+    file.path(pam_project_root(cfg), "data", "metadata", "master_recordings.csv"),
     file.path(pam_or(cfg$paths$output, cfg$data$output), "metadata", "audio_master.csv"),
     file.path(pam_or(cfg$paths$output, cfg$data$output), "metadata", "master_recordings.csv")
   )
@@ -722,7 +726,7 @@ pam_soundscape_run <- function(cfg, test_n = NULL) {
   audio_candidates <- c(
     cfg$paths$audio_standardized,
     cfg$data$standardized,
-    file.path(pam_or(cfg$paths$project_root, "."), "data", "standardized"),
+    file.path(pam_project_root(cfg), "data", "standardized"),
     cfg$paths$audio
   )
 

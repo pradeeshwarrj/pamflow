@@ -50,7 +50,8 @@ pam_run_stage <- function(stage, fn, cfg, ...) {
   log_dir <- cfg$paths$logs
   t0 <- Sys.time()
   pam_log("INFO", "stage started", stage, log_dir)
-  warns <- character()
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$warns <- character()
 
   out <- withCallingHandlers(
     tryCatch(
@@ -61,7 +62,7 @@ pam_run_stage <- function(stage, fn, cfg, ...) {
       }
     ),
     warning = function(w) {
-      warns <<- c(warns, conditionMessage(w))
+      acc$warns <- c(acc$warns, conditionMessage(w))
       pam_log("WARN", conditionMessage(w), stage, log_dir)
       invokeRestart("muffleWarning")
     }
@@ -70,7 +71,7 @@ pam_run_stage <- function(stage, fn, cfg, ...) {
   dur <- difftime(Sys.time(), t0, units = "mins")
   pam_log("INFO", sprintf("stage %s in %.2f min (%d warnings)",
                           if (out$status == "ok") "finished" else "FAILED",
-                          as.numeric(dur), length(warns)), stage, log_dir)
+                          as.numeric(dur), length(acc$warns)), stage, log_dir)
 
-  list(status = out$status, result = out$value, duration = dur, warnings = warns)
+  list(status = out$status, result = out$value, duration = dur, warnings = acc$warns)
 }

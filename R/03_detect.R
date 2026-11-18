@@ -10,10 +10,11 @@
 #' @noRd
 pam_detect_check_cfg <- function(cfg, need_master = TRUE) {
   bc <- cfg$birdnet
-  missing <- character()
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$missing <- character()
   chk <- function(x, name) {
     if (is.null(x) || length(x) != 1L || is.na(x) || !nzchar(as.character(x))) {
-      missing <<- c(missing, name)
+      acc$missing <- c(acc$missing, name)
     }
   }
   chk(cfg$paths$detections, "paths$detections")
@@ -23,9 +24,9 @@ pam_detect_check_cfg <- function(cfg, need_master = TRUE) {
   if (identical(bc$input, "filtered")) chk(cfg$paths$filtered, "paths$filtered")
   chk(bc$run_id, "birdnet$run_id")
   chk(bc$chunk_size, "birdnet$chunk_size")
-  if (length(missing)) {
+  if (length(acc$missing)) {
     rlang::abort(c("The configuration is incomplete for pam_detect(); these entries are missing:",
-                   stats::setNames(missing, rep("x", length(missing))),
+                   stats::setNames(acc$missing, rep("x", length(acc$missing))),
                    i = "Reload it with cfg <- pam_load_config('<full path to your config.yml>')."))
   }
   invisible(cfg)

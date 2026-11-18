@@ -75,15 +75,16 @@ pam_fwrite_local <- function(dt, path) {
 #' @export
 pam_clean_detections <- function(det, pc, thresholds = NULL, seasons = NULL) {
   det <- data.table::copy(det)
-  steps <- list(); removed <- list()
+  acc <- new.env(parent = emptyenv())   # local accumulator (no `<<-`)
+  acc$steps <- list(); acc$removed <- list()
   rule <- function(dt, keep, label) {
     keep <- data.table::fcoalesce(keep, FALSE)
-    steps[[length(steps) + 1L]] <<- data.table::data.table(
+    acc$steps[[length(acc$steps) + 1L]] <- data.table::data.table(
       rule = label, n_before = nrow(dt), n_removed = sum(!keep))
     if (any(!keep)) {
       r <- dt[!keep]
       r[, reason := label]
-      removed[[length(removed) + 1L]] <<- r
+      acc$removed[[length(acc$removed) + 1L]] <- r
     }
     dt[keep]
   }
@@ -135,11 +136,11 @@ pam_clean_detections <- function(det, pc, thresholds = NULL, seasons = NULL) {
     clean <- data.table::copy(det)
     clean[, c("threshold", "thr_species", "file_duration_s") := NULL]
     clean[, `:=`(mean_confidence = numeric(), n_windows = integer())]
-    steps[[length(steps) + 1L]] <- data.table::data.table(
+    acc$steps[[length(acc$steps) + 1L]] <- data.table::data.table(
       rule = "merged overlapping windows into events (not removed)",
       n_before = 0L, n_removed = 0L)
-    return(list(clean = clean[], removed = data.table::rbindlist(removed, fill = TRUE),
-                steps = data.table::rbindlist(steps)))
+    return(list(clean = clean[], removed = data.table::rbindlist(acc$removed, fill = TRUE),
+                steps = data.table::rbindlist(acc$steps)))
   }
 
   # merge overlapping windows of the same species within a recording into events
@@ -158,7 +159,7 @@ pam_clean_detections <- function(det, pc, thresholds = NULL, seasons = NULL) {
   clean <- merge(agg, meta, by = keys, all.x = TRUE, sort = FALSE)
   clean[, event := NULL]
   clean[, detection_datetime := recording_start + start_time]
-  steps[[length(steps) + 1L]] <- data.table::data.table(
+  acc$steps[[length(acc$steps) + 1L]] <- data.table::data.table(
     rule = "merged overlapping windows into events (not removed)",
     n_before = n_windows_in, n_removed = n_windows_in - nrow(clean))
 
@@ -169,8 +170,8 @@ pam_clean_detections <- function(det, pc, thresholds = NULL, seasons = NULL) {
   data.table::setcolorder(clean, intersect(first, names(clean)))
   data.table::setorder(clean, grid, detection_datetime)
 
-  list(clean = clean[], removed = data.table::rbindlist(removed, fill = TRUE),
-       steps = data.table::rbindlist(steps))
+  list(clean = clean[], removed = data.table::rbindlist(acc$removed, fill = TRUE),
+       steps = data.table::rbindlist(acc$steps))
 }
 
 #' Stage 4: clean the detections of a run

@@ -1,7 +1,7 @@
 bands <- c(0.3, 0.4, 0.5, 0.7, 1.0)
 
 make_pool <- function() {
-  set.seed(42)
+  withr::local_seed(42)
   mk <- function(sp, com, n) {
     st <- sort(runif(n, 0, 15))
     data.table::data.table(
