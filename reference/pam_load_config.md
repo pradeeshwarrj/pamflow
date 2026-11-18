@@ -5,14 +5,14 @@ Alias for pam_config_read
 ## Usage
 
 ``` r
-pam_load_config(path = NULL)
+pam_load_config(path)
 ```
 
 ## Arguments
 
 - path:
 
-  Path to config file.
+  Path to config file (required).
 
 ## Value
 

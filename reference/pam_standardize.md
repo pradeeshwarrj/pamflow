@@ -32,6 +32,7 @@ pam_standardize(
 
   Optional configuration object from
   [`pam_load_config()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_load_config.md).
+  Supplies the folders and settings that are not given as arguments.
 
 - raw_dir:
 
@@ -39,11 +40,13 @@ pam_standardize(
 
 - standardized_dir:
 
-  Directory to save standardized audio.
+  Directory to save standardized audio. Required (here or in `cfg`)
+  unless `dry_run = TRUE`; there is no default.
 
 - isolated_dir:
 
-  Directory to save isolated non-audio and memo files.
+  Directory to save isolated non-audio and memo files. Required (here or
+  in `cfg`) unless `dry_run = TRUE`; there is no default.
 
 - dry_run:
 

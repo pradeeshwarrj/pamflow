@@ -66,7 +66,8 @@
 
 
 <dl><dt id="arg-cfg">cfg<a class="anchor" aria-label="anchor" href="#arg-cfg"></a></dt>
-<dd><p>Optional configuration object from <code><a href="pam_load_config.html">pam_load_config()</a></code>.</p></dd>
+<dd><p>Optional configuration object from <code><a href="pam_load_config.html">pam_load_config()</a></code>. Supplies
+the folders and settings that are not given as arguments.</p></dd>
 
 
 <dt id="arg-raw-dir">raw_dir<a class="anchor" aria-label="anchor" href="#arg-raw-dir"></a></dt>
@@ -74,11 +75,13 @@
 
 
 <dt id="arg-standardized-dir">standardized_dir<a class="anchor" aria-label="anchor" href="#arg-standardized-dir"></a></dt>
-<dd><p>Directory to save standardized audio.</p></dd>
+<dd><p>Directory to save standardized audio. Required (here
+or in <code>cfg</code>) unless <code>dry_run = TRUE</code>; there is no default.</p></dd>
 
 
 <dt id="arg-isolated-dir">isolated_dir<a class="anchor" aria-label="anchor" href="#arg-isolated-dir"></a></dt>
-<dd><p>Directory to save isolated non-audio and memo files.</p></dd>
+<dd><p>Directory to save isolated non-audio and memo files.
+Required (here or in <code>cfg</code>) unless <code>dry_run = TRUE</code>; there is no default.</p></dd>
 
 
 <dt id="arg-dry-run">dry_run<a class="anchor" aria-label="anchor" href="#arg-dry-run"></a></dt>

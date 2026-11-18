@@ -39,7 +39,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pam_config_read</span><span class="op">(</span>path <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pam_config_read</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -47,7 +47,8 @@
 
 
 <dl><dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
-<dd><p>Path to a YAML config file. If missing, looks for "config/config.yml" or loads default template.</p></dd>
+<dd><p>Path to a YAML config file (required). There is no default:
+pamflow never looks for a configuration in the working directory.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -57,7 +58,11 @@ against <code>paths$project_root</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Missing keys fall back to the template defaults.</p>
+    <p>Missing keys fall back to the template defaults
+(<code>system.file("extdata", "config_template.yml", package = "pamflow")</code>).
+A relative <code>paths$project_root</code> is resolved against the folder that holds
+the config file, not the working directory. The template uses <code>".."</code>, so a
+config saved as <code>&lt;project&gt;/config/config.yml</code> points at <code>&lt;project&gt;</code>.</p>
     </div>
 
     <div class="section level2">
@@ -67,7 +72,7 @@ against <code>paths$project_root</code>.</p>
 <span class="r-in"><span><span class="va">cfg</span><span class="op">$</span><span class="va">birdnet</span><span class="op">$</span><span class="va">run_id</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "run01"</span>
 <span class="r-in"><span><span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">audio_standardized</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmpBBZJzl/pamflow_example_1b602eecd763/data/standardized"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmpTLxqyu/pamflow_example_1b722c71fde3/data/standardized"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
