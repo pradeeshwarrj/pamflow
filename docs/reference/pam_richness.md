@@ -131,21 +131,20 @@ matter for all of these numbers.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 rich <- suppressMessages(pam_richness(ex$cfg))
-#> Error in pam_richness(ex$cfg): could not find function "pam_richness"
 as.data.frame(rich$sites)[, c("site_id", "richness", "hill_q1", "hill_q2")]
-#> Error: object 'rich' not found
+#>   site_id richness  hill_q1  hill_q2
+#> 1   G0059        2 1.960132 1.923077
+#> 2   G0110        3 2.871746 2.777778
 rich$estimates
-#> Error: object 'rich' not found
+#>    n_sites observed singletons doubletons chao2 completeness
+#>      <int>    <int>      <int>      <int> <num>        <num>
+#> 1:       2        3          1          2 3.125         0.96
 # count a species only when it has at least two events in a bin
 strict <- suppressMessages(pam_richness(ex$cfg, min_events = 2))
-#> Error in pam_richness(ex$cfg, min_events = 2): could not find function "pam_richness"
 strict$sites$richness
-#> Error: object 'strict' not found
+#> [1] 2 2
 ```

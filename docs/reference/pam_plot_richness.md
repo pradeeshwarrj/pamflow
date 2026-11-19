@@ -29,16 +29,12 @@ A ggplot object.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 rich <- suppressMessages(pam_richness(ex$cfg))
-#> Error in pam_richness(ex$cfg): could not find function "pam_richness"
 p <- pam_plot_richness(rich, "sites")
-#> Error in pam_plot_richness(rich, "sites"): could not find function "pam_plot_richness"
 class(p)
-#> Error: object 'p' not found
+#> [1] "ggplot2::ggplot" "ggplot"          "ggplot2::gg"     "S7_object"      
+#> [5] "gg"             
 ```

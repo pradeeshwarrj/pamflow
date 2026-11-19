@@ -101,16 +101,13 @@ to turn the history into input for abundance or occupancy models.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 sp <- unique(proc$clean$scientific_name)[1]
-#> Error: object 'proc' not found
 hist <- suppressMessages(pam_count_history(ex$cfg, species = sp))
-#> Error in pam_count_history(ex$cfg, species = sp): could not find function "pam_count_history"
 hist$y
-#> Error in hist$y: object of type 'closure' is not subsettable
+#>       2026-04-05 2026-04-06
+#> G0059          2         NA
+#> G0110         NA          2
 ```

@@ -15,7 +15,7 @@ against unfiltered audio)."><meta property="og:image" content="https://pradeeshw
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,15 +79,16 @@ because recall is measured against that run. NULL samples all recordings.</p></d
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_example_project.html">pam_example_project</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_example_project():</span> could not find function "pam_example_project"</span>
 <span class="r-in"><span><span class="co"># the later stages read the master table that the scan builds</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="pam_scan_audio.html">pam_scan_audio</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ex' not found</span>
 <span class="r-in"><span><span class="co"># run_id = NULL: sample all recordings (a real run would restrict to the files it processed)</span></span></span>
 <span class="r-in"><span><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu">pam_recall_draw</span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span>, n <span class="op">=</span> <span class="fl">4</span>, run_id <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ex' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"segment_id"</span>, <span class="st">"rel"</span>, <span class="st">"seg_start"</span>, <span class="st">"seg_end"</span><span class="op">)</span><span class="op">]</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in as.data.frame.default(new):</span> cannot coerce class '"function"' to a data.frame</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   segment_id                             rel seg_start seg_end</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          1 G0059/G0059_20260405_183004.wav         0       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          2 G0059/G0059_20260405_183004.wav         1       2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          3 G0110/G0110_20260406_060004.wav         0       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4          4 G0110/G0110_20260406_060000.wav         1       2</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

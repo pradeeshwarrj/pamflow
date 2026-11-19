@@ -27,7 +27,7 @@ Character string identifier or "unassigned".
 
 ``` r
 pam_extract_grid("G0059_20260405_183000.wav")
-#> Error in pam_extract_grid("G0059_20260405_183000.wav"): could not find function "pam_extract_grid"
+#> [1] "G0059"
 pam_extract_grid("recording.wav")   # no recognisable identifier
-#> Error in pam_extract_grid("recording.wav"): could not find function "pam_extract_grid"
+#> [1] "unassigned"
 ```

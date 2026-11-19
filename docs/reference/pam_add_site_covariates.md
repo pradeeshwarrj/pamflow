@@ -43,8 +43,10 @@ pam_add_site_covariates(x, covariates, replace = FALSE)
 counts <- matrix(c(0, 2, 5, 1, 0, 3), nrow = 3,
                  dimnames = list(c("site_a", "site_b", "site_c"), NULL))
 hist <- pam_as_count_history(counts, species = "Example species")
-#> Error in pam_as_count_history(counts, species = "Example species"): could not find function "pam_as_count_history"
 covs <- data.frame(site_id = c("site_c", "site_a", "site_b"), canopy = c(0.9, 0.2, 0.5))
 pam_add_site_covariates(hist, covs)$site_covariates
-#> Error in pam_add_site_covariates(hist, covs): could not find function "pam_add_site_covariates"
+#>   site_id canopy
+#> 1  site_a    0.2
+#> 2  site_b    0.5
+#> 3  site_c    0.9
 ```

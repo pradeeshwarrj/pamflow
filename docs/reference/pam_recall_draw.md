@@ -35,13 +35,14 @@ Invisibly, the newly added rows.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 # run_id = NULL: sample all recordings (a real run would restrict to the files it processed)
 new <- suppressMessages(pam_recall_draw(ex$cfg, n = 4, run_id = NULL))
-#> Error: object 'ex' not found
 as.data.frame(new)[, c("segment_id", "rel", "seg_start", "seg_end")]
-#> Error in as.data.frame.default(new): cannot coerce class '"function"' to a data.frame
+#>   segment_id                             rel seg_start seg_end
+#> 1          1 G0059/G0059_20260405_183004.wav         0       1
+#> 2          2 G0059/G0059_20260405_183004.wav         1       2
+#> 3          3 G0110/G0110_20260406_060004.wav         0       1
+#> 4          4 G0110/G0110_20260406_060000.wav         1       2
 ```

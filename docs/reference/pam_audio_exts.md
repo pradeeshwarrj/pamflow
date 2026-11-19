@@ -16,5 +16,5 @@ Character vector of supported audio extensions (lowercase).
 
 ``` r
 pam_audio_exts()
-#> Error in pam_audio_exts(): could not find function "pam_audio_exts"
+#> [1] "wav"  "flac"
 ```

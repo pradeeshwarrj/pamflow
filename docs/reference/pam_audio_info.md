@@ -29,7 +29,21 @@ A `data.table` with columns `file_path`, `file_size_b`, `sample_rate`,
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 pam_audio_info(ex$files)
-#> Error: object 'ex' not found
+#>                                                                                                                      file_path
+#>                                                                                                                         <char>
+#> 1: C:/Users/ADMIN/AppData/Local/Temp/Rtmps7PvHY/pamflow_example_27a86bba21e7/data/standardized/G0059/G0059_20260405_183000.wav
+#> 2: C:/Users/ADMIN/AppData/Local/Temp/Rtmps7PvHY/pamflow_example_27a86bba21e7/data/standardized/G0059/G0059_20260405_183002.wav
+#> 3: C:/Users/ADMIN/AppData/Local/Temp/Rtmps7PvHY/pamflow_example_27a86bba21e7/data/standardized/G0059/G0059_20260405_183004.wav
+#> 4: C:/Users/ADMIN/AppData/Local/Temp/Rtmps7PvHY/pamflow_example_27a86bba21e7/data/standardized/G0110/G0110_20260406_060000.wav
+#> 5: C:/Users/ADMIN/AppData/Local/Temp/Rtmps7PvHY/pamflow_example_27a86bba21e7/data/standardized/G0110/G0110_20260406_060002.wav
+#> 6: C:/Users/ADMIN/AppData/Local/Temp/Rtmps7PvHY/pamflow_example_27a86bba21e7/data/standardized/G0110/G0110_20260406_060004.wav
+#>    file_size_b sample_rate channels  bits duration_s readable
+#>          <num>       <int>    <int> <int>      <num>   <lgcl>
+#> 1:       32080        8000        1    16          2     TRUE
+#> 2:       32080        8000        1    16          2     TRUE
+#> 3:       32080        8000        1    16          2     TRUE
+#> 4:       32080        8000        1    16          2     TRUE
+#> 5:       32080        8000        1    16          2     TRUE
+#> 6:       32080        8000        1    16          2     TRUE
 ```

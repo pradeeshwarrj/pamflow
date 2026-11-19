@@ -179,16 +179,23 @@ counts <- matrix(c(0, 2, 5, 1, 0, 3, 4, 0, 2, 1, 1, 0), nrow = 3,
                  dimnames = list(c("site_a", "site_b", "site_c"), NULL))
 hist <- pam_as_count_history(counts, site_covariates = data.frame(canopy = c(0.2, 0.5, 0.9)),
                              effort = matrix(24, 3, 4), species = "Example species")
-#> Error in pam_as_count_history(counts, site_covariates = data.frame(canopy = c(0.2,     0.5, 0.9)), effort = matrix(24, 3, 4), species = "Example species"): could not find function "pam_as_count_history"
 x <- pam_model_input(hist)
-#> Error in pam_model_input(hist): could not find function "pam_model_input"
 x$y
-#> Error: object 'x' not found
+#>        1 2 3 4
+#> site_a 0 1 4 1
+#> site_b 2 0 0 1
+#> site_c 5 3 2 0
 x$siteCovs
-#> Error: object 'x' not found
+#>        canopy
+#> site_a    0.2
+#> site_b    0.5
+#> site_c    0.9
 names(x$obsCovs)
-#> Error: object 'x' not found
+#> [1] "effort" "day"   
 # detection / non-detection instead of counts, covariates standardized
 pam_model_input(hist, binary = TRUE, standardize = TRUE)$y
-#> Error in pam_model_input(hist, binary = TRUE, standardize = TRUE): could not find function "pam_model_input"
+#>        1 2 3 4
+#> site_a 0 1 1 1
+#> site_b 1 0 0 1
+#> site_c 1 1 1 0
 ```

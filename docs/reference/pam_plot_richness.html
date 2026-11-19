@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,18 +64,14 @@ accumulation over sites with the Chao2 estimate as a dashed line;
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_example_project.html">pam_example_project</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_example_project():</span> could not find function "pam_example_project"</span>
 <span class="r-in"><span><span class="co"># the later stages read the master table that the scan builds</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="pam_scan_audio.html">pam_scan_audio</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ex' not found</span>
 <span class="r-in"><span><span class="va">proc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="pam_process_detections.html">pam_process_detections</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ex' not found</span>
 <span class="r-in"><span><span class="va">rich</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="pam_richness.html">pam_richness</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_richness(ex$cfg):</span> could not find function "pam_richness"</span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">pam_plot_richness</span><span class="op">(</span><span class="va">rich</span>, <span class="st">"sites"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_plot_richness(rich, "sites"):</span> could not find function "pam_plot_richness"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'p' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ggplot2::ggplot" "ggplot"          "ggplot2::gg"     "S7_object"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "gg"             </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -75,7 +75,9 @@ An object of class `pam_count_history`: a list with `y`, `effort`,
 counts <- matrix(c(0, 2, 5, 1, 0, 3, 4, 0, 2, 1, 1, 0), nrow = 3,
                  dimnames = list(c("site_a", "site_b", "site_c"), NULL))
 hist <- pam_as_count_history(counts, species = "Example species")
-#> Error in pam_as_count_history(counts, species = "Example species"): could not find function "pam_as_count_history"
 hist$y
-#> Error in hist$y: object of type 'closure' is not subsettable
+#>        1 2 3 4
+#> site_a 0 1 4 1
+#> site_b 2 0 0 1
+#> site_c 5 3 2 0
 ```

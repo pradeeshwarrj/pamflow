@@ -76,6 +76,6 @@ if (requireNamespace("rmarkdown", quietly = TRUE) && rmarkdown::pandoc_available
   files <- suppressMessages(pam_report(ex$cfg, formats = "html"))
   basename(files)
 }
-#> Error in pam_example_project(): could not find function "pam_example_project"
+#> [1] "report_run01.html"
 # }
 ```

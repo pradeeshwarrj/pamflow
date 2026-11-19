@@ -36,9 +36,9 @@ can't be parsed get NA and are listed by
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 dep <- pam_read_deployments(ex$cfg)
-#> Error: object 'ex' not found
 as.data.frame(dep)[, c("deployment_id", "grid", "deploy_start", "retrieve_end")]
-#> Error: object 'dep' not found
+#>   deployment_id  grid        deploy_start        retrieve_end
+#> 1             1 G0059 2026-04-05 18:00:00 2026-04-08 16:00:00
+#> 2             2 G0110 2026-04-01 06:00:00 2026-04-10 18:00:00
 ```

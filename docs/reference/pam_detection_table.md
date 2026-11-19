@@ -99,19 +99,27 @@ bin covers the same dates at every site.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 tab <- suppressMessages(pam_detection_table(ex$cfg))
-#> Error in pam_detection_table(ex$cfg): could not find function "pam_detection_table"
 as.data.frame(tab)[, c("site_id", "bin_start", "species", "n_detections", "effort_hours")]
-#> Error: object 'tab' not found
+#>   site_id  bin_start                                    species n_detections
+#> 1   G0059 2026-04-05  Ducula nicobarica_Nicobar Imperial-Pigeon            2
+#> 2   G0059 2026-04-05         Gracula religiosa_Common Hill Myna            0
+#> 3   G0059 2026-04-05 Psittacula longicauda_Long-tailed Parakeet            3
+#> 4   G0110 2026-04-06  Ducula nicobarica_Nicobar Imperial-Pigeon            2
+#> 5   G0110 2026-04-06         Gracula religiosa_Common Hill Myna            1
+#> 6   G0110 2026-04-06 Psittacula longicauda_Long-tailed Parakeet            2
+#>   effort_hours
+#> 1  0.001666667
+#> 2  0.001666667
+#> 3  0.001666667
+#> 4  0.001666667
+#> 5  0.001666667
+#> 6  0.001666667
 # two-day bins instead of one-day bins
 tab2 <- suppressMessages(pam_detection_table(ex$cfg, bin_days = 2))
-#> Error in pam_detection_table(ex$cfg, bin_days = 2): could not find function "pam_detection_table"
 unique(tab2$bin_start)
-#> Error: object 'tab2' not found
+#> [1] "2026-04-05"
 ```

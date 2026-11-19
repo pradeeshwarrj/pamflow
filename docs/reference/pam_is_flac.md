@@ -22,5 +22,5 @@ Logical scalar or vector.
 
 ``` r
 pam_is_flac(c("a.flac", "b.wav"))
-#> Error in pam_is_flac(c("a.flac", "b.wav")): could not find function "pam_is_flac"
+#> [1]  TRUE FALSE
 ```

@@ -38,15 +38,19 @@ local-time text. Run with
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 out <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 out$steps
-#> Error: object 'out' not found
+#>                                                    rule n_before n_removed
+#>                                                  <char>    <int>     <int>
+#> 1:                     invalid confidence or timestamps       19         0
+#> 2:                             file not in master table       19         0
+#> 3:                              beyond end of recording       19         1
+#> 4:                            outside deployment window       18         0
+#> 5:                           below confidence threshold       18         3
+#> 6: merged overlapping windows into events (not removed)       15         5
 # the results are also written to the run folder
 list.files(file.path(ex$cfg$paths$detections, "run01", "processed"))
-#> Error: object 'ex' not found
+#> [1] "detections_clean.csv"   "processing_steps.csv"   "removed_detections.csv"
 ```

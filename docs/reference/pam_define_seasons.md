@@ -39,7 +39,10 @@ dates <- as.Date(c("2025-12-20", "2026-01-05", "2026-03-10"))
 counts <- matrix(c(1, 0, 2, 0, 1, 1), nrow = 2, dimnames = list(c("a", "b"), NULL))
 hist <- pam_as_count_history(
   counts, occasions = data.frame(occasion = 1:3, bin_start = dates, bin_end = dates))
-#> Error in pam_as_count_history(counts, occasions = data.frame(occasion = 1:3,     bin_start = dates, bin_end = dates)): could not find function "pam_as_count_history"
 pam_define_seasons(hist, by = "month")
-#> Error in pam_define_seasons(hist, by = "month"): could not find function "pam_define_seasons"
+#>    season      start        end
+#> 1 2025-12 2025-12-01 2025-12-31
+#> 2 2026-01 2026-01-01 2026-01-31
+#> 3 2026-02 2026-02-01 2026-02-28
+#> 4 2026-03 2026-03-01 2026-03-31
 ```

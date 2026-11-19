@@ -47,7 +47,5 @@ for seasons, the number of seasons and occasions match the response.
 ``` r
 counts <- matrix(c(0, 2, 5, 1, 0, 3), nrow = 3, dimnames = list(c("a", "b", "c"), NULL))
 x <- pam_model_input(pam_as_count_history(counts))
-#> Error in pam_model_input(pam_as_count_history(counts)): could not find function "pam_model_input"
 pam_check_model_input(x)
-#> Error in pam_check_model_input(x): could not find function "pam_check_model_input"
 ```

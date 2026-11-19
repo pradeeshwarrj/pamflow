@@ -67,25 +67,31 @@ outputs, so a stage you delete or rerun is shown as it now is.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 
 # one row per file and stage
 hist <- pam_audio_history(ex$cfg)
-#> Error in pam_audio_history(ex$cfg): could not find function "pam_audio_history"
 as.data.frame(hist)[1:3, c("file", "stage", "status", "detail")]
-#> Error in as.data.frame.default(hist): cannot coerce class '"function"' to a data.frame
+#>                        file     stage status        detail
+#> 1 G0059_20260405_183000.wav    1 scan   pass  deployment 1
+#> 2 G0059_20260405_183000.wav 4 process   kept 2 events kept
+#> 3 G0059_20260405_183002.wav    1 scan   pass  deployment 1
 
 # one file, by name
 one <- pam_audio_history(ex$cfg, file = "G0059_20260405_183004.wav")
-#> Error in pam_audio_history(ex$cfg, file = "G0059_20260405_183004.wav"): could not find function "pam_audio_history"
 as.data.frame(one)[, c("stage", "status", "detail")]
-#> Error: object 'one' not found
+#>       stage status                                             detail
+#> 1    1 scan   pass                                       deployment 1
+#> 2 4 process   kept 1 event kept; removed: beyond end of recording (1)
 
 # one row per file, one column per stage
 as.data.frame(pam_audio_history(ex$cfg, wide = TRUE))
-#> Error in pam_audio_history(ex$cfg, wide = TRUE): could not find function "pam_audio_history"
+#>                               rel 1 scan 4 process [run01]
+#> 1 G0059/G0059_20260405_183000.wav   pass              kept
+#> 2 G0059/G0059_20260405_183002.wav   pass              kept
+#> 3 G0059/G0059_20260405_183004.wav   pass              kept
+#> 4 G0110/G0110_20260406_060000.wav   pass              kept
+#> 5 G0110/G0110_20260406_060002.wav   pass              kept
+#> 6 G0110/G0110_20260406_060004.wav   pass           removed
 ```

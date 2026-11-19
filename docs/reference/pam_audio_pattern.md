@@ -16,5 +16,5 @@ Character scalar regex pattern (case-insensitive).
 
 ``` r
 grepl(pam_audio_pattern(), c("a.wav", "b.FLAC", "c.mp3"))
-#> Error in pam_audio_pattern(): could not find function "pam_audio_pattern"
+#> [1]  TRUE  TRUE FALSE
 ```

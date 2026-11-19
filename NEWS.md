@@ -1,3 +1,19 @@
+# pamflow 0.6.1
+
+Patch release made in response to the CRAN review of 0.6.0 (which was not published on CRAN).
+
+## Breaking change
+* **No default write locations (breaking).** `pam_config_read()` and `pam_load_config()` now need the path to your config file; they no longer look for `config/config.yml` in the working directory or fall back to the template. A relative `paths$project_root` is resolved against the folder holding the config file (the template now uses `".."`, the folder above `config/`), never the working directory. `pam_standardize()` and `pam_standardization_app()` have no default `data/...` folders: give the folders as arguments or in `cfg` (a dry run needs only `raw_dir`). The soundscape functions stop with a message when the configuration has no `project_root`.
+
+## Bug fixes
+* `pam_report()`: all `has_*` guards are defined at the top of the report template, so sections whose chunk options refer to them no longer fail when they are rendered before their check chunks.
+* `data.table (>= 1.16.0)` is now required: `rbindlist(ignore.attr = TRUE)`, used by `pam_inspect_raw()` and `pam_standardize()`, does not exist in older versions.
+* `pam_check_ffmpeg()` runs its filter test with `-nostdin`, so 'FFmpeg' can no longer read from R's standard input (this corrupted the example script under `R CMD check` on machines with 'FFmpeg' installed).
+
+## CRAN compliance
+* The Description no longer starts with "Tools for", and software names are in single quotes ('BirdNET', 'Python', 'shiny', 'Excel', 'HTML', 'PDF').
+* Internal helpers no longer use `<<-`; results are collected in a local environment. Parallel filter workers run `pam_filter_one()` in the base environment instead of the global one.
+
 # pamflow 0.6.0
 
 ## Ecological products
@@ -28,10 +44,6 @@ pamflow prepares the data; it does not fit the models and does not depend on any
 * BirdNET is cited (Kahl et al. 2021, doi:10.1016/j.ecoinf.2021.101236) in the description, help pages, README and guide.
 * `pam_birdnet_setup()` asks for confirmation before downloading (about 1 GB) in interactive sessions.
 * Random samples use `withr::with_seed()`, so your session's random seed is no longer changed.
-* **No default write locations (breaking).** `pam_config_read()` and `pam_load_config()` now need the path to your config file; they no longer look for `config/config.yml` in the working directory or fall back to the template. A relative `paths$project_root` is resolved against the folder holding the config file (the template now uses `".."`, the folder above `config/`), never the working directory. `pam_standardize()` and `pam_standardization_app()` have no default `data/...` folders: give the folders as arguments or in `cfg` (a dry run needs only `raw_dir`). The soundscape functions stop with a message when the configuration has no `project_root`.
-* `data.table (>= 1.16.0)` is now required: `rbindlist(ignore.attr = TRUE)`, used by `pam_inspect_raw()` and `pam_standardize()`, does not exist in older versions.
-* `pam_check_ffmpeg()` runs its filter test with `-nostdin`, so 'FFmpeg' can no longer read from R's standard input (this corrupted the example script under `R CMD check` on machines with 'FFmpeg' installed).
-* Internal helpers no longer use `<<-`; results are collected in a local environment. Parallel filter workers run `pam_filter_one()` in the base environment instead of the global one.
 * Updated description, citation (with ORCID) and `SystemRequirements`; `ubms` and `spOccupancy` removed from Suggests.
 
 # pamflow 0.5.0

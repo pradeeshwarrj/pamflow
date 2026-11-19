@@ -33,10 +33,16 @@ A data.table with `file_path`, `file_name`, `grid`, `start_time`
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the second name does not match the pattern, so it is flagged, not dropped
 pam_parse_filenames(c(ex$files[1], "not_a_recording.wav"),
                     pattern = ex$cfg$filenames$pattern,
                     timezone = "Asia/Kolkata")
-#> Error: object 'ex' not found
+#>                                                                                                                      file_path
+#>                                                                                                                         <char>
+#> 1: C:/Users/ADMIN/AppData/Local/Temp/Rtmps7PvHY/pamflow_example_27a81bc2472a/data/standardized/G0059/G0059_20260405_183000.wav
+#> 2:                                                                                                         not_a_recording.wav
+#>                    file_name   grid          start_time valid_name
+#>                       <char> <char>              <POSc>     <lgcl>
+#> 1: G0059_20260405_183000.wav  G0059 2026-04-05 18:30:00       TRUE
+#> 2:       not_a_recording.wav   <NA>                <NA>      FALSE
 ```

@@ -1,5 +1,55 @@
 # Changelog
 
+## pamflow 0.6.1
+
+Patch release made in response to the CRAN review of 0.6.0 (which was
+not published on CRAN).
+
+### Breaking change
+
+- **No default write locations (breaking).**
+  [`pam_config_read()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.md)
+  and
+  [`pam_load_config()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_load_config.md)
+  now need the path to your config file; they no longer look for
+  `config/config.yml` in the working directory or fall back to the
+  template. A relative `paths$project_root` is resolved against the
+  folder holding the config file (the template now uses `".."`, the
+  folder above `config/`), never the working directory.
+  [`pam_standardize()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.md)
+  and
+  [`pam_standardization_app()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardization_app.md)
+  have no default `data/...` folders: give the folders as arguments or
+  in `cfg` (a dry run needs only `raw_dir`). The soundscape functions
+  stop with a message when the configuration has no `project_root`.
+
+### Bug fixes
+
+- [`pam_report()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_report.md):
+  all `has_*` guards are defined at the top of the report template, so
+  sections whose chunk options refer to them no longer fail when they
+  are rendered before their check chunks.
+- `data.table (>= 1.16.0)` is now required:
+  `rbindlist(ignore.attr = TRUE)`, used by
+  [`pam_inspect_raw()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_inspect_raw.md)
+  and
+  [`pam_standardize()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_standardize.md),
+  does not exist in older versions.
+- [`pam_check_ffmpeg()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_check_ffmpeg.md)
+  runs its filter test with `-nostdin`, so ‘FFmpeg’ can no longer read
+  from R’s standard input (this corrupted the example script under
+  `R CMD check` on machines with ‘FFmpeg’ installed).
+
+### CRAN compliance
+
+- The Description no longer starts with “Tools for”, and software names
+  are in single quotes (‘BirdNET’, ‘Python’, ‘shiny’, ‘Excel’, ‘HTML’,
+  ‘PDF’).
+- Internal helpers no longer use `<<-`; results are collected in a local
+  environment. Parallel filter workers run
+  [`pam_filter_one()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_filter_one.md)
+  in the base environment instead of the global one.
+
 ## pamflow 0.6.0
 
 ### Ecological products

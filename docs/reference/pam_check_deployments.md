@@ -26,9 +26,7 @@ of the same grid.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 dep <- pam_read_deployments(ex$cfg)
-#> Error: object 'ex' not found
 pam_check_deployments(dep)   # no rows: the example deployments are consistent
-#> Error: object 'dep' not found
+#> Empty data.table (0 rows and 3 cols): deployment_id,grid,issue
 ```

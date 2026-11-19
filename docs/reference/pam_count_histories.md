@@ -95,14 +95,12 @@ take one species with `histories[["label"]]`.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 hists <- suppressMessages(pam_count_histories(ex$cfg))
-#> Error in pam_count_histories(ex$cfg): could not find function "pam_count_histories"
 names(hists)
-#> Error: object 'hists' not found
+#> [1] "Ducula nicobarica_Nicobar Imperial-Pigeon" 
+#> [2] "Gracula religiosa_Common Hill Myna"        
+#> [3] "Psittacula longicauda_Long-tailed Parakeet"
 ```

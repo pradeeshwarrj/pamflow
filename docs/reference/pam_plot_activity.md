@@ -35,16 +35,12 @@ A ggplot object.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))
-#> Error: object 'ex' not found
 act <- suppressMessages(pam_activity(ex$cfg, by = "hour"))
-#> Error in pam_activity(ex$cfg, by = "hour"): could not find function "pam_activity"
 p <- pam_plot_activity(act)
-#> Error in pam_plot_activity(act): could not find function "pam_plot_activity"
 class(p)
-#> Error: object 'p' not found
+#> [1] "ggplot2::ggplot" "ggplot"          "ggplot2::gg"     "S7_object"      
+#> [5] "gg"             
 ```

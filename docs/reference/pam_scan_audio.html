@@ -11,7 +11,7 @@ QC flags, and writes the master table and summaries."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,14 +77,17 @@ Run with <code>pam_run_stage("01_scan", pam_scan_audio, cfg)</code> for logging.
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_example_project.html">pam_example_project</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_example_project():</span> could not find function "pam_example_project"</span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu">pam_scan_audio</span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ex' not found</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">overall</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'res' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    n_files n_grids total_hours n_invalid_name n_unreadable n_truncated n_short</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt;   &lt;int&gt;       &lt;num&gt;          &lt;int&gt;        &lt;int&gt;       &lt;int&gt;   &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:       6       2 0.003333333              0            0           0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    n_duplicate n_gaps n_outside_deployment n_qc_pass</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;int&gt;  &lt;int&gt;                &lt;int&gt;     &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           0      0                    0         6</span>
 <span class="r-in"><span><span class="co"># the master table and summaries are also written to the project</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">metadata</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ex' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "audio_headers.csv" "audio_master.csv"  "deployments.csv"  </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

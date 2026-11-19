@@ -36,6 +36,6 @@ if (nzchar(Sys.which("ffmpeg"))) {
   out <- suppressMessages(pam_recall_export(ex$cfg))
   out$n_ok
 }
-#> Error in pam_example_project(): could not find function "pam_example_project"
+#> [1] 3
 # }
 ```

@@ -29,13 +29,15 @@ grid get NA and `in_deployment = FALSE` (not dropped).
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 cfg <- ex$cfg
-#> Error: object 'ex' not found
 master <- pam_parse_filenames(ex$files, cfg$filenames$pattern, cfg$filenames$timezone)
-#> Error: object 'ex' not found
 master <- pam_match_deployments(master, pam_read_deployments(cfg))
-#> Error: object 'master' not found
 as.data.frame(master)[, c("file_name", "deployment_id", "recorder", "in_deployment")]
-#> Error: object 'master' not found
+#>                   file_name deployment_id recorder in_deployment
+#> 1 G0059_20260405_183000.wav             1    SW010          TRUE
+#> 2 G0059_20260405_183002.wav             1    SW010          TRUE
+#> 3 G0059_20260405_183004.wav             1    SW010          TRUE
+#> 4 G0110_20260406_060000.wav             2    SW012          TRUE
+#> 5 G0110_20260406_060002.wav             2    SW012          TRUE
+#> 6 G0110_20260406_060004.wav             2    SW012          TRUE
 ```

@@ -40,15 +40,16 @@ depth is non-NA).
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 cfg <- ex$cfg
-#> Error: object 'ex' not found
 master <- pam_parse_filenames(ex$files, cfg$filenames$pattern, cfg$filenames$timezone)
-#> Error: object 'ex' not found
 master <- merge(master, pam_audio_info(ex$files), by = "file_path")
-#> Error: object 'master' not found
 master <- pam_add_qc(master, cfg)
-#> Error: object 'cfg' not found
 as.data.frame(master)[, c("file_name", "gap_s", "qc_pass")]
-#> Error: object 'master' not found
+#>                   file_name gap_s qc_pass
+#> 1 G0059_20260405_183000.wav    NA    TRUE
+#> 2 G0059_20260405_183002.wav     0    TRUE
+#> 3 G0059_20260405_183004.wav     0    TRUE
+#> 4 G0110_20260406_060000.wav    NA    TRUE
+#> 5 G0110_20260406_060002.wav     0    TRUE
+#> 6 G0110_20260406_060004.wav     0    TRUE
 ```

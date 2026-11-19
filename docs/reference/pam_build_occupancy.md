@@ -63,19 +63,30 @@ Only species with at least `occupancy.min_detections` total detections
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 proc <- suppressMessages(pam_process_detections(ex$cfg))   # occupancy builds on cleaned detections
-#> Error: object 'ex' not found
 occ <- suppressMessages(pam_build_occupancy(ex$cfg))
-#> Error: object 'ex' not found
 names(occ$histories)
-#> Error: object 'occ' not found
+#> [1] "Ducula nicobarica_Nicobar Imperial-Pigeon" 
+#> [2] "Psittacula longicauda_Long-tailed Parakeet"
+#> [3] "Gracula religiosa_Common Hill Myna"        
 occ$summary
-#> Error: object 'occ' not found
+#>                                       species threshold_used n_sites
+#>                                        <char>          <num>   <int>
+#> 1:  Ducula nicobarica_Nicobar Imperial-Pigeon            0.5       2
+#> 2: Psittacula longicauda_Long-tailed Parakeet            0.5       2
+#> 3:         Gracula religiosa_Common Hill Myna            0.5       2
+#>    n_occasions n_sites_detected naive_occupancy
+#>          <int>            <int>           <num>
+#> 1:           2                2             1.0
+#> 2:           2                2             1.0
+#> 3:           2                1             0.5
 # detection history of the first species: rows = sites, columns = days, NA = not surveyed
 occ$histories[[1]]
-#> Error: object 'occ' not found
+#> Key: <site_id>
+#>    site_id 2026-04-05 2026-04-06
+#>     <char>      <int>      <int>
+#> 1:   G0059          1         NA
+#> 2:   G0110         NA          1
 ```

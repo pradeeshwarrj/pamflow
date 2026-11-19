@@ -42,6 +42,5 @@ if (nzchar(Sys.which("ffmpeg"))) {
   res$ok
   unlink(item$output)
 }
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # }
 ```

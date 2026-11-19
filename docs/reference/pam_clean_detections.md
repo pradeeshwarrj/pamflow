@@ -43,20 +43,44 @@ A list: `clean` (one row per event, with `confidence` = maximum,
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 # the later stages read the master table that the scan builds
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 det <- suppressMessages(pam_assemble_detections(ex$cfg))
-#> Error: object 'ex' not found
 det$file_duration_s <- 2    # length of the example recordings, in seconds
-#> Error in det$file_duration_s <- 2: object of type 'closure' is not subsettable
 cleaned <- pam_clean_detections(det, ex$cfg$processing)
-#> Error in `:=`(detection_date, as.Date(format(detection_datetime, "%Y-%m-%d"))): Check that is.data.table(DT) == TRUE. Otherwise, `:=` is defined for use in j, once only and in particular ways. See help(":=", "data.table"). A common reason for this error is allocating a new column in `j` and using `<-` instead of `:=`; e.g., `DT[, new_col <- 1]` should be `DT[, new_col := 1]`. Another is using `:=` in a multi-statement `{...}` block; please use `:=` as the only statement in `j`.
 cleaned$steps
-#> Error: object 'cleaned' not found
+#>                                                    rule n_before n_removed
+#>                                                  <char>    <int>     <int>
+#> 1:                     invalid confidence or timestamps       19         0
+#> 2:                             file not in master table       19         0
+#> 3:                              beyond end of recording       19         1
+#> 4:                            outside deployment window       18         0
+#> 5:                           below confidence threshold       18         3
+#> 6: merged overlapping windows into events (not removed)       15         5
 cleaned$removed$reason
-#> Error: object 'cleaned' not found
+#> [1] "beyond end of recording"    "below confidence threshold"
+#> [3] "below confidence threshold" "below confidence threshold"
 as.data.frame(cleaned$clean)[, c("species", "confidence", "n_windows", "start_time", "end_time")]
-#> Error: object 'cleaned' not found
+#>                                       species confidence n_windows start_time
+#> 1   Ducula nicobarica_Nicobar Imperial-Pigeon       0.71         1          0
+#> 2  Psittacula longicauda_Long-tailed Parakeet       0.92         2          0
+#> 3   Ducula nicobarica_Nicobar Imperial-Pigeon       0.64         1          0
+#> 4  Psittacula longicauda_Long-tailed Parakeet       0.81         2          0
+#> 5  Psittacula longicauda_Long-tailed Parakeet       0.66         2          0
+#> 6   Ducula nicobarica_Nicobar Imperial-Pigeon       0.83         1          0
+#> 7          Gracula religiosa_Common Hill Myna       0.95         1          0
+#> 8  Psittacula longicauda_Long-tailed Parakeet       0.74         2          0
+#> 9   Ducula nicobarica_Nicobar Imperial-Pigeon       0.58         1          0
+#> 10 Psittacula longicauda_Long-tailed Parakeet       0.58         2          0
+#>    end_time
+#> 1       3.0
+#> 2       4.5
+#> 3       3.0
+#> 4       4.5
+#> 5       4.5
+#> 6       3.0
+#> 7       3.0
+#> 8       4.5
+#> 9       3.0
+#> 10      4.5
 ```

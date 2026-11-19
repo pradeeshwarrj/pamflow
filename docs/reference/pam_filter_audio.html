@@ -13,7 +13,7 @@ are never modified."><meta property="og:image" content="https://pradeeshwarrj.gi
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,7 +93,9 @@ source files. Run with <code>pam_run_stage("02_filter", pam_filter_audio, cfg)</
 <span class="r-in"><span>  <span class="va">out</span><span class="op">$</span><span class="va">n_ok</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">ex</span><span class="op">$</span><span class="va">cfg</span><span class="op">$</span><span class="va">paths</span><span class="op">$</span><span class="va">filtered</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_example_project():</span> could not find function "pam_example_project"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "G0059_20260405_183000.wav" "G0059_20260405_183002.wav"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "G0059_20260405_183004.wav" "G0110_20260406_060000.wav"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "G0110_20260406_060002.wav" "G0110_20260406_060004.wav"</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

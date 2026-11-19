@@ -11,7 +11,7 @@ Timestamps are returned as local time strings."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,9 +72,9 @@ Timestamps are returned as local time strings.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">pam_parse_datetime</span><span class="op">(</span><span class="st">"G0059_20260405_183000.wav"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_parse_datetime("G0059_20260405_183000.wav"):</span> could not find function "pam_parse_datetime"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "20260405_183000"</span>
 <span class="r-in"><span><span class="fu">pam_parse_datetime</span><span class="op">(</span><span class="st">"SM4_260405183000.wav"</span><span class="op">)</span>   <span class="co"># 12-digit stamp: yymmddhhmmss</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_parse_datetime("SM4_260405183000.wav"):</span> could not find function "pam_parse_datetime"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "20260405_183000"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

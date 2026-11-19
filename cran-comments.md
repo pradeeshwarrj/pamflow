@@ -1,7 +1,7 @@
 ## Resubmission
 
-This is a resubmission of pamflow 0.6.0. Thank you for the review. 
-Each point has been addressed:
+This is a resubmission of pamflow, now version 0.6.1 (0.6.0 was returned for
+fixes). Thank you for the review. Each point has been addressed:
 
 * **"Tools for" at the start of the Description.** Removed. The Description
   now starts "An end-to-end workflow for passive acoustic monitoring
@@ -41,8 +41,9 @@ Each point has been addressed:
 * win-builder: R-devel
 * GitHub Actions: macOS (release), Windows (release), Ubuntu (devel, release,
   oldrel-1)
-* First submission only: win-builder R release, and R-hub Linux (R-devel),
-  macOS arm64 (R-devel), Windows (R-devel) and `nosuggests`
+* R-hub: Linux (R-devel), macOS (R-devel), Windows (R-devel)
+* First submission only: win-builder R release, and the R-hub `nosuggests`
+  platform
 
 ## R CMD check results
 

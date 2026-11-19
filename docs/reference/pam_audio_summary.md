@@ -27,13 +27,22 @@ A list: `overall` (one-row data.table), `per_grid` (data.table),
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 summ <- pam_audio_summary(res$master, res$deployments)
-#> Error: object 'res' not found
 summ$overall
-#> Error: object 'summ' not found
+#>    n_files n_grids total_hours n_invalid_name n_unreadable n_truncated n_short
+#>      <int>   <int>       <num>          <int>        <int>       <int>   <int>
+#> 1:       6       2 0.003333333              0            0           0       0
+#>    n_duplicate n_gaps n_outside_deployment n_qc_pass
+#>          <int>  <int>                <int>     <int>
+#> 1:           0      0                    0         6
 summ$per_grid
-#> Error: object 'summ' not found
+#>      grid n_files       hours median_file_min               first
+#>    <char>   <int>       <num>           <num>              <POSc>
+#> 1:  G0059       3 0.001666667      0.03333333 2026-04-05 18:30:00
+#> 2:  G0110       3 0.001666667      0.03333333 2026-04-06 06:00:00
+#>                   last n_gaps n_duplicate n_unreadable n_outside_deployment
+#>                 <POSc>  <int>       <int>        <int>                <int>
+#> 1: 2026-04-05 18:30:04      0           0            0                    0
+#> 2: 2026-04-06 06:00:04      0           0            0                    0
 ```

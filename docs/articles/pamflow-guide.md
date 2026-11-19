@@ -202,6 +202,13 @@ occupancy:
   min_detections: 10
 ```
 
+`project_root` can be a full path, as above, or a path relative to the
+folder that holds the config file: `".."` (the template’s default) means
+the folder above `config/`. Relative paths are never read from your
+working directory, and
+[`pam_config_read()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.md)
+always needs the path of the config file.
+
 To see every setting, copy the full template and edit it:
 
 ``` r
@@ -214,7 +221,7 @@ file.copy(system.file("extdata", "config_template.yml", package = "pamflow"),
 
 | Setting | Meaning |
 |----|----|
-| `paths.project_root` | Top-level project folder |
+| `paths.project_root` | Top-level project folder: a full path, or relative to the folder holding the config file |
 | `filenames.timezone` | Timezone of file names and deployment dates |
 | `birdnet.model_dir` | Folder with your custom BirdNET model |
 | `birdnet.classifier_name` | Model file name without `.tflite` |
@@ -254,7 +261,7 @@ files aside in `data/isolated/`.
 
 ``` r
 
-pam_standardization_app()   # point-and-click: Inspect, Convert and Log tabs
+pam_standardization_app(cfg)   # point-and-click: Inspect, Convert and Log tabs
 
 # or from code; dry_run = TRUE only plans what would happen
 plan <- pam_standardize(cfg, dry_run = TRUE)

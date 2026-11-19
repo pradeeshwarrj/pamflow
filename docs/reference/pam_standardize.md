@@ -32,6 +32,7 @@ pam_standardize(
 
   Optional configuration object from
   [`pam_load_config()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_load_config.md).
+  Supplies the folders and settings that are not given as arguments.
 
 - raw_dir:
 
@@ -39,11 +40,13 @@ pam_standardize(
 
 - standardized_dir:
 
-  Directory to save standardized audio.
+  Directory to save standardized audio. Required (here or in `cfg`)
+  unless `dry_run = TRUE`; there is no default.
 
 - isolated_dir:
 
-  Directory to save isolated non-audio and memo files.
+  Directory to save isolated non-audio and memo files. Required (here or
+  in `cfg`) unless `dry_run = TRUE`; there is no default.
 
 - dry_run:
 
@@ -99,7 +102,6 @@ data.table containing audit log of standardization operations.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 demo <- tempfile("pamflow_std_")
 
 # dry_run = TRUE only plans what would happen; nothing is written
@@ -107,9 +109,10 @@ plan <- suppressMessages(pam_standardize(
   ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo, "standardized"),
   isolated_dir = file.path(demo, "isolated"), dry_run = TRUE,
   target_format = "wav", min_duration_s = 1))
-#> Error in pam_standardize(ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo,     "standardized"), isolated_dir = file.path(demo, "isolated"),     dry_run = TRUE, target_format = "wav", min_duration_s = 1): could not find function "pam_standardize"
 table(plan$action)
-#> Error: object 'plan' not found
+#> 
+#> PLANNED_COPY_COMPLIANT 
+#>                      6 
 
 # \donttest{
 if (requireNamespace("av", quietly = TRUE)) {
@@ -119,7 +122,9 @@ if (requireNamespace("av", quietly = TRUE)) {
     isolated_dir = file.path(demo, "isolated"), target_format = "flac", min_duration_s = 1))
   table(done$action)
 }
-#> Error in pam_standardize(ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo,     "standardized"), isolated_dir = file.path(demo, "isolated"),     target_format = "flac", min_duration_s = 1): could not find function "pam_standardize"
+#> 
+#> TRANSCODED 
+#>          6 
 # }
 unlink(demo, recursive = TRUE)
 ```

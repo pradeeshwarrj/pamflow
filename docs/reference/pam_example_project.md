@@ -90,11 +90,16 @@ long, and the filter stage uses a single worker.
 
 ``` r
 ex <- pam_example_project()
-#> Error in pam_example_project(): could not find function "pam_example_project"
 basename(ex$files)
-#> Error: object 'ex' not found
+#> [1] "G0059_20260405_183000.wav" "G0059_20260405_183002.wav"
+#> [3] "G0059_20260405_183004.wav" "G0110_20260406_060000.wav"
+#> [5] "G0110_20260406_060002.wav" "G0110_20260406_060004.wav"
 res <- suppressMessages(pam_scan_audio(ex$cfg))
-#> Error: object 'ex' not found
 res$summary$overall
-#> Error: object 'res' not found
+#>    n_files n_grids total_hours n_invalid_name n_unreadable n_truncated n_short
+#>      <int>   <int>       <num>          <int>        <int>       <int>   <int>
+#> 1:       6       2 0.003333333              0            0           0       0
+#>    n_duplicate n_gaps n_outside_deployment n_qc_pass
+#>          <int>  <int>                <int>     <int>
+#> 1:           0      0                    0         6
 ```

@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,8 @@
 
 
 <dl><dt id="arg-cfg">cfg<a class="anchor" aria-label="anchor" href="#arg-cfg"></a></dt>
-<dd><p>Optional configuration object from <code><a href="pam_load_config.html">pam_load_config()</a></code>.</p></dd>
+<dd><p>Optional configuration object from <code><a href="pam_load_config.html">pam_load_config()</a></code>. Supplies
+the folders and settings that are not given as arguments.</p></dd>
 
 
 <dt id="arg-raw-dir">raw_dir<a class="anchor" aria-label="anchor" href="#arg-raw-dir"></a></dt>
@@ -74,11 +75,13 @@
 
 
 <dt id="arg-standardized-dir">standardized_dir<a class="anchor" aria-label="anchor" href="#arg-standardized-dir"></a></dt>
-<dd><p>Directory to save standardized audio.</p></dd>
+<dd><p>Directory to save standardized audio. Required (here
+or in <code>cfg</code>) unless <code>dry_run = TRUE</code>; there is no default.</p></dd>
 
 
 <dt id="arg-isolated-dir">isolated_dir<a class="anchor" aria-label="anchor" href="#arg-isolated-dir"></a></dt>
-<dd><p>Directory to save isolated non-audio and memo files.</p></dd>
+<dd><p>Directory to save isolated non-audio and memo files.
+Required (here or in <code>cfg</code>) unless <code>dry_run = TRUE</code>; there is no default.</p></dd>
 
 
 <dt id="arg-dry-run">dry_run<a class="anchor" aria-label="anchor" href="#arg-dry-run"></a></dt>
@@ -133,7 +136,6 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_example_project.html">pam_example_project</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_example_project():</span> could not find function "pam_example_project"</span>
 <span class="r-in"><span><span class="va">demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"pamflow_std_"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># dry_run = TRUE only plans what would happen; nothing is written</span></span></span>
@@ -141,9 +143,10 @@
 <span class="r-in"><span>  <span class="va">ex</span><span class="op">$</span><span class="va">cfg</span>, raw_dir <span class="op">=</span> <span class="va">ex</span><span class="op">$</span><span class="va">audio_dir</span>, standardized_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo</span>, <span class="st">"standardized"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  isolated_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo</span>, <span class="st">"isolated"</span><span class="op">)</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  target_format <span class="op">=</span> <span class="st">"wav"</span>, min_duration_s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_standardize(ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo,     "standardized"), isolated_dir = file.path(demo, "isolated"),     dry_run = TRUE, target_format = "wav", min_duration_s = 1):</span> could not find function "pam_standardize"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">plan</span><span class="op">$</span><span class="va">action</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'plan' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> PLANNED_COPY_COMPLIANT </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      6 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"av"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -153,7 +156,9 @@
 <span class="r-in"><span>    isolated_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo</span>, <span class="st">"isolated"</span><span class="op">)</span>, target_format <span class="op">=</span> <span class="st">"flac"</span>, min_duration_s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">done</span><span class="op">$</span><span class="va">action</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pam_standardize(ex$cfg, raw_dir = ex$audio_dir, standardized_dir = file.path(demo,     "standardized"), isolated_dir = file.path(demo, "isolated"),     target_format = "flac", min_duration_s = 1):</span> could not find function "pam_standardize"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TRANSCODED </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          6 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">demo</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 </code></pre></div>

@@ -32,7 +32,7 @@ Character string timestamp in "YYYYMMDD_HHMMSS" format.
 
 ``` r
 pam_parse_datetime("G0059_20260405_183000.wav")
-#> Error in pam_parse_datetime("G0059_20260405_183000.wav"): could not find function "pam_parse_datetime"
+#> [1] "20260405_183000"
 pam_parse_datetime("SM4_260405183000.wav")   # 12-digit stamp: yymmddhhmmss
-#> Error in pam_parse_datetime("SM4_260405183000.wav"): could not find function "pam_parse_datetime"
+#> [1] "20260405_183000"
 ```
