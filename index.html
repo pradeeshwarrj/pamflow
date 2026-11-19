@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -215,6 +215,7 @@
 <span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="fu">occupancy</span><span class="kw">:</span></span>
 <span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="at">  </span><span class="fu">run_id</span><span class="kw">:</span><span class="at"> </span><span class="st">"run01"</span></span>
 <span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="at">  </span><span class="fu">occasion_length_days</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code></pre></div>
+<p><code>project_root</code> can be a full path, as above, or a path relative to the folder that holds the config file: <code>".."</code> (the template’s default) means the folder above <code>config/</code>. Relative paths are never read from your working directory, and <code><a href="reference/pam_config_read.html">pam_config_read()</a></code> always needs the path of the config file.</p>
 <p>To see every setting, copy the full template and edit it:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"config_template.yml"</span>, package <span class="op">=</span> <span class="st">"pamflow"</span><span class="op">)</span>,</span>
@@ -231,7 +232,8 @@
 </h3>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pradeeshwarrj.github.io/pamflow/">pamflow</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/pam_standardization_app.html">pam_standardization_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pam_config_read.html">pam_config_read</a></span><span class="op">(</span><span class="st">"E:/MyProject/config/config.yml"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/pam_standardization_app.html">pam_standardization_app</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span>   <span class="co"># folders are filled in from the config</span></span></code></pre></div>
 <p>The GUI provides three tabs:</p>
 <ul>
 <li><p><strong>Inspect</strong> — Preview files, extract metadata, test filename regex</p></li>
@@ -345,7 +347,7 @@
 <span><span class="va">hist</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pam_count_history.html">pam_count_history</a></span><span class="op">(</span><span class="va">cfg</span>, species <span class="op">=</span> <span class="st">"Gracula religiosa"</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pam_model_input.html">pam_model_input</a></span><span class="op">(</span><span class="va">hist</span>, binary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>    <span class="co"># y, siteCovs, obsCovs</span></span>
 <span><span class="fu"><a href="reference/pam_check_model_input.html">pam_check_model_input</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu">unmarkedFrameOccu</span><span class="op">(</span>y <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">y</span>, siteCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">siteCovs</span>, obsCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">y</span>, siteCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">siteCovs</span>, obsCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span><span class="op">)</span></span></code></pre></div>
 <p>Occasions follow <code>occupancy.occasion_length_days</code> in the config. See the guide (<code><a href="articles/pamflow-guide.html">vignette("pamflow-guide")</a></code>) for several species, several seasons and the details of each function.</p>
 </div>
 <div class="section level2">

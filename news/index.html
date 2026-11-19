@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,29 @@
       <small>Source: <a href="https://github.com/pradeeshwarrj/pamflow/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.1" id="pamflow-061">pamflow 0.6.1<a class="anchor" aria-label="anchor" href="#pamflow-061"></a></h2>
+<p>Patch release made in response to the CRAN review of 0.6.0 (which was not published on CRAN).</p>
+<div class="section level3">
+<h3 id="breaking-change-0-6-1">Breaking change<a class="anchor" aria-label="anchor" href="#breaking-change-0-6-1"></a></h3>
+<ul><li>
+<strong>No default write locations (breaking).</strong> <code><a href="../reference/pam_config_read.html">pam_config_read()</a></code> and <code><a href="../reference/pam_load_config.html">pam_load_config()</a></code> now need the path to your config file; they no longer look for <code>config/config.yml</code> in the working directory or fall back to the template. A relative <code>paths$project_root</code> is resolved against the folder holding the config file (the template now uses <code>".."</code>, the folder above <code>config/</code>), never the working directory. <code><a href="../reference/pam_standardize.html">pam_standardize()</a></code> and <code><a href="../reference/pam_standardization_app.html">pam_standardization_app()</a></code> have no default <code>data/...</code> folders: give the folders as arguments or in <code>cfg</code> (a dry run needs only <code>raw_dir</code>). The soundscape functions stop with a message when the configuration has no <code>project_root</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-6-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-6-1"></a></h3>
+<ul><li>
+<code><a href="../reference/pam_report.html">pam_report()</a></code>: all <code>has_*</code> guards are defined at the top of the report template, so sections whose chunk options refer to them no longer fail when they are rendered before their check chunks.</li>
+<li>
+<code>data.table (&gt;= 1.16.0)</code> is now required: <code>rbindlist(ignore.attr = TRUE)</code>, used by <code><a href="../reference/pam_inspect_raw.html">pam_inspect_raw()</a></code> and <code><a href="../reference/pam_standardize.html">pam_standardize()</a></code>, does not exist in older versions.</li>
+<li>
+<code><a href="../reference/pam_check_ffmpeg.html">pam_check_ffmpeg()</a></code> runs its filter test with <code>-nostdin</code>, so ‘FFmpeg’ can no longer read from R’s standard input (this corrupted the example script under <code>R CMD check</code> on machines with ‘FFmpeg’ installed).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="cran-compliance-0-6-1">CRAN compliance<a class="anchor" aria-label="anchor" href="#cran-compliance-0-6-1"></a></h3>
+<ul><li>The Description no longer starts with “Tools for”, and software names are in single quotes (‘BirdNET’, ‘Python’, ‘shiny’, ‘Excel’, ‘HTML’, ‘PDF’).</li>
+<li>Internal helpers no longer use <code>&lt;&lt;-</code>; results are collected in a local environment. Parallel filter workers run <code><a href="../reference/pam_filter_one.html">pam_filter_one()</a></code> in the base environment instead of the global one.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="pamflow-060">pamflow 0.6.0<a class="anchor" aria-label="anchor" href="#pamflow-060"></a></h2>
 <div class="section level3">
@@ -79,13 +102,6 @@
 <li>
 <code><a href="../reference/pam_birdnet_setup.html">pam_birdnet_setup()</a></code> asks for confirmation before downloading (about 1 GB) in interactive sessions.</li>
 <li>Random samples use <code><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">withr::with_seed()</a></code>, so your session’s random seed is no longer changed.</li>
-<li>
-<strong>No default write locations (breaking).</strong> <code><a href="../reference/pam_config_read.html">pam_config_read()</a></code> and <code><a href="../reference/pam_load_config.html">pam_load_config()</a></code> now need the path to your config file; they no longer look for <code>config/config.yml</code> in the working directory or fall back to the template. A relative <code>paths$project_root</code> is resolved against the folder holding the config file (the template now uses <code>".."</code>, the folder above <code>config/</code>), never the working directory. <code><a href="../reference/pam_standardize.html">pam_standardize()</a></code> and <code><a href="../reference/pam_standardization_app.html">pam_standardization_app()</a></code> have no default <code>data/...</code> folders: give the folders as arguments or in <code>cfg</code> (a dry run needs only <code>raw_dir</code>). The soundscape functions stop with a message when the configuration has no <code>project_root</code>.</li>
-<li>
-<code>data.table (&gt;= 1.16.0)</code> is now required: <code>rbindlist(ignore.attr = TRUE)</code>, used by <code><a href="../reference/pam_inspect_raw.html">pam_inspect_raw()</a></code> and <code><a href="../reference/pam_standardize.html">pam_standardize()</a></code>, does not exist in older versions.</li>
-<li>
-<code><a href="../reference/pam_check_ffmpeg.html">pam_check_ffmpeg()</a></code> runs its filter test with <code>-nostdin</code>, so ‘FFmpeg’ can no longer read from R’s standard input (this corrupted the example script under <code>R CMD check</code> on machines with ‘FFmpeg’ installed).</li>
-<li>Internal helpers no longer use <code>&lt;&lt;-</code>; results are collected in a local environment. Parallel filter workers run <code><a href="../reference/pam_filter_one.html">pam_filter_one()</a></code> in the base environment instead of the global one.</li>
 <li>Updated description, citation (with ORCID) and <code>SystemRequirements</code>; <code>ubms</code> and <code>spOccupancy</code> removed from Suggests.</li>
 </ul></div>
 </div>

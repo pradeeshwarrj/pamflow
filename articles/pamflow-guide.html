@@ -19,7 +19,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pamflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -275,6 +275,12 @@ template that ships with pamflow. A minimal example:</p>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="at">  </span><span class="fu">occasion_length_days</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
 <span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="at">  </span><span class="fu">min_effort_hours</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
 <span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="at">  </span><span class="fu">min_detections</span><span class="kw">:</span><span class="at"> </span><span class="dv">10</span></span></code></pre></div>
+<p><code>project_root</code> can be a full path, as above, or a path
+relative to the folder that holds the config file: <code>".."</code>
+(the template’s default) means the folder above <code>config/</code>.
+Relative paths are never read from your working directory, and
+<code><a href="../reference/pam_config_read.html">pam_config_read()</a></code> always needs the path of the config
+file.</p>
 <p>To see every setting, copy the full template and edit it:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"config_template.yml"</span>, package <span class="op">=</span> <span class="st">"pamflow"</span><span class="op">)</span>,</span>
@@ -292,7 +298,8 @@ template that ships with pamflow. A minimal example:</p>
 <tbody>
 <tr class="odd">
 <td><code>paths.project_root</code></td>
-<td>Top-level project folder</td>
+<td>Top-level project folder: a full path, or relative to the folder
+holding the config file</td>
 </tr>
 <tr class="even">
 <td><code>filenames.timezone</code></td>
@@ -373,7 +380,7 @@ the file names, converts audio to FLAC or WAV at a common sample rate,
 and sets voice memos (shorter than 60 s), non-audio files and unreadable
 files aside in <code>data/isolated/</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/pam_standardization_app.html">pam_standardization_app</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># point-and-click: Inspect, Convert and Log tabs</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/pam_standardization_app.html">pam_standardization_app</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span>   <span class="co"># point-and-click: Inspect, Convert and Log tabs</span></span>
 <span></span>
 <span><span class="co"># or from code; dry_run = TRUE only plans what would happen</span></span>
 <span><span class="va">plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pam_standardize.html">pam_standardize</a></span><span class="op">(</span><span class="va">cfg</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -533,8 +540,8 @@ handles covariates, several species and several seasons:</p>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">hist</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>              <span class="co"># drop the site_id column</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">hist</span><span class="op">$</span><span class="va">site_id</span></span>
 <span></span>
-<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu">unmarkedFrameOccu</span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span><span class="op">)</span></span>
-<span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu">occu</span><span class="op">(</span><span class="op">~</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">umf</span><span class="op">)</span></span>
+<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/occu.html" class="external-link">occu</a></span><span class="op">(</span><span class="op">~</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">umf</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -616,13 +623,13 @@ contains its first day. Seasonal covariates (for example rainfall) go in
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># unmarked: occupancy</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pam_model_input.html">pam_model_input</a></span><span class="op">(</span><span class="va">hist</span>, binary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu">unmarkedFrameOccu</span><span class="op">(</span>y <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">y</span>, siteCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">siteCovs</span>, obsCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu">occu</span><span class="op">(</span><span class="op">~</span> <span class="va">effort</span> <span class="op">~</span> <span class="va">canopy</span>, data <span class="op">=</span> <span class="va">umf</span><span class="op">)</span></span>
+<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">y</span>, siteCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">siteCovs</span>, obsCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/occu.html" class="external-link">occu</a></span><span class="op">(</span><span class="op">~</span> <span class="va">effort</span> <span class="op">~</span> <span class="va">canopy</span>, data <span class="op">=</span> <span class="va">umf</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># unmarked: N-mixture abundance index</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pam_model_input.html">pam_model_input</a></span><span class="op">(</span><span class="va">hist</span><span class="op">)</span></span>
-<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu">unmarkedFramePCount</span><span class="op">(</span>y <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">y</span>, siteCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">siteCovs</span>, obsCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu">pcount</span><span class="op">(</span><span class="op">~</span> <span class="va">effort</span> <span class="op">~</span> <span class="va">canopy</span>, data <span class="op">=</span> <span class="va">umf</span>, K <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/unmarkedFramePCount.html" class="external-link">unmarkedFramePCount</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">y</span>, siteCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">siteCovs</span>, obsCovs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">unmarked</span><span class="fu">::</span><span class="fu"><a href="https://ecoverseR.github.io/unmarked/reference/pcount.html" class="external-link">pcount</a></span><span class="op">(</span><span class="op">~</span> <span class="va">effort</span> <span class="op">~</span> <span class="va">canopy</span>, data <span class="op">=</span> <span class="va">umf</span>, K <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># spOccupancy: the same pieces under other names</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">y</span>, occ.covs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">siteCovs</span>, det.covs <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">obsCovs</span>, coords <span class="op">=</span> <span class="va">coords</span><span class="op">)</span></span></code></pre></div>

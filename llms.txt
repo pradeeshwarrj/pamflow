@@ -168,6 +168,13 @@ occupancy:
   occasion_length_days: 1
 ```
 
+`project_root` can be a full path, as above, or a path relative to the
+folder that holds the config file: `".."` (the template’s default) means
+the folder above `config/`. Relative paths are never read from your
+working directory, and
+[`pam_config_read()`](https://pradeeshwarrj.github.io/pamflow/reference/pam_config_read.md)
+always needs the path of the config file.
+
 To see every setting, copy the full template and edit it:
 
 ``` r
@@ -187,7 +194,8 @@ modifying original raw files.
 
 ``` r
 library(pamflow)
-pam_standardization_app()
+cfg <- pam_config_read("E:/MyProject/config/config.yml")
+pam_standardization_app(cfg)   # folders are filled in from the config
 ```
 
 The GUI provides three tabs:
